@@ -1,0 +1,2 @@
+1.流程：
+使用mock npm install mockjs -S
