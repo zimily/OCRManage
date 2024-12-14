@@ -21,6 +21,7 @@ router.beforeEach(async (to, from, next) => {
   const hasToken = getToken()
 
   if (hasToken) {
+    console.log('有TOKEN',to.path)
     //  asyncRoutes=store.state.uesr.permissionList
     //  console.log('路由守卫',asyncRoutes)
     if (to.path === '/login') {
@@ -31,25 +32,29 @@ router.beforeEach(async (to, from, next) => {
       const hasGetUserInfo = store.getters.name // 检查是否已获取用户信息
       // console.log(hasGetUserInfo)
       // console.log('路由守卫1', store.state.user)
-      const asyncRoutes = store.state.user.permissionList
+      const asyncRoutes = store.state.user.resultAsyncRoutes
       // console.log('路由守卫', asyncRoutes)  刷新时候的router丢失动态路由
-      if (hasGetUserInfo && asyncRoutes) {
+      // console.log('asyncRoutes 数据类型:', Array.isArray(asyncRoutes) ? 'Array' : typeof asyncRoutes);
+      if (hasGetUserInfo && asyncRoutes.length!=0) {
+           console.log('有用户信息和动态路由',hasGetUserInfo, asyncRoutes)
           next()
       } else {
         try {
+          //刷新时候有问题
           // get user info
           // await store.dispatch('user/getInfo')
            //有token和用户信息  获取获取动态路由
-          // const role= store.state.user.role
-          // console.log('守卫 role',role)
+          const role= store.state.user.role
+          console.log('守卫 role',role)
           // //根据角色发请求
-          // await store.dispatch("user/permission",role)
+          await store.dispatch("user/permission",role)
           // //获取动态路由
           // const asyncRoutes = store.state.user.permissionList
           // console.log('路由守卫2', asyncRoutes)
           // asyncRoutes.forEach((item)=>router.options.routes.push(item))
           // // router.addRoutes(asyncRoutes);
           // console.log('***',router)
+          console.log('无有用户信息和动态路由')
 
           next()
         } catch (error) {

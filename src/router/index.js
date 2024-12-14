@@ -33,7 +33,7 @@ import Layout from '@/layout'
  */
 
 //路由分三种：初始化路由=默认路由，动态路由
-// 初始化路由
+// 常量路由
 export const constantRoutes = [
   {
     path: '/login',
@@ -57,6 +57,10 @@ export const constantRoutes = [
       meta: { title: '首页', icon: 'dashboard' }
     }]
   },
+  // { path: '*', redirect: '/404', hidden: true }
+]
+//异步路由
+export const asyncRoutes = [
   {
     path: '/inspectionBatch',
     component: Layout,
@@ -97,7 +101,7 @@ export const constantRoutes = [
     path: '/project',
     component: Layout,
     redirect: '/dashboard',
-    name: 'Projrct',
+    name: 'Project',
     children: [
       {
         path: 'projectManage',
@@ -137,9 +141,33 @@ export const constantRoutes = [
       },
     ]
   },
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  {
+    path: '/authority',
+    component: Layout,
+    redirect: '/dashboard',
+    name: 'Authority',
+    meta: { title: '权限管理', icon: 'el-icon-lock' },
+    children: [
+      {
+        path: 'users',
+        name: 'Users',
+        component: () => import('@/views/authority/users'),
+        meta: { title: '用户管理'}
+      },
+      {
+        path: 'roles',
+        name: 'Roles',
+        component: () => import('@/views/authority/roles'),
+        meta: { title: '角色管理' }
+      },
+    ]
+  },
 ]
+//任意路由：当路径出现错误的时候重定向404
+export const anyRoutes= { path: '*', redirect: '/404', hidden: true }
+
+
+
 //创建 router 实例，然后传 `routes` 配置
 const createRouter = () => new Router({
   mode: 'history', // require service support
