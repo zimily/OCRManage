@@ -21,6 +21,7 @@
         <el-button type="primary" @click="handleSearch">搜索</el-button>
       </span>
     </div>
+    <!-- 表格 -->
     <div>
       <el-table :data="info" style="width: 100%" border>
         <el-table-column

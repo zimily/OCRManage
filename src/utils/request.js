@@ -8,6 +8,7 @@ const service = axios.create({
   // baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // baseURL: "http://172.31.0.191:8080",
   baseURL: "http://localhost:8080",
+  // baseURL: "/api",
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout
 })
@@ -16,13 +17,13 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     // do something before request is sent
-
+    console.log('拦截器中的token',store.getters.token)
     if (store.getters.token) {
       // let each request carry token
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situa tion
-      config.headers['X-Token'] = getToken()
-      console.log('config',config)
+      config.headers['token'] = getToken()
+      // console.log('config',config)
     }
     return config
   },
@@ -47,7 +48,7 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    console.log(response,res.code)
+    // console.log(response,res.code)
     // if the custom code is not 200, it is judged as an error.
     if (res.code !== 20000 && res.code !== 200) {
       Message({

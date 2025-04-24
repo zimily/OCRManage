@@ -1,6 +1,6 @@
 <template>
   <div class="header">
-    <img src="@/assets/zh_logol.jpg" style="height: 80" />
+    <!-- <img src="@/assets/zh_logol.jpg" style="height: 80" /> -->
     <span class="title">数字化验收系统</span>
 
     <div class="right-menu">

@@ -1,6 +1,6 @@
 <template>
   <div>
-      部门管理
+      角色详情
   </div>
 </template>
 

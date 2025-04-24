@@ -7,6 +7,16 @@ export function login(data) {
     data
   })
 }
+
+//token刷新接口
+export function refreshToken() {
+  return request({
+    url: '/token/getToken',
+    method: 'get',
+  })
+}
+
+
 // export function getPermissionList(role) {
 //   return request({
 //     url: '/vue-admin-template/user/permission',
@@ -15,17 +25,17 @@ export function login(data) {
 //   })
 // }
 
-// export function getInfo(token) {
-//   return request({
-//     url: '/vue-admin-template/user/info',
-//     method: 'get',
-//     params: { token }
-//   })
-// }
-
-export function logout() {
+export function getInfo(token) {
   return request({
-    url: '/vue-admin-template/user/logout',
-    method: 'post'
+    url: '/permission/getRolePermissionByToken',
+    method: 'get',
+    params: { token }
   })
 }
+
+// export function logout() {
+//   return request({
+//     url: '/vue-admin-template/user/logout',
+//     method: 'post'
+//   })
+// }

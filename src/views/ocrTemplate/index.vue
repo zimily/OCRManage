@@ -1,11 +1,12 @@
 <template>
   <div>
-      人员管理
+    OCR模版管理1111
   </div>
 </template>
 
 <script>
 export default {
+   name: "Template",
 
 }
 </script>
