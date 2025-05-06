@@ -6,8 +6,8 @@ import { getToken } from '@/utils/auth'
 // create an axios instance  创建axios实例、 
 const service = axios.create({
   // baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
-  // baseURL: "http://172.31.0.191:8080",
-  baseURL: "http://localhost:8080",
+  baseURL: "http://172.31.0.191:8080",
+  // baseURL: "http://localhost:8080",
   // baseURL: "/api",
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout
@@ -17,7 +17,7 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     // do something before request is sent
-    console.log('拦截器中的token',store.getters.token)
+    // console.log('拦截器中的token',store.getters.token)
     if (store.getters.token) {
       // let each request carry token
       // ['X-Token'] is a custom headers key

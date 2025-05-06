@@ -11,7 +11,7 @@
       >
       <!--新建用户 对话框 -->
       <el-dialog
-        :title=dialog_title
+        :title="dialog_title"
         :visible.sync="dialogFormVisible"
         :show-close="false"
       >
@@ -176,14 +176,16 @@
                   </el-form-item>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
-                  <el-button
-                    type="primary"
-                    @click="confirmCheckUser"
+                  <el-button type="primary" @click="confirmCheckUser"
                     >确 定</el-button
                   >
                 </div>
               </el-dialog>
-              <el-button type="warning" icon="el-icon-edit" size="mini"   @click="updateUser(row, $index)"
+              <el-button
+                type="warning"
+                icon="el-icon-edit"
+                size="mini"
+                @click="updateUser(row, $index)"
                 >编辑</el-button
               >
               <el-popconfirm
@@ -210,7 +212,7 @@
       <el-pagination
         style="margin-top: 20px; text-align: center"
         @size-change="handleSizeChange"
-        @current-change="getAllUser"
+        @current-change="handleCurrentChange"
         :current-page="curPage"
         :page-sizes="[10, 15, 20]"
         :page-size="limit"
@@ -223,7 +225,14 @@
 </template>
 
 <script>
-import { getAllUser, getUserById, addUser, updateById,deleteUserById } from "@/api/authority";
+import {
+  getAllUser,
+  getUserById,
+  searchUser,
+  addUser,
+  updateById,
+  deleteUserById,
+} from "@/api/authority";
 export default {
   data() {
     return {
@@ -246,8 +255,8 @@ export default {
         age: "",
         isDelete: true,
       },
-      flag:1,// 0 无状态；  1 新建用户； 2 查看用户信息； 3 编辑用户信息
-      dialog_title:"标题",
+      flag: 1, // 0 无状态；  1 新建用户； 2 查看用户信息； 3 编辑用户信息
+      dialog_title: "标题",
       formLabelWidth: "120px",
       dialogCheckFormVisible: false,
     };
@@ -257,14 +266,19 @@ export default {
   },
   methods: {
     async getAllUser() {
-      const pageNum = 1;
-      const pageSize = 15;
-      let res = await getAllUser(this.curPage, this.limit);
-      if (res.code == 200) {
-        this.userInfo = res.result.records;
-        this.total = res.result.total;
+      try {
+        let res = await getAllUser(this.curPage, this.limit);
+        if (res.code == 200) {
+          console.log("请求用户", res);
+          this.userInfo = res.result.records;
+          this.total = res.result.total;
+        }else{
+          throw new Error(res.message || "获取所有用户列表失败");
+        }
+      } catch (error) {
+        console.log(error)
+        this.$message.error("出错啦，请稍后重试！");
       }
-      console.log("请求用户", res);
     },
     resetForm() {
       // 将 form 对象重置为初始状态
@@ -281,56 +295,137 @@ export default {
         age: "",
         isDelete: true,
       };
-      this.dialog_title="";
+      this.dialog_title = "";
     },
     addUsers() {
-      this.dialog_title="新建用户"
+      this.dialog_title = "新建用户";
       this.dialogFormVisible = true;
+    },
+    removeEmptyProperties(obj) {
+      for (const key in obj) {
+        if (obj[key] === null || obj[key] === undefined || obj[key] === "") {
+          delete obj[key];
+        }
+      }
+      return obj;
     },
     async confirmAddUser() {
       this.dialogFormVisible = false;
-      console.log("点击的确认按钮",this.dialog_title)
-      if(this.dialog_title=="新建用户"){
-        console.log("新用户的信息", this.form);
-        let res = await addUser(this.form);
-      }else if(this.dialog_title=="编辑用户信息"){
-          let res = await updateById(this.form);
-        console.log("编辑用户的信息", this.form);
-
+      //要剔除表单中空的字段
+      const info = this.removeEmptyProperties(this.form);
+      if (this.dialog_title == "新建用户") {
+        try {
+          let res = await addUser(info);
+          if (res.code == "200") {
+            this.getAllUser();
+            this.$message({
+              message: "新建用户成功！",
+              type: "success",
+            });
+            this.resetForm();
+          } else {
+            this.$message.error("操作失败！");
+            throw new Error(res.message);
+          }
+        } catch (error) {
+          console.error("操作失败", error);
+        }
+      } else if (this.dialog_title == "编辑用户信息") {
+        try {
+          let res = await updateById(info);
+          if (res.code == "200") {
+            this.getAllUser();
+            this.$message({
+              message: "编辑用户成功！",
+              type: "success",
+            });
+            this.resetForm();
+          } else {
+            this.$message.error("操作失败！");
+            throw new Error(res.message);
+          }
+        } catch (error) {
+          console.error("操作失败", error);
+        }
       }
     },
     cancelAddUser() {
       this.dialogFormVisible = false;
       this.resetForm();
     },
-    handleSearch() {},
+    async handleSearch() {
+      try {
+        let res=await searchUser(this.searchQuery)
+        if(res.code==200){
+          console.log("搜索结果",res)
+          this.userInfo=res.result
+        }else{
+           throw new Error(res.message || "用户搜索失败");
+        }
+      } catch (error) {
+        console.log(error)
+        this.$message.error("出错啦，请稍后重试！");
+      }
+    },
     handleSizeChange(size) {
+      // console.log("页面的数据条数",size)
       this.limit = size;
       this.getAllUser();
     },
-    async deleteUser(row, index) {
-      console.log(row, index);
-      const id = row.userId;
-       let res = await deleteUserById(id);
+    handleCurrentChange(index){
+      // console.log("直接跳转到",index)
+      this.curPage=index
+      this.getAllUser();
 
     },
-   checkUser(row, index) {
+    async deleteUser(row, index) {
+      // console.log(row, index);
+      const id = row.userId;
+      try {
+        let res = await deleteUserById(id);
+        if (res.code == "200") {
+          this.$message({
+            message: "删除操作成功！",
+            type: "success",
+          });
+          this.getAllUser();
+        } else {
+          this.$message.error("删除操作失败！");
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
+      }
+    },
+    async checkUser(row, index) {
       this.dialogCheckFormVisible = true;
       const id = row.userId;
-      console.log("查看用户信息", row, id);
-      this.form=row
+      this.form = row;
+      try {
+       let res=await  getUserById(id)
+       if(res.code==200){
+         console.log('id-uesr',res)
+
+       }else{
+          throw new Error(res.message || "失败");
+       }
+      } catch (error) {
+         console.log(error)
+        this.$message.error("出错啦，请稍后重试！");
+      }
+  
     },
-    confirmCheckUser(){
+    confirmCheckUser() {
       this.dialogCheckFormVisible = false;
       this.resetForm();
     },
-    updateUser(row,index){
-      this.dialog_title="编辑用户信息"
+    updateUser(row, index) {
+      this.dialog_title = "编辑用户信息";
       this.dialogFormVisible = true;
       const id = row.userId;
-      console.log("查看用户信息", row, id);
-      this.form=row
-    }
+      // console.log("查看用户信息", row, id);
+      this.form = row;
+    },
   },
 };
 </script>

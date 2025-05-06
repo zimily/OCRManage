@@ -8,7 +8,7 @@
           icon="el-icon-plus"
           style="margin: 10px 10px"
           @click="addBatch"
-          >新建检验批</el-button
+          >新建规范</el-button
         >
       </span>
       <span class="search-container" style="float: right">
@@ -23,39 +23,41 @@
     </div>
     <div>
       <!-- 表格 -->
-      <el-table :data="tableData" style="width: 100%" border 
-        :header-cell-class-name="headerCellClassName">
-        <el-table-column
-          prop="name"
-          label="检验批名称"
-          align="center"
-        >
+      <el-table
+        :data="specInfo"
+        style="width: 100%"
+        border
+        :header-cell-class-name="headerCellClassName"
+      >
+        <el-table-column prop="fenxiangName" label="分项" align="center">
         </el-table-column>
-        <el-table-column
-          prop="templateNum"
-          label="模板数量"
-          align="center"
-        >
+        <el-table-column prop="inspectTypeVarchar" label="类别" align="center">
         </el-table-column>
-        <el-table-column
-          prop="indicatos"
-          label="指标数量"
-          align="center"
-        >
+        <el-table-column prop="inspectName" label="验收依据" align="center">
         </el-table-column>
         <el-table-column prop="prop" label="操作" align="center">
-          <el-button type="warning" icon="el-icon-edit" size="mini"
-            @click="updateBatch()">修改</el-button
-          >
-          <el-button type="danger" icon="el-icon-delete" size="mini"
-            @click="deleteBatch()">删除</el-button
-          >
+          <template slot-scope="{ row, $index }">
+            <el-button
+              type="warning"
+              icon="el-icon-edit"
+              size="mini"
+              @click="updateBatch(row, $index)"
+              >编辑</el-button
+            >
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              size="mini"
+              @click="deleteBatch()"
+              >删除</el-button
+            >
+          </template>
         </el-table-column>
       </el-table>
     </div>
     <!-- 分页器 -->
     <el-pagination
-      style="margin-top:20px; text-align:center"
+      style="margin-top: 20px; text-align: center"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="currentPage"
@@ -69,48 +71,54 @@
 </template>
 
 <script>
+import { getAllSpecifications,getSpecificationsById } from "@/api/specifications";
 export default {
   data() {
     return {
       searchQuery: "", // 用于存储输入框的内容
-      tableData: [
-        {
-          //表格数据
-          name: "钢筋原料检验批",
-          templateNum: 2,
-          indicatos: 4,
-        },
-        {
-          name: "钢筋加工检验批",
-          templateNum: 3,
-          indicatos: 5,
-        },
-        {
-          name: "钢筋链接检验批",
-          templateNum: 1,
-          indicatos: 2,
-        },
-      ],
-      currentPage: 2, //分页器数据
-      limit: 20, //每页显示的数据
-      total: 100,
-      
+      specInfo: [],
+      currentPage: 0, //分页器数据
+      limit: 0, //每页显示的数据
+      total: 0, //全部数据条数
     };
   },
+  created() {
+    this.getSpecifications();
+  },
   methods: {
+    async getSpecifications() {
+      try {
+        let res = await getAllSpecifications(1, 15);
+        if (res.code == 200) {
+          console.log("获取所有验收规范", res);
+          this.specInfo = res.result.records;
+          this.total = res.result.total;
+          this.limit = res.result.size;
+          this.currentPage = res.result.current;
+        } else {
+          this.$message.error("获取所有检验批失败！");
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
     //新建检验批
     addBatch() {
       console.log("触发新建检验批事件");
-      const isShow=false
-      const data={isShow}
-      this.$emit('transmit',data)
+      const isShow = false;
+      const data = { isShow };
+      this.$emit("transmit", data);
     },
     //修改检验批
-    updateBatch() {
-      const isShow=false
-      const data={isShow}
-      this.$emit('transmit',data)
-      console.log("修改检验批事件");
+    async updateBatch(row,index) {
+      const isShow = false;
+      const id=row.inspectId
+      const data = { isShow,id };
+      // console.log("修改检验批事件",row,index);
+      this.$emit("transmit", data);
+     
+      
     },
     //删除检验批
     deleteBatch() {
@@ -122,13 +130,16 @@ export default {
     },
     //分页器
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.limit = val;
+      // console.log(`每页 ${val} 条`);
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      //前往第X页
+      this.currentPage = val;
+      // console.log(`当前页: ${val}`);
     },
     headerCellClassName({ column }) {
-      return 'header-cell-highlight'; // 返回自定义的类名
+      return "header-cell-highlight"; // 返回自定义的类名
     },
   },
 };
@@ -136,7 +147,12 @@ export default {
 
 <style>
 .header-cell-highlight {
-  background-color: rgba(197, 194, 190, 0.801) !important; /* 设置你想要的背景颜色 */
+  background-color: rgba(
+    197,
+    194,
+    190,
+    0.801
+  ) !important; /* 设置你想要的背景颜色 */
   color: rgb(61, 60, 60) !important; /* 设置文字颜色 */
   font-weight: bold; /* 设置文字为粗体 */
   font-size: 16px; /* 设置文字大小 */

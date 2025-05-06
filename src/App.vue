@@ -33,7 +33,7 @@ export default {
       this.refreshTimer = setInterval(() => {
         this.checkAndRefreshToken();
       }, 7*60*1000); // 7分钟
-      console.log("refreshTimer", this.refreshTimer);
+      // console.log("refreshTimer", this.refreshTimer);
     },
     // 停止定时刷新
     stopTokenRefresh() {

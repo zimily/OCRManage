@@ -57,6 +57,8 @@
     <!-- 表格 -->
     <div>
       <el-table :data="role_list">
+        <el-table-column type="index" width="100" align="center">
+        </el-table-column>
         <el-table-column
           label="角色名称"
           prop="roleName"
@@ -169,7 +171,7 @@
     <el-pagination
       style="margin-top: 20px; text-align: center"
       @size-change="handleSizeChange"
-      @current-change="getAllRoles"
+      @current-change="handleCurrentChange"
       :current-page="curPage"
       :page-sizes="[10, 15, 20]"
       :page-size="limit"
@@ -189,6 +191,7 @@ import {
   deleteRoleById,
   getRoleById,
   updateRole,
+  searchRole,
 } from "@/api/authority";
 export default {
   data() {
@@ -231,10 +234,13 @@ export default {
     async getAllRoles() {
       try {
         if (this.curPage < 1) this.curPage = 1;
+        // console.log(this.curPage, this.limit);
         let res = await getAllRoles(this.curPage, this.limit);
         if (res.code == 200 && res.result) {
+          // console.log(res)
           this.role_list = res.result.records || [];
           this.total = res.result.total || 0;
+          // console.log('role_list',this.role_list)
         } else {
           throw new Error(res.message || "获取角色列表失败");
         }
@@ -262,7 +268,7 @@ export default {
         let res = await reqPermissionList();
         if (res.code == 200) {
           this.allPermissionList = res.result;
-          console.log("所有权限", this.allPermissionList);
+          // console.log("所有权限", this.allPermissionList);
         } else {
           throw new Error(res.message || "获取所有权限列表失败");
         }
@@ -323,8 +329,22 @@ export default {
       this.resetForm();
     },
     //搜索事件
-    handleSearch() {
+    async handleSearch() {
       console.log("搜索内容:", this.searchQuery);
+      try {
+        let res = await searchRole(this.searchQuery);
+        if (res.code == 200) {
+          this.role_list = res.result.records || [];
+          this.total = res.result.total || 0;
+          this.limit = res.result.size || 0;
+          console.log("搜索", res);
+        } else {
+          throw new Error(res.message || "角色搜索失败");
+        }
+      } catch (error) {
+        console.log(error);
+        this.$message.error("出错啦，请稍后重试！");
+      }
     },
     //查看权限
     async checkRole(row, index) {
@@ -455,8 +475,11 @@ export default {
       console.log("事件对象:", event);
     },
     handleSizeChange(size) {
-      console.log(size);
       this.limit = size;
+      this.getAllRoles();
+    },
+    handleCurrentChange(index) {
+      this.curPage = index;
       this.getAllRoles();
     },
   },

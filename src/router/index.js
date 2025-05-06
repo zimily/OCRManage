@@ -40,7 +40,7 @@ export const constantRoutes = [
     component: () => import('@/views/login/index'),
     hidden: true,  //hidden: true 隐藏在侧边栏的。这意味着它不会出现在导航菜单中，但仍然可以直接访问。
   },
- {
+  {
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true
@@ -53,117 +53,71 @@ export const constantRoutes = [
       path: 'dashboard',
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
-      // component: () => import('@/views/role1'),
-      meta: { title: '首页', icon: 'dashboard' }
+      meta: { title: '工作台', icon: 'dashboard' }
     }]
   },
   {
-    path: '/inspectionBatch',
+    path: '/menus',
     component: Layout,
     redirect: '/dashboard',
-    name: 'inspect_lot_management',
-    // meta: { title: '检验批管理', icon: 'el-icon-s-help' },  
+    name: 'Menus',
+    hidden: true,
     children: [
       {
         path: 'inspection',
         name: 'Inspection',
         component: () => import('@/views/inspectionBatch'),
-        meta: { title: '检验批管理',  icon:'batch'}
+        meta: { title: '验收规范管理', icon: 'batch' }
       },
-    ]
-  },
-  {
-    path: '/dataCollection',
-    component: Layout,
-    redirect: '/dashboard',
-    name: 'data_collection',
-    // meta: { title: '数据收集管理', icon: 'el-icon-s-help' },
-    children: [
       {
-        path: 'task1',
+        path: 'task',
         name: 'Task',
         component: () => import('@/views/dataCollection/task'),
         meta: { title: '数据采集任务', icon: 'task' }
       },
-    ]
-  },
-  {
-    path: '/taskAssignment',
-    component: Layout,
-    redirect: '/dashboard',
-    name: 'task_assignment',
-    children: [
       {
         path: 'assignment',
         name: 'Assignment',
         component: () => import('@/views/dataCollection/taskAssignment'),
         meta: { title: '采集任务分发', icon: 'assign' }
       },
-    ]
-  },
-  {
-    path: '/project',
-    component: Layout,
-    redirect: '/dashboard',
-    name: 'project_management',
-    children: [
       {
         path: 'projectManage',
         name: 'ProjectManage',
         component: () => import('@/views/project'),
         meta: { title: '项目管理', icon: 'program' }
       },
-    ]
-  },
-  {
-    path: '/ocrTemplate',
-    component: Layout,
-    redirect: '/dashboard',
-    name: 'data_report',
-    // meta: { title: '数据报表', icon: 'el-icon-s-help' },
-    children: [
       {
         path: 'ocrTemplate',
         name: 'OcrTemplate',
         component: () => import('@/views/ocrTemplate'),
         meta: { title: 'OCR模版管理', icon: 'statement' }
       },
-    ]
-  },
-  {
-    path: '/projectApprove',
-    component: Layout,
-    redirect: '/dashboard',
-    name: 'ProjectApprove',
-    children: [
       {
-        path: 'approve',
-        name: 'Approve',
-        component: () => import('@/views/projectApprove'),
-        meta: { title: '项目审批', icon: 'approve' }
+        path: 'ledger',
+        name: 'Ledger',
+        component: () => import('@/views/ledgerManage'),
+        meta: { title: '台账管理', icon: 'approve' }
       },
-    ]
-  },
-  {
-    path: '/authority',
-    component: Layout,
-    redirect: '/dashboard',
-    name: 'Authority',
-    meta: { title: '权限管理', icon: 'el-icon-lock' },
-    children: [
+      {
+        path: 'statement',
+        name: 'StateMent',
+        component: () => import('@/views/statementManage'),
+        meta: { title: '数据报表管理', icon: 'statement' }
+      },
       {
         path: 'users',
         name: 'Users',
         component: () => import('@/views/authority/users'),
-        meta: { title: '用户管理'}
+        meta: { title: '用户管理', icon: 'el-icon-lock' }
       },
       {
         path: 'roles',
         name: 'Roles',
         component: () => import('@/views/authority/roles'),
-        meta: { title: '角色管理' }
+        meta: { title: '角色管理', icon: 'el-icon-lock' }
       },
-    ]
+    ],
   },
   // { path: '*', redirect: '/404', hidden: true }
 ]
@@ -180,7 +134,7 @@ export const asyncRoutes = [
         path: 'inspection',
         name: 'Inspection',
         component: () => import('@/views/inspectionBatch'),
-        meta: { title: '检验批管理',  icon:'batch'}
+        meta: { title: '检验批管理', icon: 'batch' }
       },
     ]
   },
@@ -237,7 +191,7 @@ export const asyncRoutes = [
       {
         path: 'statement',
         name: 'StateMent',
-        component: () => import('@/views/statement'),
+        component: () => import('@/views/statementManage'),
         meta: { title: '数据报表管理', icon: 'statement' }
       },
     ]
@@ -267,7 +221,7 @@ export const asyncRoutes = [
         path: 'users',
         name: 'Users',
         component: () => import('@/views/authority/users'),
-        meta: { title: '用户管理'}
+        meta: { title: '用户管理' }
       },
       {
         path: 'roles',
@@ -279,7 +233,7 @@ export const asyncRoutes = [
   },
 ]
 //任意路由：当路径出现错误的时候重定向404
-export const anyRoutes= { path: '*', redirect: '/404', hidden: true }
+export const anyRoutes = { path: '*', redirect: '/404', hidden: true }
 
 
 

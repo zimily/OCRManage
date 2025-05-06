@@ -1,9 +1,9 @@
 <template>
   <div>
-    <!-- 引入检验批管理组件 -->
+    <!-- 引入检验批 验收规范组件 -->
     <BatchsManage v-if="isShow"  :visible.sync='isShow' @transmit="getMessage"/>
     <!-- 控制子组件是否显示 -->
-    <BatchDetail v-if="!isShow" @transmit="getMessage"/>
+    <BatchDetail v-if="!isShow" @transmit="getMessage" :curInspecId="curInspecId"/>
   </div>
 </template>
 
@@ -14,6 +14,7 @@ export default {
  data() {
     return {
       isShow:true,
+      curInspecId:0,
     }
  },
   components: { BatchsManage,BatchDetail,},
@@ -21,6 +22,8 @@ export default {
     //检验批管理子组件传递数据
     getMessage(data){
       this.isShow=data.isShow
+      this.curInspecId=data.id
+      
     }
   }
 };
