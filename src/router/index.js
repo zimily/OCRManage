@@ -84,8 +84,29 @@ export const constantRoutes = [
       {
         path: 'projectManage',
         name: 'ProjectManage',
+        redirect: '/menus/projectManage/projectManage',
         component: () => import('@/views/project'),
-        meta: { title: '项目管理', icon: 'program' }
+        meta: { title: '项目管理', icon: 'assign' },
+        children: [
+          // {
+          //   path: 'personAllocation',
+          //   name: 'PersonAllocation',
+          //   component: () => import('@/views/project/components/personAllocation.vue'),
+          //   meta: { title: '人员分配', icon: 'assign' }
+          // },
+          {
+            path: 'projectManage',
+            name: 'projectManage',
+            component: () => import('@/views/project/components/projectManage.vue'),
+            meta: { title: '项目管理', icon: 'assign', breadcrumb: false }
+          },
+          {
+            path: 'projectEdit',
+            name: 'projectEdit',
+            component: () => import('@/views/project/components/projectEdit.vue'),
+            meta: { title: '项目编辑', icon: 'assign' }
+          }
+        ]
       },
       {
         path: 'ocrTemplate',
@@ -98,14 +119,14 @@ export const constantRoutes = [
             path: 'ocrManage',
             name: 'ocrManage',
             component: () => import('@/views/ocrTemplate/components/ocrManage.vue'),
-            meta: { title: 'OCR模版管理', icon: 'statement',breadcrumb: false  }
+            meta: { title: 'OCR模版管理', icon: 'statement' }
           },
           {
             path: 'ocrDetail',
             name: 'OcrDetail',
             component: () => import('@/views/ocrTemplate/components/ocrDetail.vue'),
             meta: { title: 'OCR模版详情', icon: 'statement' }
-          },
+          }
         ]
       },
       {

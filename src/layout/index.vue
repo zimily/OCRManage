@@ -12,9 +12,7 @@
         <navbar />
         <!--上边导航栏-->
       </div>
-       <div class="app-main-wrapper">
-        <app-main />
-      </div>
+      <app-main />
     </div>
   </div>
 </template>
@@ -68,7 +66,6 @@ export default {
   position: relative;
   height: 100%;
   width: 100%;
-  overflow: hidden; /* 禁止全局滚动 */
   &.mobile.openSidebar {
     position: fixed;
     top: 0;
@@ -97,21 +94,6 @@ export default {
 
 .hideSidebar .fixed-header {
   width: calc(100% - 54px);
-}
-
-.main-container {
-  position: relative;
-  margin-left: $sideBarWidth; /* 与侧边栏宽度一致 */
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  transition: margin-left 0.28s;
-  &.hideSidebar {
-    margin-left: 54px; /* 侧边栏折叠时的宽度 */
-  }
-}
-.app-main-wrapper {
-  overflow-y: auto; /* 允许滚动 */
 }
 
 .mobile .fixed-header {
