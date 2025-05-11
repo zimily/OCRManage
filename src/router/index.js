@@ -18,12 +18,12 @@ import Layout from '@/layout'
  * redirect: noRedirect           if set noRedirect will no redirect in the breadcrumb
  * name:'router-name'             the name is used by <keep-alive> (must set!!!)
  * meta : {
-    roles: ['admin','editor']    control the page roles (you can set multiple roles)
-    title: 'title'               the name show in sidebar and breadcrumb (recommend set)  显示
-    icon: 'svg-name'/'el-icon-x' the icon show in the sidebar
-    breadcrumb: false            if set false, the item will hidden in breadcrumb(default is true)
-    activeMenu: '/example/list'  if set path, the sidebar will highlight the path you set
-  }
+ roles: ['admin','editor']    control the page roles (you can set multiple roles)
+ title: 'title'               the name show in sidebar and breadcrumb (recommend set)  显示
+ icon: 'svg-name'/'el-icon-x' the icon show in the sidebar
+ breadcrumb: false            if set false, the item will hidden in breadcrumb(default is true)
+ activeMenu: '/example/list'  if set path, the sidebar will highlight the path you set
+ }
  */
 
 /**
@@ -32,13 +32,13 @@ import Layout from '@/layout'
  * all roles can be accessed
  */
 
-//路由分三种：初始化路由=默认路由，动态路由
+// 路由分三种：初始化路由=默认路由，动态路由
 // 常量路由
 export const constantRoutes = [
   {
     path: '/login',
     component: () => import('@/views/login/index'),
-    hidden: true,  //hidden: true 隐藏在侧边栏的。这意味着它不会出现在导航菜单中，但仍然可以直接访问。
+    hidden: true // hidden: true 隐藏在侧边栏的。这意味着它不会出现在导航菜单中，但仍然可以直接访问。
   },
   {
     path: '/404',
@@ -48,7 +48,7 @@ export const constantRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',//重定向
+    redirect: '/dashboard', // 重定向
     children: [{
       path: 'dashboard',
       name: 'Dashboard',
@@ -90,8 +90,23 @@ export const constantRoutes = [
       {
         path: 'ocrTemplate',
         name: 'OcrTemplate',
+        redirect: '/menus/ocrTemplate/ocrManage',
         component: () => import('@/views/ocrTemplate'),
-        meta: { title: 'OCR模版管理', icon: 'statement' }
+        meta: { title: 'OCR模版管理', icon: 'statement' },
+        children: [
+          {
+            path: 'ocrManage',
+            name: 'ocrManage',
+            component: () => import('@/views/ocrTemplate/components/ocrManage.vue'),
+            meta: { title: 'OCR模版管理', icon: 'statement',breadcrumb: false  }
+          },
+          {
+            path: 'ocrDetail',
+            name: 'OcrDetail',
+            component: () => import('@/views/ocrTemplate/components/ocrDetail.vue'),
+            meta: { title: 'OCR模版详情', icon: 'statement' }
+          },
+        ]
       },
       {
         path: 'ledger',
@@ -116,26 +131,26 @@ export const constantRoutes = [
         name: 'Roles',
         component: () => import('@/views/authority/roles'),
         meta: { title: '角色管理', icon: 'el-icon-lock' }
-      },
-    ],
-  },
+      }
+    ]
+  }
   // { path: '*', redirect: '/404', hidden: true }
 ]
-//异步路由
+// 异步路由
 export const asyncRoutes = [
   {
     path: '/inspectionBatch',
     component: Layout,
     redirect: '/dashboard',
     name: 'inspect_lot_management',
-    // meta: { title: '检验批管理', icon: 'el-icon-s-help' },  
+    // meta: { title: '检验批管理', icon: 'el-icon-s-help' },
     children: [
       {
         path: 'inspection',
         name: 'Inspection',
         component: () => import('@/views/inspectionBatch'),
         meta: { title: '检验批管理', icon: 'batch' }
-      },
+      }
     ]
   },
   {
@@ -150,7 +165,7 @@ export const asyncRoutes = [
         name: 'Task',
         component: () => import('@/views/dataCollection/task'),
         meta: { title: '数据采集任务', icon: 'task' }
-      },
+      }
     ]
   },
   {
@@ -164,7 +179,7 @@ export const asyncRoutes = [
         name: 'Assignment',
         component: () => import('@/views/dataCollection/taskAssignment'),
         meta: { title: '采集任务分发', icon: 'assign' }
-      },
+      }
     ]
   },
   {
@@ -178,7 +193,7 @@ export const asyncRoutes = [
         name: 'ProjectManage',
         component: () => import('@/views/project'),
         meta: { title: '项目管理', icon: 'program' }
-      },
+      }
     ]
   },
   {
@@ -193,7 +208,7 @@ export const asyncRoutes = [
         name: 'StateMent',
         component: () => import('@/views/statementManage'),
         meta: { title: '数据报表管理', icon: 'statement' }
-      },
+      }
     ]
   },
   {
@@ -207,7 +222,7 @@ export const asyncRoutes = [
         name: 'Approve',
         component: () => import('@/views/projectApprove'),
         meta: { title: '项目审批', icon: 'approve' }
-      },
+      }
     ]
   },
   {
@@ -228,16 +243,14 @@ export const asyncRoutes = [
         name: 'Roles',
         component: () => import('@/views/authority/roles'),
         meta: { title: '角色管理' }
-      },
+      }
     ]
-  },
+  }
 ]
-//任意路由：当路径出现错误的时候重定向404
+// 任意路由：当路径出现错误的时候重定向404
 export const anyRoutes = { path: '*', redirect: '/404', hidden: true }
 
-
-
-//创建 router 实例，然后传 `routes` 配置
+// 创建 router 实例，然后传 `routes` 配置
 const createRouter = () => new Router({
   mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
@@ -254,7 +267,7 @@ export function resetRouter() {
   // console.log('动态路由',asyncRoutes)
 
   router.matcher = newRouter.matcher // reset router
-  //遍历删除
+  // 遍历删除
   // asyncRoutes.forEach((item)=>router.options.routes.push(item))
   // router.removeRoute(asyncRoutes)
 }

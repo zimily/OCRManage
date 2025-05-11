@@ -1,6 +1,6 @@
 <template>
   <div class="app-list">
-    <el-row :gutter="15">
+    <el-row :gutter="0">
       <el-col
         v-for="app in apps"
         :key="app.id"
@@ -70,10 +70,10 @@ export default {
   flex-shrink: 0;
 }
 
-
 .app-name {
   font-size: 12px;
   text-align: center;
-  word-break: break-all;
+  white-space: nowrap; /* 禁止换行 */
+  display: block;
 }
 </style>
