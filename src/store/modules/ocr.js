@@ -187,12 +187,12 @@ const actions = {
         detailData: JSON.parse(JSON.stringify(state.detailData))
       })
     }
-    const arr = JSON.parse(JSON.stringify(state.tableData))
-    for (let i = 0; i < 20; i++) {
-      for (let j = 0; j < arr.length; j++) {
-        state.tableData.push(arr[j])
-      }
-    }
+    // const arr = JSON.parse(JSON.stringify(state.tableData))
+    // for (let i = 0; i < 20; i++) {
+    //   for (let j = 0; j < arr.length; j++) {
+    //     state.tableData.push(arr[j])
+    //   }
+    // }
   }
 }
 
