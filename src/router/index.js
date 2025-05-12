@@ -84,8 +84,29 @@ export const constantRoutes = [
       {
         path: 'projectManage',
         name: 'ProjectManage',
+        redirect: '/menus/projectManage/projectManage',
         component: () => import('@/views/project'),
-        meta: { title: '项目管理', icon: 'program' }
+        meta: { title: '项目管理', icon: 'assign' },
+        children: [
+          // {
+          //   path: 'personAllocation',
+          //   name: 'PersonAllocation',
+          //   component: () => import('@/views/project/components/personAllocation.vue'),
+          //   meta: { title: '人员分配', icon: 'assign' }
+          // },
+          {
+            path: 'projectManage',
+            name: 'projectManage',
+            component: () => import('@/views/project/components/projectManage.vue'),
+            meta: { title: '项目管理', icon: 'assign', breadcrumb: false }
+          },
+          {
+            path: 'projectEdit',
+            name: 'projectEdit',
+            component: () => import('@/views/project/components/projectEdit.vue'),
+            meta: { title: '项目编辑', icon: 'assign' }
+          }
+        ]
       },
       {
         path: 'ocrTemplate',

@@ -12,7 +12,7 @@
         <navbar />
         <!--上边导航栏-->
       </div>
-       <div class="app-main-wrapper">
+      <div class="app-main-wrapper">
         <app-main />
       </div>
     </div>

@@ -70,9 +70,11 @@ export default {
   flex-shrink: 0;
 }
 
+
 .app-name {
   font-size: 12px;
   text-align: center;
+  word-break: break-all;
   white-space: nowrap; /* 禁止换行 */
   display: block;
 }
