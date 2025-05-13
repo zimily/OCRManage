@@ -1,73 +1,172 @@
 <template>
-  <div>
-    <div style="float: left;width: 30%">
-      <div style="padding: 10px">
-        <el-button type="primary" @click="addProject">新建</el-button>
-        <el-button type="danger" @click="delProject">删除</el-button>
-        <el-button type="warning" @click="importProject">导入</el-button>
-      </div>
-      <div>
-        <el-tree
-          ref="tree"
-          :data="treeData"
-          show-checkbox
-          node-key="id"
-          :default-checked-keys="[1]"
-          default-expand-all
-          :props="defaultProps"
-          check-strictly
-          @check="currentChecked"
-        />
-      </div>
-    </div>
-    <div style="float: left;width: 70%">
-      <UnitNameItem />
-    </div>
-
+  <div class="container">
+    <el-row :gutter="10" class="full-height-row">
+      <el-col :span="6" class="full-height-col">
+        <el-card shadow="hover" class="full-height-card">
+          <div>
+            <el-button type="primary" @click="addProject" :disabled="isAbled"
+              >新建</el-button
+            >
+            <el-button type="danger" @click="delProject">删除</el-button>
+            <el-button type="warning" @click="importProject">导入</el-button>
+          </div>
+          <div>
+            <el-tree
+              ref="tree"
+              :data="treeData"
+              :props="defaultProps"
+              node-key="id"
+              showCheckbox
+              default-expand-all
+            >
+            </el-tree>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="18" class="full-height-col">
+        <el-card shadow="hover" class="full-height-card">
+          <project-info
+            v-if="isShow == 1"
+            :visible.sync="isShow"
+            @transmit="getMessage"
+          ></project-info>
+          <unit-name-item
+            v-if="isShow == 2"
+            @transmit="handleUnitNameItem"
+          ></unit-name-item>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 <script>
-import { mapMutations, mapState } from 'vuex'
-import UnitNameItem from '@/views/project/components/unitNameItem.vue'
+import UnitNameItem from "@/views/project/components/unitNameItem.vue";
+import ProjectInfo from "@/views/project/components/projectInfo";
 export default {
   components: {
-    UnitNameItem
+    UnitNameItem,
+    ProjectInfo,
   },
   data() {
     return {
+      isShow: 1,
+      isAbled: true,
+      treeData: [
+        {
+          id: 0,
+          label: "郑州中原保利心语项目",
+          disabled: true, // 不可勾选 根节点不能删除
+          children: [],
+        },
+      ],
       defaultProps: {
-        children: 'childList',
-        label: 'label'
-      }
-    }
+        children: "children",
+        label: "label",
+      },
+      idCounter: 1,
+      lastAddedNode: null, // 记录最新添加的节点
+    };
   },
-  computed: {
-    ...mapState('projectEdit', ['treeData'])
-  },
-  created() {
-    this.initData()
-  },
+
+  created() {},
   methods: {
+    //父子组件传参
+    getMessage(data) {
+      this.isShow = data.isShow;
+      this.isAbled = data.isAbled;
+    },
     addProject() {
-      const newNode = { id: Date.now(), label: '新节点' }
-      // this.$refs.tree.getCheckedKeys().append(newNode, this.treeData[0])
-      console.log(this.$refs.tree)
+      const newChild = {
+        id: this.idCounter++,
+        label: `子节点 ${this.idCounter}`,
+      };
+      const rootNode = this.treeData[0];
+      this.$refs.tree.append(newChild, rootNode);
+      //新建按钮禁用，
+      this.isAbled = true;
+      this.lastAddedNode = newChild; // 保存最新添加的子节点
+      //显示右侧组件，显示单位工程信息
+      this.isShow = 2;
+
+      //当前新建流程完成后，新建按钮才可用
+    },
+    handleUnitNameItem(data) {
+      this.isShow = data.isShow;
+      this.isAbled = data.isAbled;
+      // console.log("handleUnitNameItem", data);
+      if (data.action === "preserve" && this.lastAddedNode) {
+        // 如果是保存操作，更新最新添加节点的名称
+        this.lastAddedNode.label = data.nodeName;
+      } else if (data.action === "cancel" && this.lastAddedNode) {
+        // 如果是取消操作，删除最新添加的节点
+        const rootNode = this.treeData[0];
+        const index = rootNode.children.findIndex(
+          (node) => node.id === this.lastAddedNode.id
+        );
+        if (index !== -1) {
+          rootNode.children.splice(index, 1);
+        }
+        this.lastAddedNode = null; // 清空最新添加的节点
+      }
     },
     delProject() {
-    },
-    importProject() {
-    },
-    currentChecked(nodeObj, SelectedObj) {
-      console.log(SelectedObj)
-      console.log(SelectedObj.checkedKeys) // 这是选中的节点的key数组
-      console.log(SelectedObj.checkedNodes) // 这是选中的节点数组
-    },
-    ...mapMutations('projectEdit', ['initData'])
-  }
+      //删除选中的树状节点
+      const checkedNodes = this.$refs.tree.getCheckedNodes();
+      if (checkedNodes.length === 0) {
+        this.$message.warning("请先选择要删除的节点");
+        return;
+      }
+      // console.log(checkedNodes);
+      const rootNode = this.treeData[0];
 
-}
+      // 递归函数：从 children 中删除对应节点
+      const removeNodes = (parent, nodesToDelete) => {
+        if (!parent.children) return;
+
+        parent.children = parent.children.filter((child) => {
+          if (nodesToDelete.some((n) => n.id === child.id)) {
+            return false; // 删除该节点
+          }
+          // 否则递归处理其子节点
+          removeNodes(child, nodesToDelete);
+          return true;
+        });
+      };
+
+      // 不允许删除根节点
+      const nodesToDelete = checkedNodes.filter((node) => node.id !== 0);
+      if (nodesToDelete.length === 0) {
+        this.$message.warning("根节点不能删除");
+        return;
+      }
+
+      removeNodes(rootNode, nodesToDelete);
+      this.$refs.tree.setCheckedKeys([]); // 清空勾选
+      //后端也要进行
+    },
+    importProject() {},
+  },
+};
 </script>
 
-<style>
+<style scoped>
+.container {
+  height: 100vh;
+  overflow: hidden; /* 防止溢出滚动条 */
+}
 
+.full-height-row {
+  height: 100%;
+}
+
+.full-height-col {
+  height: 100%;
+}
+
+.full-height-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 </style>
+

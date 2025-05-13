@@ -215,7 +215,7 @@ export default {
 
       // 应用跳转路由映射
       const routeMap = {
-        项目管理: "/menus/projectManage",
+        项目管理: "/menus/project",
         验收规范管理: "/menus/inspection",
         台账管理: "/menus/ledger",
         报表管理: "/menus/statement",

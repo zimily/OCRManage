@@ -7,31 +7,46 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item label="单位工程名称">
-                  <el-input v-model="unitProjectName" placeholder="请输入内容" />
+                  <el-input
+                    v-model="unitProjectName"
+                    placeholder="请输入内容"
+                  />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="勘察单位项目负责人">
-                  <el-input v-model="surveyingUnitPeople" placeholder="请输入内容" />
+                  <el-input
+                    v-model="surveyingUnitPeople"
+                    placeholder="请输入内容"
+                  />
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="12">
                 <el-form-item label="施工单位项目负责人">
-                  <el-input v-model="constructionUnitPeople" placeholder="请输入内容" />
+                  <el-input
+                    v-model="constructionUnitPeople"
+                    placeholder="请输入内容"
+                  />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="监督单位项目负责人">
-                  <el-input v-model="monitorUnitPeople" placeholder="请输入内容" />
+                  <el-input
+                    v-model="monitorUnitPeople"
+                    placeholder="请输入内容"
+                  />
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="12">
                 <el-form-item label="建设单位项目负责人">
-                  <el-input v-model="buildUnitPeople" placeholder="请输入内容" />
+                  <el-input
+                    v-model="buildUnitPeople"
+                    placeholder="请输入内容"
+                  />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -43,19 +58,28 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item label="监理单位项目负责人">
-                  <el-input v-model="supervisoryUnitPeople" placeholder="请输入内容" />
+                  <el-input
+                    v-model="supervisoryUnitPeople"
+                    placeholder="请输入内容"
+                  />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="项目技术负责人">
-                  <el-input v-model="technologyPeople" placeholder="请输入内容" />
+                  <el-input
+                    v-model="technologyPeople"
+                    placeholder="请输入内容"
+                  />
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="12">
                 <el-form-item label="设计单位项目负责人">
-                  <el-input v-model="designUnitPeople" placeholder="请输入内容" />
+                  <el-input
+                    v-model="designUnitPeople"
+                    placeholder="请输入内容"
+                  />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -63,7 +87,7 @@
         </el-col>
       </el-row>
     </div>
-    <hr>
+    <hr />
     <div>
       <el-row>
         <el-col :span="24">
@@ -71,7 +95,11 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item v-slot="scope" label="钢筋分项验收依据">
-                  <el-select :placeholder="options[0].label" value="" @change="changeXiang(scope)">
+                  <el-select
+                    :placeholder="options[0].label"
+                    value=""
+                    @change="changeXiang(scope)"
+                  >
                     <el-option
                       v-for="item in options"
                       :key="item.value"
@@ -83,7 +111,11 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item v-slot="scope" label="模板分项验收依据">
-                  <el-select :placeholder="options[0].label" value="" @change="changeXiang(scope)">
+                  <el-select
+                    :placeholder="options[0].label"
+                    value=""
+                    @change="changeXiang(scope)"
+                  >
                     <el-option
                       v-for="item in options"
                       :key="item.value"
@@ -97,7 +129,11 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item v-slot="scope" label="混凝土分项验收依据">
-                  <el-select :placeholder="options[0].label" value="" @change="changeXiang(scope)">
+                  <el-select
+                    :placeholder="options[0].label"
+                    value=""
+                    @change="changeXiang(scope)"
+                  >
                     <el-option
                       v-for="item in options"
                       :key="item.value"
@@ -109,7 +145,11 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item v-slot="scope" label="现浇结构分项验收依据">
-                  <el-select :placeholder="options[0].label" value="" @change="changeXiang(scope)">
+                  <el-select
+                    :placeholder="options[0].label"
+                    value=""
+                    @change="changeXiang(scope)"
+                  >
                     <el-option
                       v-for="item in options"
                       :key="item.value"
@@ -124,23 +164,18 @@
         </el-col>
       </el-row>
     </div>
-    <hr>
-
+    <hr />
     <!--   添加检验批部位   -->
     <el-button type="primary" @click="addInspect">添加检验批部位</el-button>
     <el-table
       :data="allInspect"
       style="width: 100%"
       border
-      :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+      :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
     >
+      <el-table-column prop="inspectName" label="检验批部位" align="center" />
       <el-table-column
-        prop="inspectName"
-        label="检验批部位"
-        align="center"
-      />
-      <el-table-column
-        v-for="(item,index) in arrList"
+        v-for="(item, index) in arrList"
         :key="index"
         v-slot="scope"
         :prop="item.value"
@@ -151,11 +186,7 @@
       </el-table-column>
       <el-table-column prop="prop" label="操作" align="center">
         <template>
-          <el-button
-            type="danger"
-            size="mini"
-          >删除
-          </el-button>
+          <el-button type="danger" size="mini">删除 </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -168,7 +199,10 @@
               <el-row>
                 <el-col :span="12">
                   <el-form-item label="楼层范围">
-                    <el-input v-model="buildingFloor" placeholder="请输入内容" />
+                    <el-input
+                      v-model="buildingFloor"
+                      placeholder="请输入内容"
+                    />
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
@@ -182,7 +216,12 @@
               </el-form-item>
               <el-form-item label="检验批选择">
                 <el-checkbox-group v-model="checkList">
-                  <el-checkbox v-for="(item,index) in arrList" :key="index" :label="item.label" :value="item.value" />
+                  <el-checkbox
+                    v-for="(item, index) in arrList"
+                    :key="index"
+                    :label="item.label"
+                    :value="item.value"
+                  />
                 </el-checkbox-group>
               </el-form-item>
             </el-form>
@@ -194,80 +233,102 @@
         <el-button type="primary" @click="saveInspect">确 定</el-button>
       </span>
     </el-dialog>
+    <el-button type="primary" @click="preserve">保存</el-button>
+    <el-button type="info" @click="cancel">取消</el-button>
   </div>
 </template>
 
 <script>
-import TableItem from '@/views/project/components/tableItem.vue'
+import TableItem from "@/views/project/components/tableItem.vue";
 
 export default {
   components: { TableItem },
   data() {
     return {
       allInspect: [], // 所有检验批部位,
-      unitProjectName: '保利心语佳苑1#楼', // 单位工程名称
-      surveyingUnitPeople: '张三', // 勘察单位负责人
-      constructionUnitPeople: '建工', // 施工单位负责人
-      monitorUnitPeople: '监工', // 监督单位负责人
-      buildUnitPeople: '建设单位负责人', // 单位负责人
+      unitProjectName: "保利心语佳苑1#楼", // 单位工程名称
+      surveyingUnitPeople: "张三", // 勘察单位负责人
+      constructionUnitPeople: "建工", // 施工单位负责人
+      monitorUnitPeople: "监工", // 监督单位负责人
+      buildUnitPeople: "建设单位负责人", // 单位负责人
       area: 10000, // 施工面积
-      supervisoryUnitPeople: '监理单位负责人', // 监理单位负责人
-      technologyPeople: '设计单位负责人', // 项目技术负责人
-      designUnitPeople: '设计单位负责人', // 设计单位负责人
-      options: [{
-        value: 1,
-        label: '黄金糕'
-      }, {
-        value: 2,
-        label: '双皮奶'
-      }, {
-        value: 3,
-        label: '蚵仔煎'
-      }],
+      supervisoryUnitPeople: "监理单位负责人", // 监理单位负责人
+      technologyPeople: "设计单位负责人", // 项目技术负责人
+      designUnitPeople: "设计单位负责人", // 设计单位负责人
+      options: [
+        {
+          value: 1,
+          label: "黄金糕",
+        },
+        {
+          value: 2,
+          label: "双皮奶",
+        },
+        {
+          value: 3,
+          label: "蚵仔煎",
+        },
+      ],
       form: {},
       dialogVisible: false,
       buildingFloor: 0,
       buildingTop: 0,
-      inspectName: '', // 检验批部位名称
+      inspectName: "", // 检验批部位名称
       checkList: [], // 选中的复选框
       arrList: [
-        { value: 'obj0', label: '钢筋原材' },
-        { value: 'obj1', label: '钢筋加工' },
-        { value: 'obj2', label: '钢筋连接' },
-        { value: 'obj3', label: '钢筋安装' },
-        { value: 'obj4', label: '模板安装' },
-        { value: 'obj5', label: '混凝土拌合物' },
-        { value: 'obj6', label: '混凝土施工' },
-        { value: 'obj7', label: '现浇结构' }]
-    }
+        { value: "obj0", label: "钢筋原材" },
+        { value: "obj1", label: "钢筋加工" },
+        { value: "obj2", label: "钢筋连接" },
+        { value: "obj3", label: "钢筋安装" },
+        { value: "obj4", label: "模板安装" },
+        { value: "obj5", label: "混凝土拌合物" },
+        { value: "obj6", label: "混凝土施工" },
+        { value: "obj7", label: "现浇结构" },
+      ],
+    };
   },
   methods: {
     saveInspect() {
       for (let i = this.buildingFloor; i <= this.buildingTop; i++) {
-        if (i === 0) continue
+        if (i === 0) continue;
         this.allInspect.push({
           floor: i,
-          inspectName: i.toString() + '层' + this.inspectName,
-          obj: this.checkList
-        })
+          inspectName: i.toString() + "层" + this.inspectName,
+          obj: this.checkList,
+        });
       }
-      this.dialogVisible = false
+      this.dialogVisible = false;
     },
     addInspect() {
-      this.dialogVisible = true
+      this.dialogVisible = true;
     },
-    changeXiang(scope) {
-
-    }
-  }
-}
+    changeXiang(scope) {},
+    cancel() {
+       const data = { isShow: 0, //右侧组件显示空白
+                    isAbled: false,//新建按钮可用
+                    action: "cancel", 
+                     };
+      this.$emit("transmit", data);
+    },
+    preserve() {
+      const data = { isShow: 0, //右侧组件显示空白
+                    isAbled: false,//新建按钮可用
+                    action: "preserve", 
+                    nodeName: this.unitProjectName 
+                     };
+      this.$emit("transmit", data);
+    },
+  },
+};
 </script>
 
 <style>
 .el-form-item {
   margin-bottom: 0;
 }
-.el-table .cell, .el-table--border td:first-child .cell, .el-table--border th:first-child .cell {
+.el-table .cell,
+.el-table--border td:first-child .cell,
+.el-table--border th:first-child .cell {
   padding-left: 0;
 }
 .el-table .cell {
@@ -280,7 +341,8 @@ export default {
   line-height: 23px;
   padding-right: 0;
 }
-.el-table td, .el-table th {
+.el-table td,
+.el-table th {
   padding: 0;
   min-width: 0;
   -webkit-box-sizing: border-box;

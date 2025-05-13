@@ -82,9 +82,9 @@ export const constantRoutes = [
         meta: { title: '采集任务分发', icon: 'assign' }
       },
       {
-        path: 'projectManage',
-        name: 'ProjectManage',
-        redirect: '/menus/projectManage/projectManage',
+        path: 'project',
+        name: 'Project',
+        redirect: '/menus/project/projectManage',
         component: () => import('@/views/project'),
         meta: { title: '项目管理', icon: 'assign' },
         children: [

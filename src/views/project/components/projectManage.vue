@@ -41,18 +41,21 @@
           align="center"
         />
         <el-table-column label="操作" prop="prop" width="400" align="center">
-          <el-button
+          <template v-slot="scope">
+           <el-button
             type="warning"
             icon="el-icon-edit"
             size="mini"
-            @click="updateproject()"
+            @click="updateproject(scope)"
           >编辑</el-button>
           <el-button
             type="danger"
             icon="el-icon-delete"
             size="mini"
-            @click="deleteProject()"
-          >删除</el-button>
+            @click="deleteProject(scope)"
+          >删除</el-button> 
+          </template>
+          
         </el-table-column>
       </el-table>
     </div>
@@ -110,10 +113,9 @@ export default {
       this.$emit('transmit', data)
     },
     // 编辑按钮
-    updateproject() {
-      const isShow = false
-      const data = { isShow }
-      this.$emit('transmit', data)
+    updateproject(scope) {
+      console.log("点击项目编辑",scope,scope.$index)
+      this.$router.push({ path: '/menus/project/projectEdit', query: { index: scope.$index }})
     },
     // 删除按钮
     deleteproject() {},
