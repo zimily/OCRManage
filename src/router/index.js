@@ -88,12 +88,12 @@ export const constantRoutes = [
         component: () => import('@/views/project'),
         meta: { title: '项目管理', icon: 'assign' },
         children: [
-          // {
-          //   path: 'personAllocation',
-          //   name: 'PersonAllocation',
-          //   component: () => import('@/views/project/components/personAllocation.vue'),
-          //   meta: { title: '人员分配', icon: 'assign' }
-          // },
+          {
+            path: 'personAllocation',
+            name: 'PersonAllocation',
+            component: () => import('@/views/project/components/personAllocation.vue'),
+            meta: { title: '人员分配', icon: 'assign' }
+          },
           {
             path: 'projectManage',
             name: 'projectManage',

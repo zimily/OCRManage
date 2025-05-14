@@ -2,8 +2,8 @@
   <div>
     <div>
       <!--头部-->
+        <div class="title">{{projectName}}人员分配</div>
       <div>
-
         <span class="search-container" style="float: right">
           <!--搜索栏--->
           <el-input
@@ -85,6 +85,7 @@ export default {
     return {
       searchQuery: '', // 用于存储搜索框的最后内容
       tempSearch: '', // 用于暂存搜索框的内容
+      projectName:'',//项目名称  
       currentPage: 1, // 分页器当前页码
       totalData: 0, // 总共筛选出的数据条目
       limit: 10 // 每页显示的数据
@@ -105,6 +106,9 @@ export default {
     }
   },
   created() {
+    //接收兄弟组件（项目管理）传递的路由参数   刷新会掉？？？（待解决）
+    this.projectName=this.$route.params.name;
+    console.log(this.projectName,this.$route.params)
     this.$store.commit('personAllocation/setPersonList')
   },
   methods: {
@@ -130,5 +134,9 @@ export default {
 </script>
 
 <style>
-
+.title {
+  text-align: center;
+  font-weight: bold;  /* 加粗 */
+  font-size: 20px;    /* 增大字体 */
+}
 </style>
