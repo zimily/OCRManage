@@ -1,4 +1,4 @@
-import { login, logout, getInfo, getPermissionList } from '@/api/user'
+import { login,loginByPhone, logout, getInfo, getPermissionList } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { setUser, getUser, removeUser } from '@/utils/storage'
 import { asyncRoutes, resetRouter, constantRoutes, anyRoutes } from '@/router/index'
@@ -77,6 +77,24 @@ const actions = {
         console.log('登录请求报错',error)
         reject(error)
       })
+    })
+  },
+  loginByPhone({commit,dispatch},phoneInfo){
+    const { userphone, verifycode} = userInfo
+    return new Promise((resolve, reject) => {
+       loginByPhone( userphone, verifycode).then(response=>{
+        const data = response.result
+        console.log('手机号登录11', response)
+         //1.获取并存储token
+         const token = data.token
+         commit('SET_TOKEN', token)
+         setToken(token)
+         resolve()//表示 Promise 成功完成
+       }).catch(error=>{
+        console.log('手机号登录请求报错',error)
+        reject(error)
+       }
+       )
     })
   },
   // get user info

@@ -1,11 +1,13 @@
 <template>
   <div>
-    <router-view />
+      台账管理
   </div>
 </template>
 
 <script>
 export default {
+    name:'ledger'
+
 }
 </script>
 

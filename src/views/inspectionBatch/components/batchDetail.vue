@@ -7,24 +7,24 @@
         :model="batchInformation"
         class="demo-form-inline"
       >
-        <el-form-item label="检验批名称">
+        <el-form-item label="类别">
           <el-input
             v-model="batchInformation.name"
-            placeholder="输入检验批名称"
+            placeholder="输入类别名称"
             style="width: 200px"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="施工依据">
-          <el-input
-            v-model="batchInformation.constructionBasis"
-            placeholder="输入施工依据"
-            style="width: 400px"
           ></el-input>
         </el-form-item>
         <el-form-item label="验收依据">
           <el-input
-            v-model="batchInformation.acceptanceCriteria"
+            v-model="batchInformation.constructionBasis"
             placeholder="输入验收依据"
+            style="width: 400px"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="基于已有规范">
+          <el-input
+            v-model="batchInformation.acceptanceCriteria"
+            placeholder="输入已有规范"
             style="width: 400px"
           ></el-input>
         </el-form-item>
@@ -128,7 +128,9 @@
   </div>
 </template>
 <script>
+import {getSpecificationsById } from "@/api/specifications";
 export default {
+  name:"batchDetail",
   data() {
     return {
       batchInformation: {
@@ -174,7 +176,30 @@ export default {
       ],
     };
   },
+  props: {
+   curInspecId: {
+      type: Number,
+      required: true // 或者 false，根据你的需求
+    }
+  },
+  created(){
+    this. getInpecInfo()
+  },
   methods: {
+   async getInpecInfo(){
+      console.log(this.curInspecId)
+       try {
+        let res=await  getSpecificationsById(this.curInspecId)
+        if (res.code==200){
+          console.log(res)
+        }else{
+          throw new Error(res.message||"获取验收规范失败");
+        }
+      } catch (error) {
+        this.$message.error("出错啦，请稍后重试！");
+        console.log(error);
+      }
+    },
     //由编辑状态跳转到查看状态
     toLook(row, index) {
       //   console.log('输入框在失去焦点后，变为查看模式',row,index)

@@ -17,60 +17,64 @@
           v-model="searchQuery"
           placeholder="请输入搜索内容"
           style="width: 300px; margin-right: 10px"
-        ></el-input>
+        />
         <el-button type="primary" @click="handleSearch">搜索</el-button>
       </span>
     </div>
     <!-- 表格 -->
     <div>
       <el-table :data="info" style="width: 100%" border>
-        <el-table-column
-          label="项目名称"
-          prop="name"
-          align="center"
-        ></el-table-column>
+        <el-table-column label="项目名称" prop="name" align="center" />
         <el-table-column
           label="项目用时"
           prop="duration"
           width="200"
           align="center"
-        ></el-table-column>
+        />
         <el-table-column
           label="数据采集次数"
           prop="frequency"
           width="200"
           align="center"
-        ></el-table-column>
+        />
         <el-table-column label="操作" prop="prop" width="400" align="center">
-          <el-button
-            type="warning"
-            icon="el-icon-edit"
-            size="mini"
-            @click="updateproject()"
-            >编辑</el-button
-          >
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            size="mini"
-            @click="deleteProject()"
-            >删除</el-button
-          >
+          <template v-slot="scope">
+            <el-button
+              type="primary"
+              icon="el-icon-user"
+              size="mini"
+              @click="allocation(scope)"
+              >人员分配</el-button
+            >
+            <el-button
+              type="warning"
+              icon="el-icon-edit"
+              size="mini"
+              @click="updateproject(scope)"
+              >编辑</el-button
+            >
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              size="mini"
+              @click="deleteProject(scope)"
+              >删除</el-button
+            >
+          </template>
         </el-table-column>
       </el-table>
     </div>
     <!-- 分页器 -->
     <el-pagination
       style="margin-top: 20px; text-align: center"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
       :current-page="currentPage"
       :page-sizes="[10, 15, 20]"
       :page-size="limit"
       layout=" prev, pager, next, jumper,->,sizes,total"
       :total="total"
-    >
-    </el-pagination>
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    />
   </div>
 </template>
 
@@ -101,31 +105,33 @@ export default {
           frequency: 10,
         },
       ],
-      currentPage: 2, //分页器数据
-      limit: 20, //每页显示的数据
+      currentPage: 2, // 分页器数据
+      limit: 20, // 每页显示的数据
       total: 100,
     };
   },
   methods: {
-    //新建项目
+    // 新建项目
     addProject() {
       const isShow = false;
       const data = { isShow };
       this.$emit("transmit", data);
     },
-    //编辑按钮
-    updateproject() {
-       const isShow=false
-      const data={isShow}
-      this.$emit('transmit',data)
+    // 编辑按钮
+    updateproject(scope) {
+      console.log("点击项目编辑", scope, scope.$index);
+      this.$router.push({
+        path: "/menus/project/projectEdit",
+        query: { index: scope.$index },
+      });
     },
-    //删除按钮
+    // 删除按钮
     deleteproject() {},
-    //搜索事件
+    // 搜索事件
     handleSearch() {
       console.log("搜索内容:", this.searchQuery);
     },
-    //分页器
+    // 分页器
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
     },
@@ -134,6 +140,18 @@ export default {
     },
     headerCellClassName({ column }) {
       return "header-cell-highlight"; // 返回自定义的类名
+    },
+    //人员分配
+    allocation(scope){
+      console.log("人员分配",scope.row.name)
+      //注意params/query传参的时候，params-name/query-path  路径的内容是不同，对应于路由中的name,path属性，注意区分大小写
+      this.$router.push({
+        name: "PersonAllocation",
+        params: { 
+          name: scope.row.name, 
+          },
+      });
+
     },
   },
 };

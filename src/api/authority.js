@@ -2,7 +2,7 @@ import request from '@/utils/request'
 //接口管理
 export function getAllRoles(page,limit) {
   return request({
-    url: `/role/getAllRoles?pageNum=${page}&size=${limit}`,
+    url: `/role/getAllRoles?pageNum=${page}&pageSize=${limit}`,
     method: 'get',
 
   })
@@ -41,6 +41,12 @@ export function updateRole(roleId,permissions){
     method:'put',
   })
 }
+export function searchRole(key){
+  return request({
+    url:`/role/getRoleByNameFuzzy?keyword=${key}`,
+    method:'get',
+  })
+}
 
 //用户管理接口
 export function getAllUser(pageNum,pageSize) {
@@ -77,5 +83,12 @@ export function deleteUserById(id) {
   return request({
     url: `/user/deleteUserById?id=${id}`,
     method: 'delete',
+  })
+}
+
+export function searchUser(key) {
+  return request({
+    url: `/user/getUserByNameFuzzy?keyword=${key}`,
+    method: 'get',
   })
 }

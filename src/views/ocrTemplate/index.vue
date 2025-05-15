@@ -1,12 +1,12 @@
 <template>
   <div>
-    OCR模版管理1111
+    <router-view />
   </div>
 </template>
 
 <script>
 export default {
-   name: "Template",
+  name: 'Template'
 
 }
 </script>

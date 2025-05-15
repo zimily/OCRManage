@@ -236,3 +236,10 @@
     }
   }
 }
+
+.el-menu-item.is-active {
+  background-color: #2b5c9b !important; // 激活菜单项背景色，可用 $subMenuHover
+  color: #ffffff !important;            // 激活菜单项文字颜色，可用 $menuActiveText
+  font-weight: bold;                    // 加粗文字，增强感知（可选）
+  position: relative;
+}

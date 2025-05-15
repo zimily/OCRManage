@@ -12,59 +12,31 @@
         <h3 class="title">手机号登录</h3>
       </div>
 
-      <el-form-item prop="username">
+      <el-form-item prop="userphone">
         <span class="svg-container">
           <svg-icon icon-class="phone" />
         </span>
         <el-input
-          ref="username"
-          v-model="loginForm.username"
-          placeholder="Username"
-          name="username"
+          ref="userphone"
+          v-model="loginForm.userphone"
+          placeholder="Userphone"
+          name="userphone"
           type="text"
           tabindex="1"
           auto-complete="on"
         />
       </el-form-item>
 
-      <el-form-item prop="password">
-        <span class="svg-container">
-          <svg-icon icon-class="password" />
-        </span>
-        <el-input
-          :key="passwordType"
-          ref="password"
-          v-model="loginForm.password"
-          :type="passwordType"
-          placeholder="Password"
-          name="password"
-          tabindex="2"
-          auto-complete="on"
-          @keyup.enter.native="handleLogin"
-        />
-        <span class="show-pwd" @click="showPwd">
-          <svg-icon
-            :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"
-          />
-        </span>
-      </el-form-item>
-
-      <!-- 随机验证码 -->
+      <!-- 手机号验证码 -->
       <el-form-item prop="verifycode">
-        <div class="verifycode-wrapper">
-          <span class="svg-container">
-            <svg-icon icon-class="verify" />
-          </span>
-          <el-input
-            v-model="loginForm.verifycode"
-            ref="verifycode"
-            placeholder="请输入验证码"
-            class="identifyinput"
-          ></el-input>
-          <div class="identifybox" @click="refreshCode">
-            <sidentify :identifyCode="identifyCode"></sidentify>
-          </div>
-        </div>
+        <span class="svg-container">
+          <svg-icon icon-class="verify" />
+        </span>
+        <el-input v-model="loginForm.verifycode" placeholder="请输入验证码">
+          <el-button slot="suffix" :disabled="disabled" @click="getCode">
+            <span class="Time">{{ btnTxt }}</span>
+          </el-button>
+        </el-input>
       </el-form-item>
 
       <el-button
@@ -79,95 +51,121 @@
 </template>
 
 <script>
-import { validUsername } from "@/utils/validate";
-import sidentify from '@/views/login/components/sidentify'
+import { sendCode } from "@/api/user";
 export default {
   name: "Phone",
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error("请输入正确的账户名"));
-      } else {
-        callback();
+    const validatePhone = (rule, value, callback) => {
+      // 判断输入框中是否输入手机号
+      if (!value) {
+        callback(new Error("手机号不能为空"));
       }
+      //正则表达式进行验证手机号，从1开始，第二位是35789中的任意一位，以9数字结尾
+      if (!/^1[35789]\d{9}$/.test(value)) {
+        callback(new Error("手机号格式不正确"));
+      }
+      callback();
     };
-    const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error("密码的额长度不能小于6位！"));
-      } else {
-        callback();
-      }
-    };
-    // 验证码自定义验证规则
-    const validateVerifycode = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error('请输入验证码'))
-      } else if (value !== this.identifyCode) {
-        console.log('验证码:', value);
-        callback(new Error('验证码不正确!'))
-      } else {
-        callback()
-      }
-    }
- 
+
     return {
       loginForm: {
-        username: "admin",
-        password: "123456",
+        userphone: "18836870772",
         verifycode: "",
       },
       loginRules: {
-        username: [
-          { required: true, trigger: "blur", validator: validateUsername },
+        userphone: [
+          { required: true, trigger: "blur", message: "请输入11位手机号" },
+          {
+            required: true,
+            trigger: "blur",
+            min: 11,
+            max: 11,
+            message: "长度不符合",
+          },
+          { required: true, trigger: "blur", validator: validatePhone },
         ],
-        password: [
-          { required: true, trigger: "blur", validator: validatePassword },
+        verifycode: [
+          { required: true, trigger: "blur", message: "请输入4位验证码" },
+          {
+            required: true,
+            trigger: "blur",
+            min: 6,
+            max: 6,
+            message: "验证码错误",
+          },
         ],
-        verifycode:[
-          { required: true, trigger: 'blur', validator: validateVerifycode }
-        ]
       },
       loading: false, //
-      passwordType: "password",
-      identifyCodes: "1234567890", //验证码的数字库
-      identifyCode: "", // 验证码组件传值
+      btnTxt: "获取验证码",
+      // 是否禁用  即点击之后一段时间内无法再点击
+      disabled: false,
+      time: 0,
     };
   },
-  components: {
-    sidentify,
-  },
+  components: {},
   watch: {
-    $route: {
-      handler: function (route) {
-        this.redirect = route.query && route.query.redirect;
-      },
-      immediate: true,
-    },
+    // $route: {
+    //   handler: function (route) {
+    //     this.redirect = route.query && route.query.redirect;
+    //   },
+    //   immediate: true,
+    // },
   },
-  created() {
-    this.refreshCode(); //验证码初始化
-  },
-  mounted() {
-    this.identifyCode = "";
-    this.makeCode(this.identifyCodes, 4);
-  },
+  created() {},
+  mounted() {},
   methods: {
-    showPwd() {
-      if (this.passwordType === "password") {
-        this.passwordType = "";
+    getCode() {
+      // 校验手机号码
+      if (!this.loginForm.userphone) {
+        //号码校验不通过
+        this.$message({
+          message: "请输入手机号",
+          type: "warning",
+        });
+        //正则判断 从1开始，第二位是35789中的任意一位，以9数字结尾
+      } else if (!/1[35789]\d{9}/.test(this.loginForm.userphone)) {
+        // 失去焦点后自动触发校验手机号规则
       } else {
-        this.passwordType = "password";
+        //发送请求  告诉后发送验证码
+        sendCode(this.loginForm.userphone).then(({ data }) => {
+          if (data.code === 200) {
+            this.$message({
+              message: "验证成功",
+              type: "success",
+            });
+            //开启倒计时
+            this.time = 60;
+            this.disabled = true;
+            this.timer();
+          } else {
+            this.$message({
+              message: "发送失败",
+              type: "warning",
+            });
+          }
+        });
       }
-      this.$nextTick(() => {
-        this.$refs.password.focus();
-      });
+    },
+    // 倒计时方法
+    timer() {
+      if (this.time > 0) {
+        this.time--;
+        // console.log(this.time);
+        this.btnTxt = this.time + "s后重新获取验证码";
+        setTimeout(this.timer, 1000);
+      } else {
+        this.time = 0;
+        this.btnTxt = "获取验证码";
+        this.disabled = false;
+      }
     },
     handleLogin() {
-      this.$refs.loginForm.validate((valid) => {
+      //把手机号和验证码发送给后端，后端进行检查
+       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           this.loading = true;
           this.$store
-            .dispatch("user/login", this.loginForm)
+            .dispatch("user/loginByPhone", this.loginForm)
             .then(() => {
               this.$router.push({ path: this.redirect || "/" });
             })
@@ -179,23 +177,8 @@ export default {
           return false;
         }
       });
+
     },
-    //验证码----start
-    randomNum(min, max) {
-      return Math.floor(Math.random() * (max - min) + min);
-    },
-    refreshCode() {
-      this.identifyCode = "";
-      this.makeCode(this.identifyCodes, 4);
-    },
-    makeCode(o, l) {
-      for (let i = 0; i < l; i++) {
-        this.identifyCode +=
-          this.identifyCodes[this.randomNum(0, this.identifyCodes.length)];
-      }
-      // console.log("this.identifyCode:", this.identifyCode);
-    },
-    //验证码----end
   },
 };
 </script>

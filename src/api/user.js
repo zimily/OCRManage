@@ -39,3 +39,18 @@ export function getInfo(token) {
 //     method: 'post'
 //   })
 // }
+
+//发送手机号验证码
+export function sendCode(phone){
+  return request({
+    url: `/login/sendSms?userPhone=${phone}`,
+    method: 'post',
+  })
+}
+//手机号+验证码 登录
+export function loginByPhone(userPhone,code){
+  return request({
+    url: `/login/loginbyphone?userPhone=${userPhone}&code=${code}`,
+    method: 'post',
+  })
+}
