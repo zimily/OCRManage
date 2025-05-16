@@ -29,7 +29,10 @@ export function putSubprojects(id) {
   return request(
     {
       url: '/api/subprojects/1',
-      method: 'put'
+      method: 'put',
+      params: {
+        subprojectId: id
+      }
     }
   )
 }
@@ -38,7 +41,10 @@ export function deleteSubprojects(id) {
   return request(
     {
       url: '/api/subprojects/1',
-      method: 'delete'
+      method: 'delete',
+      params: {
+        subprojectId: id
+      }
     }
   )
 }
