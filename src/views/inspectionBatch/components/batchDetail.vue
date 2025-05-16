@@ -187,9 +187,10 @@ export default {
   },
   methods: {
    async getInpecInfo(){
-      console.log(this.curInspecId)
+      const id=parseInt(this.curInspecId)
+      console.log('inspectItemId',id,typeof id)
        try {
-        let res=await  getSpecificationsById(this.curInspecId)
+        let res=await  getSpecificationsById(id)
         if (res.code==200){
           console.log(res)
         }else{

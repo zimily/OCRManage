@@ -80,7 +80,7 @@ const actions = {
     })
   },
   loginByPhone({commit,dispatch},phoneInfo){
-    const { userphone, verifycode} = userInfo
+    const { userphone, verifycode} = phoneInfo
     return new Promise((resolve, reject) => {
        loginByPhone( userphone, verifycode).then(response=>{
         const data = response.result

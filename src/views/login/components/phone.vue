@@ -29,14 +29,25 @@
 
       <!-- 手机号验证码 -->
       <el-form-item prop="verifycode">
-        <span class="svg-container">
-          <svg-icon icon-class="verify" />
-        </span>
-        <el-input v-model="loginForm.verifycode" placeholder="请输入验证码">
-          <el-button slot="suffix" :disabled="disabled" @click="getCode">
-            <span class="Time">{{ btnTxt }}</span>
-          </el-button>
-        </el-input>
+        <div class="verifycode-wrapper">
+          <span class="svg-container">
+            <svg-icon icon-class="verify" />
+          </span>
+          <el-input
+            v-model="loginForm.verifycode"
+            class="identifyinput"
+            placeholder="请输入验证码"
+          >
+            <el-button
+              slot="suffix"
+              :disabled="disabled"
+              @click="getCode"
+              class="identifybox"
+            >
+              <span class="Time">{{ btnTxt }}</span>
+            </el-button>
+          </el-input>
+        </div>
       </el-form-item>
 
       <el-button
@@ -44,7 +55,7 @@
         type="primary"
         style="width: 100%; margin-bottom: 30px"
         @click.native.prevent="handleLogin"
-        >Login</el-button
+        >登录</el-button
       >
     </el-form>
   </div>
@@ -114,7 +125,7 @@ export default {
   created() {},
   mounted() {},
   methods: {
-    getCode() {
+    async getCode() {
       // 校验手机号码
       if (!this.loginForm.userphone) {
         //号码校验不通过
@@ -127,8 +138,9 @@ export default {
         // 失去焦点后自动触发校验手机号规则
       } else {
         //发送请求  告诉后发送验证码
-        sendCode(this.loginForm.userphone).then(({ data }) => {
-          if (data.code === 200) {
+        try {
+          let res = await sendCode(this.loginForm.userphone);
+          if (res.code == 200) {
             this.$message({
               message: "验证成功",
               type: "success",
@@ -142,8 +154,12 @@ export default {
               message: "发送失败",
               type: "warning",
             });
+            throw new Error(res.message || "发送验证码失败");
           }
-        });
+        } catch (error) {
+          console.log(error);
+          this.$message.error("出错啦，请稍后重试！");
+        }
       }
     },
     // 倒计时方法
@@ -161,7 +177,7 @@ export default {
     },
     handleLogin() {
       //把手机号和验证码发送给后端，后端进行检查
-       this.$refs.loginForm.validate((valid) => {
+      this.$refs.loginForm.validate((valid) => {
         if (valid) {
           this.loading = true;
           this.$store
@@ -177,7 +193,6 @@ export default {
           return false;
         }
       });
-
     },
   },
 };
@@ -193,7 +208,7 @@ $focus-color: #c6e2ff; // 聚焦光晕
 .phone-container {
   .el-form-item {
     border: 1px solid $border-color;
-    background: #ffffff;
+    background: #ffffff; //
     border-radius: 6px;
     transition: border-color 0.3s;
 
@@ -225,9 +240,9 @@ $focus-color: #c6e2ff; // 聚焦光晕
       }
     }
   }
-
+  //登录按钮
   .el-button--primary {
-    background: $primary-color;
+    background: $primary-color; //$primary-color
     border-color: $primary-color;
     transition: all 0.3s;
 
@@ -288,16 +303,6 @@ $text-light: #909399; // 次要文字颜色
     transition: color 0.3s;
   }
 
-  .show-pwd {
-    right: 15px;
-    color: $text-light;
-    transition: color 0.3s;
-
-    &:hover {
-      color: $text-dark;
-    }
-  }
-
   /* 验证码容器调整 */
   .verifycode-wrapper {
     display: flex;
@@ -313,16 +318,6 @@ $text-light: #909399; // 次要文字颜色
     .identifybox {
       flex-shrink: 0;
       margin-left: 10px;
-    }
-  }
-  /* 密码输入框容器 */
-  .el-form-item--password {
-    ::v-deep .el-input {
-      flex: 1;
-    }
-
-    .show-pwd {
-      margin-left: auto;
     }
   }
 
