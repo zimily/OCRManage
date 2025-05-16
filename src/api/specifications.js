@@ -7,10 +7,16 @@ export function getAllSpecifications(page,limit) {
   
     })
   }
-
+//获取每一个验收规范详细信息
+  // export function getSpecificationsById(Id) {
+  //   return request({
+  //     url: `acceptCode/getById?inspectId=${Id}`,
+  //     method: 'get',
+  //   })
+  // }
   export function getSpecificationsById(Id) {
     return request({
-      url: `acceptCode/getById?inspectId=${Id}`,
+      url: `inspection-lot-template-item/inspectItemId?inspectItemId=${Id}`,
       method: 'get',
     })
   }
