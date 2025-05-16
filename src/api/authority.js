@@ -1,65 +1,65 @@
 import request from '@/utils/request'
-//接口管理
-export function getAllRoles(page,limit) {
+// 接口管理
+export function getAllRoles(page, limit) {
   return request({
     url: `/role/getAllRoles?pageNum=${page}&pageSize=${limit}`,
-    method: 'get',
+    method: 'get'
 
   })
 }
 
-export function reqPermissionList(){
+export function reqPermissionList() {
   return request({
-    url:'/permission/getPermissionList',
-    method:'get',
+    url: '/permission/getPermissionList',
+    method: 'get'
   })
 }
 
-export function addRoleWithPermissions(roleName,permissions){
+export function addRoleWithPermissions(roleName, permissions) {
   return request({
-    url:`/role/addRoleWithPermissions?roleName=${roleName}&permissions=${permissions}`,
-    method:'post',
+    url: `/role/addRoleWithPermissions?roleName=${roleName}&permissions=${permissions}`,
+    method: 'post'
   })
 }
 
-export function deleteRoleById(id){
+export function deleteRoleById(id) {
   return request({
-    url:`/role/deleteRoleById?roleId=${id}`,
-    method:'delete',
+    url: `/role/deleteRoleById?roleId=${id}`,
+    method: 'delete'
   })
 }
 
-export function getRoleById(id){
+export function getRoleById(id) {
   return request({
-    url:`/role/getRoleById?roleId=${id}`,
-    method:'get',
+    url: `/role/getRoleById?roleId=${id}`,
+    method: 'get'
   })
 }
-export function updateRole(roleId,permissions){
+export function updateRole(roleId, permissions) {
   return request({
-    url:`/role/updateRole?roleId=${roleId}&permissions=${permissions}`,
-    method:'put',
+    url: `/role/updateRole?roleId=${roleId}&permissions=${permissions}`,
+    method: 'put'
   })
 }
-export function searchRole(key){
+export function searchRole(key) {
   return request({
-    url:`/role/getRoleByNameFuzzy?keyword=${key}`,
-    method:'get',
+    url: `/role/getRoleByNameFuzzy?keyword=${key}`,
+    method: 'get'
   })
 }
 
-//用户管理接口
-export function getAllUser(pageNum,pageSize) {
+// 用户管理接口
+export function getAllUser(pageNum, pageSize) {
   return request({
     url: `/user/getAllUserByOrder?pageNum=${pageNum}&pageSize=${pageSize}`,
-    method: 'get',
+    method: 'get'
   })
 }
 
 export function getUserById(id) {
   return request({
     url: `/user/getUserById?id=${id}`,
-    method: 'get',
+    method: 'get'
   })
 }
 
@@ -67,7 +67,7 @@ export function addUser(data) {
   return request({
     url: '/user/addUser',
     method: 'post',
-    data:data
+    data: data
   })
 }
 
@@ -75,20 +75,20 @@ export function updateById(data) {
   return request({
     url: '/user/updateById',
     method: 'put',
-    data:data
+    data: data
   })
 }
 
 export function deleteUserById(id) {
   return request({
     url: `/user/deleteUserById?id=${id}`,
-    method: 'delete',
+    method: 'delete'
   })
 }
 
 export function searchUser(key) {
   return request({
     url: `/user/getUserByNameFuzzy?keyword=${key}`,
-    method: 'get',
+    method: 'get'
   })
 }

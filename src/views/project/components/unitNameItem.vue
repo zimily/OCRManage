@@ -3,12 +3,12 @@
     <div>
       <el-row>
         <el-col :span="24">
-          <el-form ref="form" :model="form" label-width="170px">
+          <el-form ref="form" :model="subProInfo" label-width="170px">
             <el-row>
               <el-col :span="12">
                 <el-form-item label="单位工程名称">
                   <el-input
-                    v-model="unitProjectName"
+                    v-model="subProInfo.subprojecttName"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
@@ -16,7 +16,7 @@
               <el-col :span="12">
                 <el-form-item label="勘察单位项目负责人">
                   <el-input
-                    v-model="surveyingUnitPeople"
+                    v-model="subProInfo.kanchaDirector"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
@@ -26,7 +26,7 @@
               <el-col :span="12">
                 <el-form-item label="施工单位项目负责人">
                   <el-input
-                    v-model="constructionUnitPeople"
+                    v-model="subProInfo.shigongDirector"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
@@ -34,7 +34,7 @@
               <el-col :span="12">
                 <el-form-item label="监督单位项目负责人">
                   <el-input
-                    v-model="monitorUnitPeople"
+                    v-model="subProInfo.jianduPeople"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
@@ -44,14 +44,14 @@
               <el-col :span="12">
                 <el-form-item label="建设单位项目负责人">
                   <el-input
-                    v-model="buildUnitPeople"
+                    v-model="subProInfo.jiansheDirector"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="施工面积（m²）">
-                  <el-input v-model="area" placeholder="请输入内容" />
+                  <el-input v-model="subProInfo.area" placeholder="请输入内容" />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -59,7 +59,7 @@
               <el-col :span="12">
                 <el-form-item label="监理单位项目负责人">
                   <el-input
-                    v-model="supervisoryUnitPeople"
+                    v-model="subProInfo.jianliDirector"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
@@ -67,7 +67,7 @@
               <el-col :span="12">
                 <el-form-item label="项目技术负责人">
                   <el-input
-                    v-model="technologyPeople"
+                    v-model="subProInfo.technicalDirector"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
@@ -77,7 +77,7 @@
               <el-col :span="12">
                 <el-form-item label="设计单位项目负责人">
                   <el-input
-                    v-model="designUnitPeople"
+                    v-model="subProInfo.shejiDirector"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
@@ -87,7 +87,7 @@
         </el-col>
       </el-row>
     </div>
-    <hr />
+    <hr>
     <div>
       <el-row>
         <el-col :span="24">
@@ -164,7 +164,7 @@
         </el-col>
       </el-row>
     </div>
-    <hr />
+    <hr>
     <!--   添加检验批部位   -->
     <el-button type="primary" @click="addInspect">添加检验批部位</el-button>
     <el-table
@@ -184,9 +184,13 @@
       >
         <TableItem :value="scope.row.obj" :str="item.label" />
       </el-table-column>
-      <el-table-column prop="prop" label="操作" align="center">
+      <el-table-column v-slot="scope" prop="prop" label="操作" align="center">
         <template>
-          <el-button type="danger" size="mini">删除 </el-button>
+          <el-button
+            type="danger"
+            size="mini"
+            @click="deletejianyan(scope)"
+          >删除 </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -239,87 +243,108 @@
 </template>
 
 <script>
-import TableItem from "@/views/project/components/tableItem.vue";
+import TableItem from '@/views/project/components/tableItem.vue'
 
 export default {
   components: { TableItem },
   data() {
     return {
+      form: {},
+      subProInfo: {
+        subprojecttName: '保利心语佳苑1#楼', // 单位工程名称
+        kanchaDirector: '张三', // 勘察单位负责人
+        shigongDirector: '建工', // 施工单位负责人
+        jianduPeople: '监工', // 监督单位负责人
+        jiansheDirector: '建设单位负责人', // 建设单位负责人
+        area: 10000, // 施工面积
+        jianliDirector: '监理单位负责人', // 监理单位负责人
+        technicalDirector: '设计单位负责人', // 项目技术负责人
+        shejiDirector: '设计单位负责人' // 设计单位负责人
+      },
       allInspect: [], // 所有检验批部位,
-      unitProjectName: "保利心语佳苑1#楼", // 单位工程名称
-      surveyingUnitPeople: "张三", // 勘察单位负责人
-      constructionUnitPeople: "建工", // 施工单位负责人
-      monitorUnitPeople: "监工", // 监督单位负责人
-      buildUnitPeople: "建设单位负责人", // 单位负责人
-      area: 10000, // 施工面积
-      supervisoryUnitPeople: "监理单位负责人", // 监理单位负责人
-      technologyPeople: "设计单位负责人", // 项目技术负责人
-      designUnitPeople: "设计单位负责人", // 设计单位负责人
       options: [
         {
           value: 1,
-          label: "黄金糕",
+          label: '黄金糕'
         },
         {
           value: 2,
-          label: "双皮奶",
+          label: '双皮奶'
         },
         {
           value: 3,
-          label: "蚵仔煎",
-        },
+          label: '蚵仔煎'
+        }
       ],
-      form: {},
       dialogVisible: false,
       buildingFloor: 0,
       buildingTop: 0,
-      inspectName: "", // 检验批部位名称
+      inspectName: '', // 检验批部位名称
       checkList: [], // 选中的复选框
       arrList: [
-        { value: "obj0", label: "钢筋原材" },
-        { value: "obj1", label: "钢筋加工" },
-        { value: "obj2", label: "钢筋连接" },
-        { value: "obj3", label: "钢筋安装" },
-        { value: "obj4", label: "模板安装" },
-        { value: "obj5", label: "混凝土拌合物" },
-        { value: "obj6", label: "混凝土施工" },
-        { value: "obj7", label: "现浇结构" },
-      ],
-    };
+        { value: 'obj0', label: '钢筋原材' },
+        { value: 'obj1', label: '钢筋加工' },
+        { value: 'obj2', label: '钢筋连接' },
+        { value: 'obj3', label: '钢筋安装' },
+        { value: 'obj4', label: '模板安装' },
+        { value: 'obj5', label: '混凝土拌合物' },
+        { value: 'obj6', label: '混凝土施工' },
+        { value: 'obj7', label: '现浇结构' }
+      ]
+    }
   },
   methods: {
     saveInspect() {
       for (let i = this.buildingFloor; i <= this.buildingTop; i++) {
-        if (i === 0) continue;
-        this.allInspect.push({
-          floor: i,
-          inspectName: i.toString() + "层" + this.inspectName,
-          obj: this.checkList,
-        });
+        if (this.allInspect.findIndex(item => item.floor === i) !== -1) continue// 去重操作
+        if (i === 0) {
+          this.allInspect.push({
+            floor: i,
+            inspectName: '楼前地面',
+            obj: this.checkList
+          })
+        } else {
+          this.allInspect.push({
+            floor: i,
+            inspectName: i.toString() + '层' + this.inspectName,
+            obj: this.checkList
+          })
+        }
       }
-      this.dialogVisible = false;
+
+      // 排序
+      this.allInspect.sort((a, b) => {
+        return a.floor - b.floor
+      })
+      this.dialogVisible = false
     },
     addInspect() {
-      this.dialogVisible = true;
+      this.dialogVisible = true
     },
     changeXiang(scope) {},
     cancel() {
-       const data = { isShow: 0, //右侧组件显示空白
-                    isAbled: false,//新建按钮可用
-                    action: "cancel", 
-                     };
-      this.$emit("transmit", data);
+      const data = { isShow: 0, // 右侧组件显示空白
+        isAbled: false, // 新建按钮可用
+        action: 'cancel'
+      }
+      this.$emit('transmit', data)
     },
     preserve() {
-      const data = { isShow: 0, //右侧组件显示空白
-                    isAbled: false,//新建按钮可用
-                    action: "preserve", 
-                    nodeName: this.unitProjectName 
-                     };
-      this.$emit("transmit", data);
+      const data = {
+        isShow: 0, // 右侧组件显示空白
+        isAbled: false, // 新建按钮可用
+        action: 'preserve',
+        nodeName: this.subProInfo.subprojecttName,
+        obj: this.subProInfo
+      }
+      this.$emit('transmit', data)
     },
-  },
-};
+    deletejianyan(scope) {
+      console.log(scope)
+      this.allInspect.splice(scope.$index, 1)
+    }
+  }
+}
 </script>
 
 <style>

@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-//接口管理
+// 接口管理
 export function login(data) {
   return request({
     url: '/login/login',
@@ -8,14 +8,13 @@ export function login(data) {
   })
 }
 
-//token刷新接口
+// token刷新接口
 export function refreshToken() {
   return request({
     url: '/token/getToken',
-    method: 'get',
+    method: 'get'
   })
 }
-
 
 // export function getPermissionList(role) {
 //   return request({
