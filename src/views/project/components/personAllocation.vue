@@ -44,7 +44,7 @@
           </el-col>
         </el-row>
       </div>
-      <el-button type="primary" style="margin-bottom: 1em" @click="dialogVisible=true">添加</el-button>
+      <el-button type="primary" style="margin-bottom: 1em" @click="addPeople">添加</el-button>
       <div>
         <!-- 表格 -->
         <el-table
@@ -73,13 +73,13 @@
               <el-button
                 type="info"
                 size="mini"
-                @click="deleteBatch(scope)"
+                @click="lookUser"
               >查看
               </el-button>
               <el-button
                 type="danger"
                 size="mini"
-                @click="updateBatch(scope)"
+                @click="deleteBatch(scope)"
               >删除
               </el-button>
             </template>
@@ -99,7 +99,7 @@
       </div>
 
       <!--弹窗-->
-      <AllocationDialog :dialog-visible="dialogVisible" @savePeople="dialogVisible=false" />
+      <AllocationDialog :looks="looks" @savePeople="savePeople" />
     </div>
   </div>
 </template>
@@ -109,6 +109,7 @@
 import { getPerson, getProject } from '@/api/personAllocation'
 import { getProjects, getProjectsById } from '@/api/project'
 import AllocationDialog from '@/views/project/components/allocationDialog.vue'
+
 export default {
   components: {
     AllocationDialog
@@ -138,7 +139,11 @@ export default {
           label: '蚵仔煎'
         }
       ],
-      dialogVisible: false
+      looks: {
+        isLook1: false,
+        isLook2: false,
+        pre: 0
+      }
     }
   },
   computed: {
@@ -168,13 +173,11 @@ export default {
       const { result } = await getPerson(id)
       const data = await getProjectsById(id)
       const aaa = await getProject()
-      const bbb = await getProjects()
       this.personList = result
       this.project = data.result
 
       console.log('人员分配', aaa)
-      console.log('项目', bbb)
-      console.log(result)
+      console.log('getPerson', result)
       console.log(data)
     } catch (error) {
       console.log(error)
@@ -183,6 +186,13 @@ export default {
   methods: {
     changeXiang() {
 
+    },
+    addPeople() {
+      this.looks = {
+        isLook1: true,
+        isLook2: false,
+        pre: 0
+      }
     },
     // 分页器
     handleSizeChange(val) {
@@ -195,11 +205,41 @@ export default {
     handleSearch() {
       this.searchQuery = this.tempSearch
     },
+    lookUser() {
+      this.looks = {
+        isLook1: true,
+        isLook2: true,
+        pre: 1
+      }
+    },
     deleteBatch() {
 
     },
-    updateBatch() {
-
+    savePeople(obj) {
+      const { option, data, looks } = obj
+      // console.log(obj)
+      if (option === 2 && looks.pre === 0) {
+        this.looks = { // 进入用户查看弹窗
+          isLook1: true,
+          isLook2: true,
+          pre: 0
+        }
+      } else if (option === 1 && looks.pre === 0) { // 进入人员添加弹窗
+        this.looks = {
+          isLook1: true,
+          isLook2: false,
+          pre: 0
+        }
+      } else {
+        this.looks = { // 进入主界面
+          isLook1: false,
+          isLook2: false,
+          pre: 0
+        }
+      }
+      if (option === -1) {
+        console.log(data)
+      }
     }
   }
 }
@@ -208,7 +248,12 @@ export default {
 <style>
 .title {
   text-align: center;
-  font-weight: bold;  /* 加粗 */
-  font-size: 20px;    /* 增大字体 */
+  font-weight: bold; /* 加粗 */
+  font-size: 20px; /* 增大字体 */
+}
+
+.app-main-wrapper {
+  height: calc(100vh - 100px);
+  overflow-y: auto;
 }
 </style>

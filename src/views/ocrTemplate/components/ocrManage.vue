@@ -159,5 +159,8 @@ export default {
 </script>
 
 <style>
-
+.app-main-wrapper {
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+}
 </style>

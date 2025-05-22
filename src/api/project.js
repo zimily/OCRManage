@@ -49,20 +49,38 @@ export function deleteSubprojects(id) {
   )
 }
 
+// ------------------------------------后续删掉两个时间-------------------------------------------------
 export function postSubprojects(data) {
-  const { subprojectId, obj } = data
-  console.log(subprojectId)
+  const { subprojectId, projectId, obj } = data
+  console.log('subprojectId', subprojectId)
+  console.log('projectId', projectId)
+  console.log('obj', obj)
   const temp = {
-    subproject_id: subprojectId,
-    subprojecttName: obj.subprojecttName,
+    subprojectId: 112,
+    projectId: 103,
+    subprojectName: obj.subprojecttName,
     kanchaDirector: obj.kanchaDirector,
     shigongDirector: obj.shigongDirector,
-    jianduPeople: obj.jianduPeople,
+    // jianduPeople: obj.jianduPeople,
     jiansheDirector: obj.jiansheDirector,
     area: obj.area,
     jianliDirector: obj.jianliDirector,
-    technicalDirector: obj.technicalDirector,
-    shejiDirector: obj.shejiDirector
+    technicalDisorder: obj.technicalDisorder,
+    shejiDirector: obj.shejiDirector,
+    startDate: '2025-05-01 00:00:00',
+    finishDate: '2025-07-01 00:00:00'
+    // subprojectId: 112,
+    // projectId: 103,
+    // subprojectName: '子项目5',
+    // jiansheDirector: '建设主管5',
+    // shigongDirector: '施工主管5',
+    // jianliDirector: '监理主管5',
+    // shejiDirector: '设计主管5',
+    // kanchaDirector: '勘察主管5',
+    // technicalDisorder: '技术问题5',
+    // startDate: '2025-05-01 00:00:00',
+    // finishDate: '2025-07-01 00:00:00',
+    // area: '区域5'
   }
   return request(
     {

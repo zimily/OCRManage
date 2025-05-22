@@ -29,6 +29,7 @@
           <project-info
             v-if="isShow === 1"
             :visible.sync="isShow"
+            :project-id="projectId"
             @transmit="getMessage"
           />
           <unit-name-item
@@ -70,19 +71,17 @@ export default {
       lastAddedNode: null // 记录最新添加的节点
     }
   },
-
+  computed: {
+    projectId() {
+      return this.$route.query.projectId
+    }
+  },
   async created() {
     try {
       // const res = await getProjects()
       const data2 = await getAllSubprojectsById(2)
-      const data7 = await getAllSubprojectsById(7)
-      const data8 = await getAllSubprojectsById(8)
-      const data21 = await getAllSubprojectsById(21)
       // console.log(res)
       console.log(data2)
-      console.log(data7)
-      console.log(data8)
-      console.log(data21)
     } catch (error) {
       console.log(error)
     }
@@ -115,8 +114,7 @@ export default {
       if (data.action === 'preserve' && this.lastAddedNode) {
         // 如果是保存操作，更新最新添加节点的名称
         this.lastAddedNode.label = data.nodeName
-        console.log(this.lastAddedNode.id)
-        this.postSubprojects({ subprojectId: this.lastAddedNode.id, obj: data.obj })
+        this.postSubprojects({ subprojectId: this.lastAddedNode.id, projectId: this.projectId, obj: data.obj })
       } else if (data.action === 'cancel' && this.lastAddedNode) {
         // 如果是取消操作，删除最新添加的节点
         const rootNode = this.treeData[0]

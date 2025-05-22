@@ -50,7 +50,7 @@ export function getPerson(id) {
       url: '/assign/getPerson',
       method: 'get',
       params: {
-        opId: id
+        opId: 1
       }
     }
   )

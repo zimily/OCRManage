@@ -22,7 +22,7 @@
               <el-input
                 v-model="searchQuery"
                 placeholder="请输入搜索内容"
-                style="width: 300px; margin-right: 10px"
+                style="width: 20em; margin-right: 1em"
               />
               <el-button type="primary" @click="handleSearch">搜索</el-button>
             </el-col>
@@ -84,17 +84,6 @@
         </el-table-column>
       </el-table>
 
-      <!-- 分页器 -->
-      <el-pagination
-        style="margin-top: 20px; text-align: center"
-        :current-page="currentPage"
-        :page-sizes="[10, 15, 20]"
-        :page-size="limit"
-        layout=" prev, pager, next, jumper,->,sizes,total"
-        :total="totalData"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
       <!-- 分页器 -->
       <el-pagination
         style="margin-top: 20px; text-align: center"
@@ -169,10 +158,11 @@ export default {
     },
     // 编辑按钮
     updateproject(scope) {
-      console.log('点击项目编辑', scope, scope.$index)
+      console.log('点击项目编辑', scope, scope.row)
+      console.log(scope)
       this.$router.push({
         path: '/menus/project/projectEdit',
-        query: { index: scope.$index }
+        query: { projectId: scope.row.projectId }
       })
     },
     // 搜索事件
@@ -183,18 +173,10 @@ export default {
     handleSizeChange(val) {
       this.limit = val
       console.log(`每页 ${val} 条`)
-
-      console.log(this.currentPage)
-      console.log(this.limit)
-      console.log(this.totalData)
     },
     handleCurrentChange(val) {
       this.currentPage = val
       console.log(`当前页: ${val}`)
-
-      console.log(this.currentPage)
-      console.log(this.limit)
-      console.log(this.totalData)
     },
     headerCellClassName({ column }) {
       return 'header-cell-highlight' // 返回自定义的类名
@@ -215,4 +197,8 @@ export default {
 </script>
 
 <style>
+.app-main-wrapper {
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+}
 </style>

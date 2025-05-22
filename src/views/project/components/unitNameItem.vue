@@ -67,7 +67,7 @@
               <el-col :span="12">
                 <el-form-item label="项目技术负责人">
                   <el-input
-                    v-model="subProInfo.technicalDirector"
+                    v-model="subProInfo.technicalDisorder"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
@@ -247,18 +247,24 @@ import TableItem from '@/views/project/components/tableItem.vue'
 
 export default {
   components: { TableItem },
+  props: {
+    projectId: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       form: {},
       subProInfo: {
-        subprojecttName: '保利心语佳苑1#楼', // 单位工程名称
+        subprojecttName: '项目1', // 单位工程名称
         kanchaDirector: '张三', // 勘察单位负责人
         shigongDirector: '建工', // 施工单位负责人
         jianduPeople: '监工', // 监督单位负责人
         jiansheDirector: '建设单位负责人', // 建设单位负责人
         area: 10000, // 施工面积
         jianliDirector: '监理单位负责人', // 监理单位负责人
-        technicalDirector: '设计单位负责人', // 项目技术负责人
+        technicalDisorder: '设计单位负责人', // 项目技术负责人
         shejiDirector: '设计单位负责人' // 设计单位负责人
       },
       allInspect: [], // 所有检验批部位,

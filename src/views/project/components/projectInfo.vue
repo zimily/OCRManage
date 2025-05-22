@@ -12,7 +12,7 @@
         <el-cascader
           v-model="info.provinces"
           size="large"
-          :options="options"
+          :options="pcaTextArr"
           placeholder="请选择省市区"
           @change="handleChange"
         />
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { regionData } from 'element-china-area-data' // 引入
+import { pcaTextArr } from 'element-china-area-data' // 引入
 export default {
   name: 'ProjectInfo',
   data() {
@@ -52,7 +52,7 @@ export default {
       info: {
         proNo: '457875',
         proName: '郑州中原保利心语项目',
-        provinces: ['41', '4102', '410202'], // 默认选中西湖区
+        provinces: ['北京市', '市辖区', '东城区'], // 默认选中西湖区
         constructionUnit: '中建A局B公司甲分公司',
         develpoerUnit: '郑州煜盛房地产开发有限公司',
         supervisionUnit: '中新华都国际工程咨询有限公司',
@@ -60,7 +60,7 @@ export default {
         surveyUnit: '郑州中核岩土工程有限公司',
         regulatoryUnit: '河南省XX有限公司'
       },
-      options: regionData // 选择格式
+      pcaTextArr// 选择格式
     }
   },
   methods: {
@@ -79,7 +79,8 @@ export default {
     },
     // 事件触发  区域选择
     handleChange(e) {
-      console.log(e, '所选code值')
+      const jsonValue = JSON.stringify(e)
+      console.log('省市区json字符串', jsonValue)
     }
   }
 }
