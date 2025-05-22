@@ -76,10 +76,32 @@ export const constantRoutes = [
         meta: { title: '数据采集任务', icon: 'task' }
       },
       {
-        path: 'assignment',
-        name: 'Assignment',
+        path: 'collection',
+        name: 'Collection',
+        redirect: '/menus/collection/collectionManage',
         component: () => import('@/views/dataCollection/taskAssignment'),
-        meta: { title: '采集任务分发', icon: 'assign' }
+        meta: { title: '数据采集情况', icon: 'assign' },
+        children:[
+            {
+              path:'collectionManage',
+              name:'CollectionManage',
+              component: () => import('@/views/dataCollection/taskAssignment/components/collectionManage.vue'),
+              meta: { title: '数据采集情况管理', breadcrumb: false }
+            },
+            {
+              path:'assignment',
+              name:'Assignment',
+              component: () => import('@/views/dataCollection/taskAssignment/components/assignment.vue'),
+              meta: { title: '采集任务分发'}
+            },
+            {
+              path:'collectionDetail',
+              name:'CollectionDetail',
+              component: () => import('@/views/dataCollection/taskAssignment/components/collectionDetail.vue'),
+              meta: { title: '数据采集详情'}
+            }
+
+        ]
       },
       {
         path: 'project',
@@ -92,19 +114,19 @@ export const constantRoutes = [
             path: 'personAllocation',
             name: 'PersonAllocation',
             component: () => import('@/views/project/components/personAllocation.vue'),
-            meta: { title: '人员分配', icon: 'assign' }
+            meta: { title: '人员分配', }
           },
           {
             path: 'projectManage',
             name: 'projectManage',
             component: () => import('@/views/project/components/projectManage.vue'),
-            meta: { title: '项目管理', icon: 'assign', breadcrumb: false }
+            meta: { title: '项目管理', breadcrumb: false }
           },
           {
             path: 'projectEdit',
             name: 'projectEdit',
             component: () => import('@/views/project/components/projectEdit.vue'),
-            meta: { title: '项目编辑', icon: 'assign' }
+            meta: { title: '项目编辑' }
           }
         ]
       },

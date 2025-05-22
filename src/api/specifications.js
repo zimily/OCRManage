@@ -16,7 +16,7 @@ export function getAllSpecifications(page,limit) {
   // }
   export function getSpecificationsById(Id) {
     return request({
-      url: `inspection-lot-template-item/inspectItemId?inspectItemId=${Id}`,
+      url: `inspection-lot-template-item/${Id}`,
       method: 'get',
     })
   }
