@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- 检验批内容 -->
+    <!-- 验收规范 -->
     <el-card :body-style="{ padding: '20px' }">
       <el-form
         :inline="true"
@@ -30,10 +30,11 @@
         </el-form-item>
       </el-form>
     </el-card>
+    <!-- 验收规范细则 -->
     <el-card>
       <!-- 添加按钮 -->
-      <el-button type="primary" icon="el-icon-plus" style="margin: 10px 10px"
-        >添加指标</el-button
+      <el-button type="primary" icon="el-icon-plus" style="margin: 10px 10px" @click="addRule()"
+        >添加规则</el-button
       >
       <!-- 指标表格 -->
       <el-table :data="batchInformation.indices" style="width: 100%" border>
@@ -41,59 +42,26 @@
           type="index"
           label="序号"
           align="center"
-          :span="1"
         ></el-table-column>
-        <el-table-column prop="prop" label="指标名称" align="center">
-          <!-- 需要在显示和输入状态切换
-            插槽  并将父组件中的数据传递给子组件。 -->
-          <template slot-scope="{ row, $index }">
-            <el-input
-              v-model="row.name"
-              placeholder="请输入指标名称"
-              v-if="row.flag"
-              @blur="toLook(row, $index)"
-              @keyup.native.enter="toLook(row, $index)"
-              size="small"
-            ></el-input>
-            <span v-else @click="toEdit(row, $index)">
-              {{ row.name }}
-            </span>
-          </template>
+        <el-table-column prop="name" label="验收项目" align="center">
         </el-table-column>
-        <el-table-column prop="prop" label="规则" align="center" width="150">
-          <template slot-scope="{ row, $index }">
-            <el-select v-model="row.rule" placeholder="请选择规则" size="small">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              >
-              </el-option>
-            </el-select>
-          </template>
+        <el-table-column prop="rule" label="规则" align="center" width="100">
         </el-table-column>
         <el-table-column
           prop="standard"
           label="标准值或规范"
           align="center"
-          :span="4"
+          width="130"
         >
         </el-table-column>
-        <el-table-column prop="X" label="参数X含义" align="center" width="150">
+        <el-table-column prop="X" label="参数含义" align="center" width="100">
         </el-table-column> 
-        <el-table-column prop="type" label="类型" align="center" width="200">
-          <template slot-scope="{ row, $index }">
-            <el-radio v-model="row.type" label="主控">主控</el-radio>
-            <el-radio v-model="row.type" label="一般">一般</el-radio>
-          </template>
+         <el-table-column prop="unit" label="单位" align="center" width="80">
+        </el-table-column> 
+        <el-table-column prop="proType" label="项目类型" align="center" width="100">
         </el-table-column>
-        <el-table-column
-          prop="minSample"
-          label="最小抽样批量"
-          align="center"
-          width="80"
-        >
+         <el-table-column prop="dataType" label="数据类型" align="center" width="100">
+        </el-table-column>
         </el-table-column>
         <el-table-column
           prop="qualication"
@@ -102,13 +70,27 @@
           width="80"
         >
         </el-table-column>
+        <el-table-column
+          prop="totalSamples"
+          label="样本总数"
+          align="center"
+          width="80"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="minSample"
+          label="最小抽样批量"
+          align="center"
+          width="200"
+        >
+         </el-table-column>
         <el-table-column prop="prop" label="操作" align="center" width="250">
           <el-button
             type="warning"
             icon="el-icon-edit"
             size="mini"
-            @click="addRule()"
-            >添加规则</el-button
+            @click="updateRule()"
+            >编辑规则</el-button
           >
           <el-button
             type="danger"
@@ -125,12 +107,98 @@
         <el-button @click="quxiao">取消</el-button>
       </div>
     </el-card>
+
+   <!-- 弹窗 -->
+    <el-dialog :title="dialogFormTitle" :visible.sync="dialogFormVisible">
+      <el-form :model="form">
+        <el-form-item label="验收项目" :label-width="formLabelWidth">
+          <el-input v-model="form.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="规则" :label-width="formLabelWidth">
+          <!-- <el-input v-model="form.rule" autocomplete="off"></el-input> -->
+           <el-select v-model="form.rule" placeholder="请选择">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="标准值或规范" :label-width="formLabelWidth">
+          <el-input v-model="form.standard" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="参数含义" :label-width="formLabelWidth">
+          <el-input v-model="form.X" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="单位" :label-width="formLabelWidth">
+          <el-input v-model="form.unit" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="项目类型" :label-width="formLabelWidth">
+          <el-input v-model="form.proType" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="数据类型" :label-width="formLabelWidth">
+          <el-input v-model="form.dataType" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="合格率阈值" :label-width="formLabelWidth">
+          <el-input v-model="form.qualication" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="样本总数为空" :label-width="formLabelWidth">
+           <el-radio v-model="form.flag" :label="true">是</el-radio>
+           <el-radio v-model="form.flag" :label="false">否</el-radio>
+        </el-form-item>
+        <el-form-item label="样本总数来源" :label-width="formLabelWidth">
+          <el-checkbox-group v-model="form.checkList">
+            <el-checkbox label="墙"></el-checkbox>
+            <el-checkbox label="板"></el-checkbox>
+            <el-checkbox label="梁"></el-checkbox>
+            <el-checkbox label="柱"></el-checkbox>
+            <el-checkbox label="电梯井"></el-checkbox>
+            <el-checkbox label="钢筋"></el-checkbox>
+            <el-checkbox label="混凝土"></el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="最小抽样规则" :label-width="formLabelWidth">
+          <el-select v-model="form.minSampleTye" placeholder="请选择抽样规则" style="width: 100%;">
+          <el-option label="全数检查" value="all"></el-option>
+          <el-option label="按比例抽样" value="ratio"></el-option>
+          <el-option label="按批次抽样" value="batch"></el-option>
+          <el-option label="满X抽1" value="everyX"></el-option>
+        </el-select>
+        </el-form-item>
+         <!-- 动态表单内容 -->
+        <template v-if="form.minSampleTye === 'ratio'">
+          <el-form-item label="抽取比例" :label-width="formLabelWidth">
+            <el-input v-model="form.ratioPercent" placeholder="请输入百分比" suffix="%"></el-input>
+          </el-form-item>
+          <el-form-item label="不少于" :label-width="formLabelWidth">
+            <el-input v-model="form.ratioMin" placeholder="请输入最少抽取数量" suffix="处"></el-input>
+          </el-form-item>
+        </template>
+
+        <template v-else-if="form.minSampleTye === 'batch'" >
+          <el-form-item label="每批抽" :label-width="formLabelWidth">
+            <el-input v-model="form.batchCount" placeholder="请输入每批抽取个数" suffix="个"></el-input>
+          </el-form-item>
+        </template>
+
+        <template v-else-if="form.minSampleTye === 'everyX'" >
+          <el-form-item label="满X抽1" :label-width="formLabelWidth">
+            <el-input v-model="form.everyX" placeholder="请输入X值" suffix="抽1"></el-input>
+          </el-form-item>
+        </template>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
-import {getSpecificationsById } from "@/api/specifications";
+import { getSpecificationsById } from "@/api/specifications";
 export default {
-  name:"batchDetail",
+  name: "batchDetail",
   data() {
     return {
       batchInformation: {
@@ -140,23 +208,27 @@ export default {
         indices: [
           {
             name: "外观质量",
-            rule: "选项1",
+            rule: "是否合格",
             standard: "第8.2.1条",
             X: "全高（mm）",
-            type: "主控",
+            unit: "mm",
+            proType: "主控",
             minSample: "全部",
+            dataType: "观察",
+            totalSamples: "全",
             qualication: "100%",
-            flag: false,
           },
           {
             name: "尺寸偏差",
-            rule: "选项2",
-            standard: "第8.2.1条",
+            rule: "小于等于",
+            standard: "H/10000且≤80",
             X: "-",
-            type: "一般",
-            minSample: "全部",
+            unit: "",
+            proType: "一般",
+            dataType: "测量",
+            minSample: "10%且至少3处",
+            totalSamples: "全",
             qualication: "100%",
-            flag: false,
           },
         ],
       },
@@ -174,43 +246,71 @@ export default {
           label: "范围",
         },
       ],
+      checkList: [
+        "墙",
+        "板",
+        "梁",
+        "柱",
+        "电梯井",
+        "钢筋",
+        "混凝土",
+        "机械连接",
+        "独立基础",
+      ],
+      dialogFormVisible: false,
+      dialogFormTitle: "",
+      form: {
+        name: "尺寸偏差",
+        rule: "小于等于",
+        standard: "H/10000且≤80",
+        X: "全高（mm）",
+        unit: "mm",
+        proType: "一般",
+        dataType: "测量",
+        flag: false, //样本数量是否为空格
+        checkList: [
+          "墙",
+          "板",
+          "梁",
+          "柱",
+          "电梯井",
+          "钢筋",
+          "混凝土",
+          "机械连接",
+          "独立基础",
+        ],
+        minSampleTye:"",
+        minSample: "10%且至少3处",
+        totalSamples: "全",
+        qualication: "100%",
+      },
+      formLabelWidth: "120px",
     };
   },
   props: {
-   curInspecId: {
+    curInspecId: {
       type: Number,
-      required: true // 或者 false，根据你的需求
-    }
+      required: true, // 或者 false，根据你的需求
+    },
   },
-  created(){
-    this. getInpecInfo()
+  created() {
+    this.getInpecInfo();
   },
   methods: {
-   async getInpecInfo(){
-      const id=parseInt(this.curInspecId)
-      console.log('inspectItemId',id,typeof id)
-       try {
-        let res=await  getSpecificationsById(id)
-        if (res.code==200){
-          console.log(res)
-        }else{
-          throw new Error(res.message||"获取验收规范失败");
+    async getInpecInfo() {
+      const id = parseInt(this.curInspecId);
+      console.log("inspectItemId", id, typeof id);
+      try {
+        let res = await getSpecificationsById(id);
+        if (res.code == 200) {
+          console.log(res);
+        } else {
+          throw new Error(res.message || "获取验收规范失败");
         }
       } catch (error) {
         this.$message.error("出错啦，请稍后重试！");
         console.log(error);
       }
-    },
-    //由编辑状态跳转到查看状态
-    toLook(row, index) {
-      //   console.log('输入框在失去焦点后，变为查看模式',row,index)
-      //input 消失 span 显示
-      row.flag = false;
-    },
-    //由查看状态跳转到编辑状态
-    toEdit(row, index) {
-      // console.log('span点击事件',row,index)
-      row.flag = true;
     },
     //保存按钮
     addBatch() {
@@ -225,7 +325,15 @@ export default {
       this.$emit("transmit", data);
     },
     //添加规则按钮
-    addRule() {},
+    addRule() {
+      this.dialogFormVisible = true;
+      this.dialogFormTitle = "添加规则";
+    },
+    //编辑规则
+    updateRule() {
+      this.dialogFormVisible = true;
+      this.dialogFormTitle = "编辑规则";
+    },
     //删除规则按钮
     deleteRule() {},
   },

@@ -219,7 +219,7 @@ export default {
         验收规范管理: "/menus/inspection",
         台账管理: "/menus/ledger",
         报表管理: "/menus/statement",
-        数据采集情况: "/menus/assignment",
+        数据采集情况: "/menus/collection",
         数据采集任务: "/menus/task",
         OCR模版库:"/menus/ocrTemplate",
         角色管理: "/menus/roles",

@@ -32,7 +32,7 @@ export default {
     },
   },
   mounted() {
-    console.log(this.apps);
+    // console.log("AppList",this.apps);
   },
   methods: {
    
