@@ -1,32 +1,30 @@
 <template>
   <div>
     <div style="margin: 1em">
-      <el-row>
-        <el-col :span="24">
-          <el-row>
-            <el-col :span="12" style="margin-left: 20em">{{ '类别' }}
-              <el-select
-                placeholder="请选择"
-                value=""
-                @change="changeXiang()"
-              >
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.label"
-                />
-              </el-select>
-            </el-col>
-            <el-col :span="6">
-              <el-input
-                v-model="searchQuery"
-                placeholder="请输入搜索内容"
-                style="width: 20em; margin-right: 1em"
+      <el-row :gutter="20">
+        <el-col :span="6" :offset="2">
+          <div class="left">
+            <span style="margin-right:1em">状态</span>
+            <el-select v-model="projectState" placeholder="请选择" value="" @change="changeXiang">
+              <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.label"
               />
-              <el-button type="primary" @click="handleSearch">搜索</el-button>
-            </el-col>
-          </el-row>
+            </el-select>
+          </div>
+        </el-col>
+        <el-col :span="6" :offset="8">
+          <div class="right">
+            <el-input
+              v-model="searchQuery"
+              placeholder="请输入搜索内容"
+              style="width: 20em; margin-right: 1em"
+              @click="handleSearch"
+            />
+            <el-button type="primary" @click="handleSearch">搜索</el-button>
+          </div>
         </el-col>
       </el-row>
     </div>
@@ -35,25 +33,17 @@
       <el-table :data="currentPageData" style="width: 100%" border>
         <el-table-column
           label="项目号"
-          prop="companyId"
+          prop="projectInnerCode"
           align="center"
         />
-        <el-table-column
-          label="项目名称"
-          prop="projectName"
-          align="center"
-        />
+        <el-table-column label="项目名称" prop="projectName" align="center" />
         <el-table-column
           label="所属单位"
           prop="shigongCompanyName"
           width="200"
           align="center"
         />
-        <el-table-column
-          label="状态"
-          width="200"
-          align="center"
-        >
+        <el-table-column label="状态" width="200" align="center">
           <template v-slot="scope">
             <span v-if="scope.row.isCreated">已创建</span>
             <span v-else>待创建</span>
@@ -66,21 +56,23 @@
               icon="el-icon-user"
               size="mini"
               @click="allocation(scope)"
-            >人员分配</el-button>
+            >人员分配
+            </el-button>
+            <el-button
+              type="info"
+              icon="el-icon-delete"
+              size="mini"
+              @click="lookProject(scope)"
+            >查看
+            </el-button>
             <el-button
               type="warning"
               icon="el-icon-edit"
               size="mini"
               @click="updateproject(scope)"
-            >编辑</el-button>
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              @click="deleteProject(scope)"
-            >删除</el-button>
+            >编辑
+            </el-button>
           </template>
-
         </el-table-column>
       </el-table>
 
@@ -101,11 +93,13 @@
 
 <script>
 import { getProjects } from '@/api/project'
-export default {
 
+export default {
   data() {
     return {
+      projectState: '', // 存下拉框内容
       searchQuery: '', // 用于存储输入框的内容
+      finalSearchQuery: '', // 用于存储输入框最终的内容
       info: [],
       currentPage: 1, // 分页器数据
       limit: 10, // 每页显示的数据
@@ -113,15 +107,15 @@ export default {
       options: [
         {
           value: 1,
-          label: '黄金糕'
+          label: '未创建'
         },
         {
           value: 2,
-          label: '双皮奶'
+          label: '已创建'
         },
         {
           value: 3,
-          label: '蚵仔煎'
+          label: '空'
         }
       ]
     }
@@ -129,8 +123,12 @@ export default {
   computed: {
     currentPageData() {
       let res = this.info
-      if (this.searchQuery !== '') {
-        res = this.info.filter(item => item.name === this.info)
+      if (this.finalSearchQuery !== '') {
+        res = this.info.filter((item) => item.projectName === this.finalSearchQuery)
+      }
+      if (this.projectState !== '' || this.projectState !== '空') {
+        const state = this.projectState !== '未创建'
+        res = res.filter((item) => item.isCreated === state)
       }
       this.totalData = res.length
       return res.slice(
@@ -146,15 +144,15 @@ export default {
     } catch (error) {
       console.log(error)
     }
-    console.log(this.info)
-    const list = JSON.parse(JSON.stringify(this.info))
-    for (let i = 0; i < list.length; i++) {
-      this.info.push(list[i])
-    }
+    console.log('项目信息', this.info)
+    // const list = JSON.parse(JSON.stringify(this.info))
+    // for (let i = 0; i < list.length; i++) {
+    //   this.info.push(list[i])
+    // }
+    //  console.log("项目信息1",this.info)
   },
   methods: {
     changeXiang() {
-
     },
     // 编辑按钮
     updateproject(scope) {
@@ -165,9 +163,16 @@ export default {
         query: { projectId: scope.row.projectId }
       })
     },
+    lookProject(scope) {
+      this.$router.push({
+        path: '/menus/project/projectEdit',
+        query: { projectId: scope.row.projectId }
+      })
+    },
     // 搜索事件
     handleSearch() {
       console.log('搜索内容:', this.searchQuery)
+      this.finalSearchQuery = this.searchQuery
     },
     // 分页器
     handleSizeChange(val) {
@@ -200,5 +205,17 @@ export default {
 .app-main-wrapper {
   height: calc(100vh - 100px);
   overflow-y: auto;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  padding: 0.5em;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  padding: 0.5em;
 }
 </style>

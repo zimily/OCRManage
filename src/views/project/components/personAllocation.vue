@@ -8,7 +8,7 @@
             <el-form ref="form" :model="form" label-width="170px">
               <el-row>
                 <el-col :span="6">
-                  <el-form-item label="项目号">{{ project.projectId }}</el-form-item>
+                  <el-form-item label="项目号">{{ project.projectInnerCode }}</el-form-item>
                 </el-col>
                 <el-col :span="6">
                   <el-form-item label="项目名称">{{ project.projectName }}</el-form-item>
@@ -106,8 +106,8 @@
 
 <script>
 
-import { getPerson, getProject } from '@/api/personAllocation'
-import { getProjects, getProjectsById } from '@/api/project'
+import { getAssignDetailById, getSelectAssignment } from '@/api/personAllocation'
+import { getProjectsById } from '@/api/project'
 import AllocationDialog from '@/views/project/components/allocationDialog.vue'
 
 export default {
@@ -116,6 +116,7 @@ export default {
   },
   data() {
     return {
+      projectId: 0, // 当前项目的id
       form: {},
       personList: [],
       project: [],
@@ -159,7 +160,7 @@ export default {
       )
     }
   },
-  async created() {
+  created() {
     // 把projectId存到本地
     let id = this.$route.params.id
     console.log(id, this.$route.params)
@@ -169,21 +170,39 @@ export default {
     id = JSON.parse(localStorage.getItem('projectId'))
     this.projectId = id
 
-    try {
-      const { result } = await getPerson(id)
-      const data = await getProjectsById(id)
-      const aaa = await getProject()
-      this.personList = result
-      this.project = data.result
-
-      console.log('人员分配', aaa)
-      console.log('getPerson', result)
-      console.log(data)
-    } catch (error) {
-      console.log(error)
-    }
+    this.getProject()
+    this.getSelectAssignment()
   },
   methods: {
+    async getAssignDetailById() {
+      try {
+        const id = 871763967
+        const result = await getAssignDetailById(id)
+        console.log('getAssignDetailById', id, result)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getProject() {
+      try {
+        const { result } = await getProjectsById(this.projectId)
+        this.project = result
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getSelectAssignment() {
+      const data = {
+        projectId: 1
+      }
+      console.log('分配好的人员的条件分页查询')
+      try {
+        const result = await getSelectAssignment(data)
+        console.log('分配好的人员的条件分页查询', result)
+      } catch (error) {
+        console.log(error)
+      }
+    },
     changeXiang() {
 
     },

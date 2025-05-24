@@ -8,7 +8,7 @@
               <el-col :span="12">
                 <el-form-item label="单位工程名称">
                   <el-input
-                    v-model="subProInfo.subprojecttName"
+                    v-model="subProInfo.subprojectName"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
@@ -34,7 +34,7 @@
               <el-col :span="12">
                 <el-form-item label="监督单位项目负责人">
                   <el-input
-                    v-model="subProInfo.jianduPeople"
+                    v-model="subProInfo.jianduDirector"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
@@ -67,7 +67,7 @@
               <el-col :span="12">
                 <el-form-item label="项目技术负责人">
                   <el-input
-                    v-model="subProInfo.technicalDisorder"
+                    v-model="subProInfo.technicalDirector"
                     placeholder="请输入内容"
                   />
                 </el-form-item>
@@ -244,28 +244,33 @@
 
 <script>
 import TableItem from '@/views/project/components/tableItem.vue'
+import { getInspectRulesById, getSubprojects, postSubprojects, putSubprojects } from '@/api/project'
 
 export default {
   components: { TableItem },
   props: {
-    projectId: {
-      type: String,
-      default: ''
+    subprojectId: {
+      type: Number,
+      default: null
     }
   },
   data() {
     return {
       form: {},
       subProInfo: {
-        subprojecttName: '项目1', // 单位工程名称
-        kanchaDirector: '张三', // 勘察单位负责人
-        shigongDirector: '建工', // 施工单位负责人
-        jianduPeople: '监工', // 监督单位负责人
-        jiansheDirector: '建设单位负责人', // 建设单位负责人
-        area: 10000, // 施工面积
-        jianliDirector: '监理单位负责人', // 监理单位负责人
-        technicalDisorder: '设计单位负责人', // 项目技术负责人
-        shejiDirector: '设计单位负责人' // 设计单位负责人
+        // subprojectName: '项目1', // 单位工程名称
+        // kanchaDirector: '张三', // 勘察单位负责人
+        // shigongDirector: '建工', // 施工单位负责人
+        // jianduPeople: '监工', // 监督单位负责人
+        // jiansheDirector: '建设单位负责人', // 建设单位负责人
+        // area: 10000, // 施工面积
+        // jianliDirector: '监理单位负责人', // 监理单位负责人
+        // technicalDisorder: '设计单位负责人', // 项目技术负责人
+        // shejiDirector: '设计单位负责人', // 设计单位负责人
+        // startDate: '2025-05-01 00:00:00',
+        // finishDate: '2025-05-23T13:26:03.702Z',
+        // projectId: 2,
+        // subprojectId: 0
       },
       allInspect: [], // 所有检验批部位,
       options: [
@@ -299,7 +304,75 @@ export default {
       ]
     }
   },
+  computed: {
+    projectId() {
+      return this.$route.query.projectId
+    }
+  },
+  watch: {
+    subprojectId(newValue) {
+      if (newValue) {
+        this.getSubprojects()
+      } else {
+        this.subProInfo = {}
+      }
+    }
+  },
+  created() {
+    this.getSubprojects()
+    this.getInspectRulesById()
+  },
   methods: {
+    async getInspectRulesById() {
+      try {
+        const res = await getInspectRulesById(2)
+        console.log('验收规范信息', res)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getSubprojects() {
+      if (this.subprojectId) {
+        try {
+          const { result } = await getSubprojects(this.subprojectId)
+          console.log('getSubprojects', result)
+          this.subProInfo = result
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    },
+    async postSubprojects() {
+      try {
+        this.subProInfo.subprojectName = '前端项目3-1', // 单位工程名称
+        this.subProInfo.kanchaDirector = '张三', // 勘察单位负责人
+        this.subProInfo.shigongDirector = '建工', // 施工单位负责人
+        this.subProInfo.jianduDirector = '监工', // 监督单位负责人
+        this.subProInfo.jiansheDirector = '建设单位负责人', // 建设单位负责人
+        this.subProInfo.area = 10000, // 施工面积
+        this.subProInfo.jianliDirector = '监理单位负责人', // 监理单位负责人
+        this.subProInfo.technicalDirector = '项目技术负责人', // 项目技术负责人
+        this.subProInfo.shejiDirector = '设计单位负责人', // 设计单位负责人
+        this.subProInfo.startDate = '2025-05-01 00:00:00',
+        this.subProInfo.finishDate = '2025-05-01 00:00:00',
+        this.subProInfo.projectId = this.projectId
+        this.subProInfo.subprojectId = 240033
+        const res = await postSubprojects(this.subProInfo)
+        console.log('创建一个新的分项目', res)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async putSubprojects() {
+      try {
+        this.subProInfo.projectId = this.projectId
+        console.log('this.subProInfo', this.subProInfo)
+        const res = await putSubprojects(this.subprojectId, this.subProInfo)
+        console.log('根据分项目ID更新分项目全部字段', res)
+      } catch (error) {
+        console.log(error)
+      }
+    },
     saveInspect() {
       for (let i = this.buildingFloor; i <= this.buildingTop; i++) {
         if (this.allInspect.findIndex(item => item.floor === i) !== -1) continue// 去重操作
@@ -340,8 +413,13 @@ export default {
         isShow: 0, // 右侧组件显示空白
         isAbled: false, // 新建按钮可用
         action: 'preserve',
-        nodeName: this.subProInfo.subprojecttName,
-        obj: this.subProInfo
+        nodeName: this.subProInfo.subprojectName
+      }
+      // 如果有分项目ID，则更新分项目，否则创建新的分项目
+      if (this.subprojectId) {
+        this.putSubprojects()
+      } else {
+        this.postSubprojects()
       }
       this.$emit('transmit', data)
     },

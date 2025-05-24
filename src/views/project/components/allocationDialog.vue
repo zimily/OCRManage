@@ -36,7 +36,7 @@
           </el-form>
         </el-col>
       </el-row>
-      <el-table :data="currentPageData" stripe style="width: 100%">
+      <el-table :data="tableData" stripe style="width: 100%">
         <el-table-column prop="selection" label="选择" width="90">
           <template v-slot="scope">
             <div>
@@ -47,11 +47,11 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="用户编号" width="180" />
-        <el-table-column prop="name" label="姓名" width="100" />
-        <el-table-column prop="role" label="角色" width="100" />
-        <el-table-column prop="phone" label="所属单位" width="180" />
-        <el-table-column prop="phone" label="部门" width="180" />
+        <el-table-column prop="id" label="用户编号" width="180" />
+        <el-table-column prop="realname" label="姓名" width="100" />
+        <el-table-column prop="roleName" label="角色" width="100" />
+        <el-table-column prop="companyName" label="所属单位" width="180" />
+        <el-table-column prop="pkDeptdoc" label="部门" width="180" />
         <el-table-column prop="option" label="操作" width="100">
           <el-button
             type="info"
@@ -121,8 +121,7 @@
 </template>
 
 <script>
-import { getPerson, getProject } from '@/api/personAllocation'
-import { getProjectsById } from '@/api/project'
+import { getPerson, getPersonPage, getPersonPageById } from '@/api/personAllocation'
 
 export default {
   props: {
@@ -155,32 +154,7 @@ export default {
           label: '蚵仔煎'
         }
       ],
-      tableData: [
-        {
-          name: '张三',
-          role: '总工',
-          phone: '0',
-          selection: false
-        },
-        {
-          name: '李四',
-          role: '采集员',
-          phone: '1',
-          selection: false
-        },
-        {
-          name: '王五',
-          role: '总工',
-          phone: '2',
-          selection: false
-        },
-        {
-          name: '赵六',
-          role: '分析员',
-          phone: '3',
-          selection: false
-        }
-      ],
+      tableData: [],
       ZGongIndex: -1, // 总工的索引
       selection: false,
       currentPage: 1, // 分页器数据
@@ -200,20 +174,45 @@ export default {
       deep: true
     }
   },
-  async created() {
-    try {
-      const { result } = await getPerson(id)
-      this.personList = result
-      this.project = data.result
-
-      console.log('getPerson', result)
-    } catch (error) {
-      console.log(error)
-    }
-
+  created() {
+    this.getPersons()
     this.changeCurrentPageData()
+    // this.getPersonPage()
   },
   methods: {
+    //  获取人员列表
+    async getPersons() {
+      try {
+        this.tableData = []
+        const { result } = await getPerson(1)// -----以后更改为id------
+        for (let i = 0; i < result.length; i++) {
+          this.tableData.push({
+            id: result[i].id,
+            realname: result[i].realname,
+            roleName: result[i].roleName,
+            companyName: result[i].companyName,
+            pkDeptdoc: result[i].pkDeptdoc,
+            selection: false
+          })
+        }
+        // console.log('getPerson', result)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getPersonPage() {
+      try {
+        const data = {
+          opId: 1,
+          page: this.currentPage,
+          pageSize: this.limit
+        }
+        const res = await getPersonPage(data)
+        console.log('管理员所在分公司下的分条件页查询', res)
+      } catch (error) {
+        console.log(error)
+      }
+    },
     changeXiang() {
 
     },
@@ -229,13 +228,13 @@ export default {
 
       if (this.ZGongIndex === index) {
         this.ZGongIndex = -1
-      } else if (this.ZGongIndex !== -1 && scope.row.role === '总工') { // 选中了当前总工
+      } else if (this.ZGongIndex !== -1 && scope.row.roleName === '总工') { // 选中了当前总工
         this.$message({
           message: '已有一个总工',
           type: 'warning'
         })
         return
-      } else if (this.ZGongIndex === -1 && scope.row.role === '总工') {
+      } else if (this.ZGongIndex === -1 && scope.row.roleName === '总工') {
         this.ZGongIndex = index
       }
       // table列表内选择框状态改变
@@ -255,8 +254,9 @@ export default {
     changeCurrentPageData() {
       let res = this.tableData
       if (this.tempSearch !== '') {
-        res = this.tableData.filter(item => item.name === this.tableData)
+        res = this.tableData.filter(item => item.realname === this.tableData)
       }
+      console.log('changeCurrentPageData', res)
       this.totalData = res.length
       this.currentPageData = res.slice(
         (this.currentPage - 1) * this.limit,

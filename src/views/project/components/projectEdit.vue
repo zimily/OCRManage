@@ -20,6 +20,7 @@
               node-key="id"
               show-checkbox
               default-expand-all
+              @node-click="hangleNodeClick"
             />
           </div>
         </el-card>
@@ -34,6 +35,7 @@
           />
           <unit-name-item
             v-if="isShow === 2"
+            :subproject-id="subprojectId"
             @transmit="handleUnitNameItem"
           />
         </el-card>
@@ -44,7 +46,7 @@
 <script>
 import UnitNameItem from '@/views/project/components/unitNameItem.vue'
 import ProjectInfo from '@/views/project/components/projectInfo'
-import { getAllProjects, getAllSubprojectsById, postSubprojects } from '@/api/project'
+import { deleteSubprojects, getAllSubprojectsById, getProjectsById, postSubprojects } from '@/api/project'
 
 export default {
   components: {
@@ -58,17 +60,18 @@ export default {
       treeData: [
         {
           id: 0,
-          label: '郑州中原保利心语项目',
+          subprojectName: '郑州中原保利心语项目',
           disabled: true, // 不可勾选 根节点不能删除
           children: []
         }
       ],
       defaultProps: {
         children: 'children',
-        label: 'label'
+        label: 'subprojectName'
       },
       idCounter: 1,
-      lastAddedNode: null // 记录最新添加的节点
+      lastAddedNode: null, // 记录最新添加的节点
+      subprojectId: null
     }
   },
   computed: {
@@ -76,26 +79,47 @@ export default {
       return this.$route.query.projectId
     }
   },
-  async created() {
-    try {
-      // const res = await getProjects()
-      const data2 = await getAllSubprojectsById(2)
-      // console.log(res)
-      console.log(data2)
-    } catch (error) {
-      console.log(error)
-    }
+  created() {
+    this.getProjectsById()
+    this.idCounter = this.treeData[0].children.length
   },
   methods: {
+    async getProjectsById() {
+      try {
+        const { result } = await getProjectsById(this.projectId)
+        this.treeData[0].subprojectName = result.projectName
+        // console.log('getProjectsById', result)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getAllSubprojectsById() {
+      try {
+        const { result } = await getAllSubprojectsById(this.projectId)
+        console.log('getAllSubprojectsById', this.projectId, result)
+        this.treeData[0].children = result
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async deleteSubprojects(subprojectId) {
+      try {
+        const result = await deleteSubprojects(subprojectId)
+        console.log('根据分项目ID删除分项目', this.projectId, result)
+      } catch (error) {
+        console.log(error)
+      }
+    },
     // 父子组件传参
     getMessage(data) {
       this.isShow = data.isShow
       this.isAbled = data.isAbled
+      this.getAllSubprojectsById()
     },
     addProject() {
       const newChild = {
         id: ++this.idCounter,
-        label: `子节点 ${this.idCounter}`
+        subprojectName: `新建节点 ${this.idCounter}`
       }
       const rootNode = this.treeData[0]
       this.$refs.tree.append(newChild, rootNode)
@@ -113,8 +137,7 @@ export default {
       // console.log("handleUnitNameItem", data);
       if (data.action === 'preserve' && this.lastAddedNode) {
         // 如果是保存操作，更新最新添加节点的名称
-        this.lastAddedNode.label = data.nodeName
-        this.postSubprojects({ subprojectId: this.lastAddedNode.id, projectId: this.projectId, obj: data.obj })
+        this.getAllSubprojectsById()
       } else if (data.action === 'cancel' && this.lastAddedNode) {
         // 如果是取消操作，删除最新添加的节点
         const rootNode = this.treeData[0]
@@ -126,6 +149,13 @@ export default {
         }
         this.lastAddedNode = null // 清空最新添加的节点
       }
+    },
+    // 点击树的节点
+    hangleNodeClick(node) {
+      console.log('点击树的节点', node, this.idCounter)
+      if (node.id === 0) return
+      this.isShow = 2
+      this.subprojectId = node.subprojectId
     },
     delProject() {
       // 删除选中的树状节点
@@ -142,7 +172,12 @@ export default {
         if (!parent.children) return
 
         parent.children = parent.children.filter((child) => {
-          if (nodesToDelete.some((n) => n.id === child.id)) {
+          if (nodesToDelete.some((n) => n.$treeNodeId === child.$treeNodeId)) {
+            if (this.subprojectId === child.subprojectId) {
+              this.isShow = 0 // 使得右侧组件显示空白，只有点击的新建节点才能显示信息
+              this.subprojectId = null
+            }
+            this.deleteSubprojects(child.subprojectId)
             return false // 删除该节点
           }
           // 否则递归处理其子节点
@@ -163,9 +198,8 @@ export default {
       // 后端也要进行
     },
     importProject() {},
-    async postSubprojects(obj) {
-      const res = await postSubprojects(obj)
-      console.log(res)
+    getData() {
+
     }
   }
 }
