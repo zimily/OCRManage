@@ -107,7 +107,7 @@ export default {
       options: [
         {
           value: 1,
-          label: '未创建'
+          label: '待创建'
         },
         {
           value: 2,
@@ -124,10 +124,10 @@ export default {
     currentPageData() {
       let res = this.info
       if (this.finalSearchQuery !== '') {
-        res = this.info.filter((item) => item.projectName === this.finalSearchQuery)
+        res = this.info.filter((item) => !!item.projectName.includes(this.finalSearchQuery))
       }
-      if (this.projectState !== '' || this.projectState !== '空') {
-        const state = this.projectState !== '未创建'
+      if (this.projectState !== '空') {
+        const state = this.projectState !== '待创建'
         res = res.filter((item) => item.isCreated === state)
       }
       this.totalData = res.length
@@ -188,7 +188,7 @@ export default {
     },
     // 人员分配
     allocation(scope) {
-      console.log('人员分配', scope.row.name)
+      console.log('人员分配', scope.row)
       // 注意params/query传参的时候，params-name/query-path  路径的内容是不同，对应于路由中的name,path属性，注意区分大小写
       this.$router.push({
         name: 'PersonAllocation',

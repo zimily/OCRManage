@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import da from 'element-ui/src/locale/lang/da'
 // 人员分配接口
 
 // 跟据assignmentId修改信息
@@ -16,25 +17,22 @@ export function UpdateAssignment(data) {
 
 // 给人员分配项目
 export function putDistribute(data) {
+  console.log(data)
   return request(
     {
       url: '/assign/distribute',
       method: 'put',
-      params: {
-        data: data
-      }
+      data: data
     }
   )
 }
 
 // 对分配好的人员的条件分页查询
-export function getSelectAssignment(data) {
-  const temp = JSON.stringify(data)
-  console.log(typeof temp, temp)
+export function postSelectAssignment(data) {
   return request({
     url: '/assign/selectAssignment',
-    method: 'get',
-    body: temp
+    method: 'post',
+    data: data
   })
 }
 
@@ -56,19 +54,12 @@ export function getPerson(id) {
   )
 }
 // 获取管理员所在分公司下的分条件页查询
-export function getPersonPage() {
-  const data = {
-    opId: 1,
-    page: 1,
-    pageSize: 10
-  }
+export function postPersonPage(data) {
   return request(
     {
       url: '/assign/getPersonPage',
-      method: 'get',
-      params: {
-        data: data
-      }
+      method: 'post',
+      data: data
     }
   )
 }

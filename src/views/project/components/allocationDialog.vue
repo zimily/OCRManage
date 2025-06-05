@@ -1,6 +1,12 @@
 <template>
   <!-- 人员添加弹窗 -->
-  <el-dialog v-if="dialogVisible1&&!dialogVisible2" :visible.sync="dialogVisible1" title="人员添加" width="60%">
+  <el-dialog
+    v-if="dialogVisible1&&!dialogVisible2"
+    :show-close="false"
+    :visible.sync="dialogVisible1"
+    title="人员添加"
+    width="60%"
+  >
     <div>
       <el-row>
         <el-col :span="24">
@@ -9,6 +15,7 @@
               <el-col :span="12">
                 <el-form-item label="类别">
                   <el-select
+                    v-model="roleSelect"
                     placeholder="请选择"
                     value=""
                     @change="changeXiang()"
@@ -36,7 +43,7 @@
           </el-form>
         </el-col>
       </el-row>
-      <el-table :data="tableData" stripe style="width: 100%">
+      <el-table :data="currentPageData" style="width: 100%" :row-class-name="isEnableClass">
         <el-table-column prop="selection" label="选择" width="90">
           <template v-slot="scope">
             <div>
@@ -47,16 +54,16 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="id" label="用户编号" width="180" />
+        <el-table-column prop="userId" label="用户编号" width="180" />
         <el-table-column prop="realname" label="姓名" width="100" />
         <el-table-column prop="roleName" label="角色" width="100" />
         <el-table-column prop="companyName" label="所属单位" width="180" />
         <el-table-column prop="pkDeptdoc" label="部门" width="180" />
-        <el-table-column prop="option" label="操作" width="100">
+        <el-table-column v-slot="scope" prop="option" label="操作" width="100">
           <el-button
             type="info"
             size="mini"
-            @click="savePeople(2)"
+            @click="savePeople(2,scope)"
           >查看
           </el-button>
         </el-table-column>
@@ -80,33 +87,39 @@
   </el-dialog>
 
   <!-- 用户查看弹窗 -->
-  <el-dialog v-else-if="dialogVisible1&&dialogVisible2" :visible.sync="dialogVisible2" title="用户查看" width="40%">
+  <el-dialog
+    v-else-if="dialogVisible1&&dialogVisible2"
+    :show-close="false"
+    :visible.sync="dialogVisible2"
+    title="用户查看"
+    width="40%"
+  >
     <div>
       <el-row>
         <el-col :span="24">
           <el-form label-width="120px">
             <el-row>
               <el-col :span="12">
-                <el-form-item label="用户姓名">{{ '张三' }}</el-form-item>
+                <el-form-item label="用户姓名">{{ userDetail.realname }}</el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="所属项目">{{ '龙湖小区建设项目' }}</el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="用户编号">{{ '13adad45sda' }}</el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="角色">{{ '总工' }}</el-form-item>
+                <el-form-item label="所属项目">{{ userDetail.projectName }}</el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="所属单位">{{ '中建五局A公司甲分公司' }}</el-form-item>
+                <el-form-item label="用户编号">{{ userDetail.psncode }}</el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="部门">{{ '工程部' }}</el-form-item>
+                <el-form-item label="角色">{{ userDetail.roleName }}</el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="所属单位">{{ userDetail.companyName }}</el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="部门">{{ userDetail.deptName }}</el-form-item>
               </el-col>
             </el-row>
           </el-form>
@@ -121,7 +134,9 @@
 </template>
 
 <script>
-import { getPerson, getPersonPage, getPersonPageById } from '@/api/personAllocation'
+import { getAssignDetailById, getPerson, putDistribute } from '@/api/personAllocation'
+import user from '../../../store/modules/user'
+import ca from 'element-ui/src/locale/lang/ca'
 
 export default {
   props: {
@@ -134,35 +149,63 @@ export default {
           option: 'add'
         }
       }
+    },
+    lookId: {
+      type: Number,
+      default: 0
+    },
+    isZongGong: {
+      type: Boolean,
+      default: false
+    },
+    personList: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   data() {
     return {
+      roleSelect: '', // 存下拉框内容
       form: {},
       tempSearch: '',
       options: [
         {
           value: 1,
-          label: '黄金糕'
+          label: '总工'
         },
         {
           value: 2,
-          label: '双皮奶'
+          label: '资料员'
         },
         {
           value: 3,
-          label: '蚵仔煎'
+          label: '台账采集员'
+        },
+        {
+          value: 4,
+          label: '空'
         }
       ],
-      tableData: [],
-      ZGongIndex: -1, // 总工的索引
+      tableData: [], // 全部用户数据
+      ZGongId: -1, // 总工的ID
       selection: false,
       currentPage: 1, // 分页器数据
       currentPageData: [], // 分页器显示的数据
       limit: 10, // 每页显示的数据
-      totalData: 0, // 总共筛选出的数据条目
       dialogVisible1: false, // 人员添加弹窗
-      dialogVisible2: false// 用户查看弹窗
+      dialogVisible2: false, // 用户查看弹窗
+      lookDetailId: 0, //  查看用户详情的用户id
+      userDetail: {}// 用户细节
+    }
+  },
+  computed: {
+    user() {
+      return user
+    },
+    totalData() { // 总共筛选出的数据条目
+      return this.tableData.length
     }
   },
   watch: {
@@ -172,12 +215,26 @@ export default {
         this.dialogVisible2 = newVal.isLook2
       },
       deep: true
+    },
+    lookId: {
+      handler(newVal) {
+        this.lookDetailId = newVal
+      }
+    },
+    lookDetailId: {
+      handler(newVal) {
+        this.getAssignDetailById()
+      }
+    },
+    roleSelect: {
+      handler(newVal) {
+        this.changeCurrentPageData()
+      }
     }
   },
   created() {
+    console.log('getPerson的号码写死，后期改变')
     this.getPersons()
-    this.changeCurrentPageData()
-    // this.getPersonPage()
   },
   methods: {
     //  获取人员列表
@@ -185,30 +242,72 @@ export default {
       try {
         this.tableData = []
         const { result } = await getPerson(1)// -----以后更改为id------
+        // this.tableData = result
         for (let i = 0; i < result.length; i++) {
           this.tableData.push({
-            id: result[i].id,
+            certid: result[i].certid,
+            companyName: result[i].companyName,
+            deptname: result[i].deptname,
+            email: result[i].email,
+            userId: result[i].id,
+            isDelete: result[i].isDelete,
+            password: result[i].password,
+            phone: result[i].phone,
+            pkDeptdoc: result[i].pkDeptdoc,
+            psncode: result[i].psncode,
+            psnscopename: result[i].psnscopename,
             realname: result[i].realname,
             roleName: result[i].roleName,
-            companyName: result[i].companyName,
-            pkDeptdoc: result[i].pkDeptdoc,
-            selection: false
+            userAge: result[i].userAge,
+            companyId: result[i].userCompanyId,
+            userGender: result[i].userGender,
+            username: result[i].userName,
+            roleId: result[i].userTypeId,
+            projectName: '',
+            projectId: '',
+            selection: false,
+            invalidStatus: 0
           })
+          // this.tableData[i].selection = false
         }
+        // console.log('tableData', this.tableData)
+        // this.changeCurrentPageData()
         // console.log('getPerson', result)
+        this.changeCurrentPageData()
       } catch (error) {
         console.log(error)
       }
     },
-    async getPersonPage() {
+    async getAssignDetailById() {
       try {
-        const data = {
-          opId: 1,
-          page: this.currentPage,
-          pageSize: this.limit
+        console.log('lookDetailId', this.lookDetailId)
+        const { result } = await getAssignDetailById(this.lookDetailId)
+        if (result) {
+          this.userDetail = result[0]
+          if (result.length > 1) {
+            for (let i = 1; i < result.length; i++) {
+              this.userDetail.projectName += `, ${result[i].projectName}`
+            }
+          }
+        } else {
+          this.userDetail = {
+            realname: '',
+            projectName: '',
+            psncode: '',
+            roleName: '',
+            companyName: '',
+            deptName: ''
+          }
         }
-        const res = await getPersonPage(data)
-        console.log('管理员所在分公司下的分条件页查询', res)
+        console.log('getAssignDetailById', this.lookDetailId, result)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    putDistribute(data) {
+      try {
+        const res = putDistribute(data)
+        console.log('putDistribute', res)
       } catch (error) {
         console.log(error)
       }
@@ -216,57 +315,90 @@ export default {
     changeXiang() {
 
     },
-    handleSearch() {},
-    savePeople(option) {
-      const obj = { option: option, data: this.tableData, looks: this.looks }
+    handleSearch() {
+      this.changeCurrentPageData()
+    },
+    savePeople(option, scope) {
+      if (scope) {
+        this.lookDetailId = scope.row.userId
+      }
+      const obj = { option: option, data: this.tableData.filter(item => item.selection === true), looks: this.looks }
       this.$emit('savePeople', obj)
+      if (option === 0 || option === -1) {
+        this.tableData.forEach(item => {
+          item.selection = false
+        })
+      }
     },
     // 点击table列表内的选择框
     handleListSelectedFn(selectionvalue, scope) {
       // 跟据分页器计算当前条的实际下标
       const index = scope.$index + this.limit * (this.currentPage - 1)
-
-      if (this.ZGongIndex === index) {
-        this.ZGongIndex = -1
-      } else if (this.ZGongIndex !== -1 && scope.row.roleName === '总工') { // 选中了当前总工
+      const userId = scope.row.userId
+      // console.log(scope)
+      if (this.personList.find(item => item.userId === userId)) {
+        return
+      }
+      if (this.isZongGong && scope.row.roleName === '总工') {
+        this.$message({
+          message: '分项目下已有一个总工，请先删除',
+          type: 'warning'
+        })
+        return
+      }
+      if (this.ZGongId === userId) {
+        this.ZGongId = -1
+      } else if (this.ZGongId !== -1 && scope.row.roleName === '总工') { // 选中了当前总工
         this.$message({
           message: '已有一个总工',
           type: 'warning'
         })
         return
-      } else if (this.ZGongIndex === -1 && scope.row.roleName === '总工') {
-        this.ZGongIndex = index
+      } else if (this.ZGongId === -1 && scope.row.roleName === '总工') {
+        this.ZGongId = userId
       }
-      // table列表内选择框状态改变
-      // console.log(scope)
       this.tableData[index][selectionvalue] = !this.tableData[index][selectionvalue]
     },
     handleSizeChange(val) {
       this.limit = val
       console.log(`每页 ${val} 条`)
+      // this.changeCurrentPageData()
       this.changeCurrentPageData()
     },
     handleCurrentChange(val) {
       this.currentPage = val
       console.log(`当前页: ${val}`)
+      // this.changeCurrentPageData()
       this.changeCurrentPageData()
     },
     changeCurrentPageData() {
       let res = this.tableData
       if (this.tempSearch !== '') {
-        res = this.tableData.filter(item => item.realname === this.tableData)
+        res = this.tableData.filter(item => !!item.realname.includes(this.tempSearch))
       }
-      console.log('changeCurrentPageData', res)
-      this.totalData = res.length
+      if (this.roleSelect !== '' && this.roleSelect !== '空') {
+        res = res.filter(item => item.roleName === this.roleSelect)
+      }
+      // console.log('changeCurrentPageData', res)
       this.currentPageData = res.slice(
         (this.currentPage - 1) * this.limit,
         this.currentPage * this.limit
       )
+
+      console.log('currentPageData', this.currentPageData)
+    },
+    // 改变行样式，如果人员在分项目里，就改变该行样式
+    isEnableClass({ row, index }) {
+      if (this.personList.find(item => item.userId === row.userId)) {
+        return 'info-row'
+      }
     }
   }
 }
 </script>
 
 <style>
-
+.el-table .info-row {
+  background-color: #c5c1c1;
+}
 </style>

@@ -96,13 +96,13 @@
               <el-col :span="12">
                 <el-form-item v-slot="scope" label="钢筋分项验收依据">
                   <el-select
-                    :placeholder="options[0].label"
-                    value=""
+                    v-model="yanshou_rule1"
+                    placeholder="请选择"
                     @change="changeXiang(scope)"
                   >
                     <el-option
-                      v-for="item in options"
-                      :key="item.value"
+                      v-for="item in options[0]"
+                      :key="item.label"
                       :label="item.label"
                       :value="item.label"
                     />
@@ -112,13 +112,13 @@
               <el-col :span="12">
                 <el-form-item v-slot="scope" label="模板分项验收依据">
                   <el-select
-                    :placeholder="options[0].label"
-                    value=""
+                    v-model="yanshou_rule2"
+                    placeholder="请选择"
                     @change="changeXiang(scope)"
                   >
                     <el-option
-                      v-for="item in options"
-                      :key="item.value"
+                      v-for="item in options[1]"
+                      :key="item.label"
                       :label="item.label"
                       :value="item.label"
                     />
@@ -130,13 +130,13 @@
               <el-col :span="12">
                 <el-form-item v-slot="scope" label="混凝土分项验收依据">
                   <el-select
-                    :placeholder="options[0].label"
-                    value=""
+                    v-model="yanshou_rule3"
+                    placeholder="请选择"
                     @change="changeXiang(scope)"
                   >
                     <el-option
-                      v-for="item in options"
-                      :key="item.value"
+                      v-for="item in options[2]"
+                      :key="item.label"
                       :label="item.label"
                       :value="item.label"
                     />
@@ -146,13 +146,13 @@
               <el-col :span="12">
                 <el-form-item v-slot="scope" label="现浇结构分项验收依据">
                   <el-select
-                    :placeholder="options[0].label"
-                    value=""
+                    v-model="yanshou_rule4"
+                    placeholder="请选择"
                     @change="changeXiang(scope)"
                   >
                     <el-option
-                      v-for="item in options"
-                      :key="item.value"
+                      v-for="item in options[3]"
+                      :key="item.label"
                       :label="item.label"
                       :value="item.label"
                     />
@@ -190,7 +190,8 @@
             type="danger"
             size="mini"
             @click="deletejianyan(scope)"
-          >删除 </el-button>
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -244,49 +245,44 @@
 
 <script>
 import TableItem from '@/views/project/components/tableItem.vue'
-import { getInspectRulesById, getSubprojects, postSubprojects, putSubprojects } from '@/api/project'
+import {
+  getNewSubprojectId,
+  getSubprojects, getTasksBySubprojectId, getYanShouRules, getYanSouRulesById, postSubAndTasks
+} from '@/api/project'
 
 export default {
   components: { TableItem },
   props: {
     subprojectId: {
-      type: Number,
+      type: String,
       default: null
     }
   },
   data() {
     return {
       form: {},
-      subProInfo: {
-        // subprojectName: '项目1', // 单位工程名称
-        // kanchaDirector: '张三', // 勘察单位负责人
-        // shigongDirector: '建工', // 施工单位负责人
-        // jianduPeople: '监工', // 监督单位负责人
-        // jiansheDirector: '建设单位负责人', // 建设单位负责人
-        // area: 10000, // 施工面积
-        // jianliDirector: '监理单位负责人', // 监理单位负责人
-        // technicalDisorder: '设计单位负责人', // 项目技术负责人
-        // shejiDirector: '设计单位负责人', // 设计单位负责人
-        // startDate: '2025-05-01 00:00:00',
-        // finishDate: '2025-05-23T13:26:03.702Z',
-        // projectId: 2,
-        // subprojectId: 0
+      defaultSubProInfo: {
+        subprojectName: '前端项目9-1', // 单位工程名称
+        kanchaDirector: '张三', // 勘察单位负责人
+        shigongDirector: '建工', // 施工单位负责人
+        jianduDirector: '监工', // 监督单位负责人
+        jiansheDirector: '建设单位负责人', // 建设单位负责人
+        area: 10000, // 施工面积
+        jianliDirector: '监理单位负责人', // 监理单位负责人
+        technicalDirector: '项目技术负责人', // 项目技术负责人
+        shejiDirector: '设计单位负责人', // 设计单位负责人
+        startDate: '2025-05-01 00:00:00',
+        finishDate: '2025-05-01 00:00:00',
+        projectId: 0,
+        subprojectId: 0
       },
+      subProInfo: {} || this.defaultSubProInfo,
       allInspect: [], // 所有检验批部位,
-      options: [
-        {
-          value: 1,
-          label: '黄金糕'
-        },
-        {
-          value: 2,
-          label: '双皮奶'
-        },
-        {
-          value: 3,
-          label: '蚵仔煎'
-        }
-      ],
+      options: [], // 验收依据下拉框
+      yanshou_rule1: '', // 存验收依据下拉框1的选择
+      yanshou_rule2: '', // 存验收依据下拉框2的选择
+      yanshou_rule3: '', // 存验收依据下拉框3的选择
+      yanshou_rule4: '', // 存验收依据下拉框4的选择
       dialogVisible: false,
       buildingFloor: 0,
       buildingTop: 0,
@@ -310,27 +306,32 @@ export default {
     }
   },
   watch: {
-    subprojectId(newValue) {
+    async subprojectId(newValue) {
+      console.log('subprojectId newValue', newValue)
       if (newValue) {
-        this.getSubprojects()
+        await this.getSubprojects()
+        await this.getYanSouRulesById()
+        await this.getTasksBySubprojectId()
       } else {
-        this.subProInfo = {}
+        this.subProInfo = this.defaultSubProInfo
+        this.yanshou_rule1 = ''
+        this.yanshou_rule2 = ''
+        this.yanshou_rule3 = ''
+        this.yanshou_rule4 = ''
+        this.allInspect = []
       }
     }
   },
-  created() {
-    this.getSubprojects()
-    this.getInspectRulesById()
+  async created() {
+    await this.getYanShouRules()
+    this.subProInfo = this.defaultSubProInfo
+    if (this.subprojectId) {
+      await this.getSubprojects()
+      await this.getYanSouRulesById()
+      await this.getTasksBySubprojectId()
+    }
   },
   methods: {
-    async getInspectRulesById() {
-      try {
-        const res = await getInspectRulesById(2)
-        console.log('验收规范信息', res)
-      } catch (error) {
-        console.log(error)
-      }
-    },
     async getSubprojects() {
       if (this.subprojectId) {
         try {
@@ -342,38 +343,89 @@ export default {
         }
       }
     },
-    async postSubprojects() {
+    // async postSubprojects() {
+    //   try {
+    //     this.subProInfo.subprojectName = '前端项目9-1', // 单位工程名称
+    //     this.subProInfo.kanchaDirector = '张三', // 勘察单位负责人
+    //     this.subProInfo.shigongDirector = '建工', // 施工单位负责人
+    //     this.subProInfo.jianduDirector = '监工', // 监督单位负责人
+    //     this.subProInfo.jiansheDirector = '建设单位负责人', // 建设单位负责人
+    //     this.subProInfo.area = 10000, // 施工面积
+    //     this.subProInfo.jianliDirector = '监理单位负责人', // 监理单位负责人
+    //     this.subProInfo.technicalDirector = '项目技术负责人', // 项目技术负责人
+    //     this.subProInfo.shejiDirector = '设计单位负责人', // 设计单位负责人
+    //     this.subProInfo.startDate = '2025-05-01 00:00:00',
+    //     this.subProInfo.finishDate = '2025-05-01 00:00:00',
+    //     this.subProInfo.projectId = this.projectId
+    //     this.subProInfo.subprojectId = 2411748
+    //     const res = await postSubprojects(this.subProInfo)
+    //     console.log('创建一个新的分项目', res)
+    //   } catch (error) {
+    //     console.log(error)
+    //   }
+    // },
+    async getTasksBySubprojectId() {
       try {
-        this.subProInfo.subprojectName = '前端项目3-1', // 单位工程名称
-        this.subProInfo.kanchaDirector = '张三', // 勘察单位负责人
-        this.subProInfo.shigongDirector = '建工', // 施工单位负责人
-        this.subProInfo.jianduDirector = '监工', // 监督单位负责人
-        this.subProInfo.jiansheDirector = '建设单位负责人', // 建设单位负责人
-        this.subProInfo.area = 10000, // 施工面积
-        this.subProInfo.jianliDirector = '监理单位负责人', // 监理单位负责人
-        this.subProInfo.technicalDirector = '项目技术负责人', // 项目技术负责人
-        this.subProInfo.shejiDirector = '设计单位负责人', // 设计单位负责人
-        this.subProInfo.startDate = '2025-05-01 00:00:00',
-        this.subProInfo.finishDate = '2025-05-01 00:00:00',
-        this.subProInfo.projectId = this.projectId
-        this.subProInfo.subprojectId = 240033
-        const res = await postSubprojects(this.subProInfo)
-        console.log('创建一个新的分项目', res)
+        const { result } = await getTasksBySubprojectId(this.subprojectId)
+        console.log('根据分项目ID获取该分项目下的所有检验批信息', result)
+        this.allInspect = []
+        // 遍历楼层，把楼层相同的检验批名字放在一个数组里
+        const temp = []
+        let pre = 0
+        if (result.length) {
+          temp.push(result[0].inspectType)
+          for (let i = 1; i < result.length; i++) {
+            if (result[i].floor !== result[pre].floor) {
+              this.allInspect.push({
+                floor: result[pre].floor,
+                inspectName: result[pre].inspectPart,
+                obj: JSON.parse(JSON.stringify(temp))
+              })
+              pre = i
+            } else {
+              temp.push(result[i].inspectType)
+            }
+          }
+          this.allInspect.push({
+            floor: result[pre].floor,
+            inspectName: result[pre].inspectPart,
+            obj: temp
+          })
+        }
       } catch (error) {
         console.log(error)
       }
     },
-    async putSubprojects() {
+    async getYanSouRulesById() {
       try {
-        this.subProInfo.projectId = this.projectId
-        console.log('this.subProInfo', this.subProInfo)
-        const res = await putSubprojects(this.subprojectId, this.subProInfo)
-        console.log('根据分项目ID更新分项目全部字段', res)
+        const { result } = await getYanSouRulesById(this.subprojectId)
+        console.log('根据分项目ID获取该分项目的所有验收规范', result)
+        if (result.length) {
+          this.yanshou_rule1 = result[0].yanshouRule
+          this.yanshou_rule2 = result[1].yanshouRule
+          this.yanshou_rule3 = result[2].yanshouRule
+          this.yanshou_rule4 = result[3].yanshouRule
+        } else {
+          this.yanshou_rule1 = ''
+          this.yanshou_rule2 = ''
+          this.yanshou_rule3 = ''
+          this.yanshou_rule4 = ''
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getYanShouRules() {
+      try {
+        const { result } = await getYanShouRules()
+        // console.log('获取可以用的验收规范', result)
+        this.options = result
       } catch (error) {
         console.log(error)
       }
     },
     saveInspect() {
+      console.log(this.allInspect)
       for (let i = this.buildingFloor; i <= this.buildingTop; i++) {
         if (this.allInspect.findIndex(item => item.floor === i) !== -1) continue// 去重操作
         if (i === 0) {
@@ -390,37 +442,93 @@ export default {
           })
         }
       }
-
       // 排序
       this.allInspect.sort((a, b) => {
         return a.floor - b.floor
       })
+
+      console.log(this.allInspect)
       this.dialogVisible = false
     },
     addInspect() {
       this.dialogVisible = true
     },
-    changeXiang(scope) {},
+    changeXiang(scope) {
+    },
     cancel() {
-      const data = { isShow: 0, // 右侧组件显示空白
+      const data = {
+        isShow: 0, // 右侧组件显示空白
         isAbled: false, // 新建按钮可用
         action: 'cancel'
       }
       this.$emit('transmit', data)
     },
-    preserve() {
+    async preserve() {
+      const tasks = []
+      this.allInspect.forEach(item => {
+        item.obj.forEach(item2 => {
+          tasks.push({
+            taskId: 0,
+            subprojectId: this.subprojectId,
+            projectFenxiangId: 0,
+            inspectPart: item.inspectName,
+            inspectId: 0,
+            status: 0,
+            finishDate: '2025-05-01 00:00:00',
+            taskItemTableName: '',
+            dataTableName: 'string',
+            shigongRule: 'string',
+            projectDirector: 'string',
+            finishDate2: '2025-05-01 00:00:00',
+            floor: item.floor,
+            projectId: this.projectId,
+            fenbaoCompany: 'string',
+            fenbaoDirector: 'string',
+            fenbaoTechnical: 'string',
+            checkResult: 'string',
+            conclusion: 'string',
+            inspectType: item2,
+            isUpdate: 1
+          })
+        })
+      })
+      console.log('tasks', tasks)
+      // console.log('this.subProInfo', this.subProInfo)
+      this.subProInfo.projectId = this.projectId
+      this.subProInfo.subprojectId = this.subprojectId
+      const tempData = {
+        subproject: this.subProInfo,
+        yanshouRules: [{
+          inspect_type_id: 1,
+          yanshou_rule: this.yanshou_rule1
+        },
+        {
+          inspect_type_id: 2,
+          yanshou_rule: this.yanshou_rule2
+        },
+        {
+          inspect_type_id: 3,
+          yanshou_rule: this.yanshou_rule3
+        },
+        {
+          inspect_type_id: 4,
+          yanshou_rule: this.yanshou_rule4
+        }],
+        tasks: tasks
+      }
       const data = {
         isShow: 0, // 右侧组件显示空白
         isAbled: false, // 新建按钮可用
         action: 'preserve',
+        isNew: false, // 是否新增分项目,
+        data: tempData,
         nodeName: this.subProInfo.subprojectName
       }
       // 如果有分项目ID，则更新分项目，否则创建新的分项目
-      if (this.subprojectId) {
-        this.putSubprojects()
-      } else {
-        this.postSubprojects()
+      if (!this.subprojectId) {
+        data.isNew = true
       }
+      // await this.postSubAndTasks(tasks)
       this.$emit('transmit', data)
     },
     deletejianyan(scope) {
@@ -435,11 +543,13 @@ export default {
 .el-form-item {
   margin-bottom: 0;
 }
+
 .el-table .cell,
 .el-table--border td:first-child .cell,
 .el-table--border th:first-child .cell {
   padding-left: 0;
 }
+
 .el-table .cell {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
@@ -450,6 +560,7 @@ export default {
   line-height: 23px;
   padding-right: 0;
 }
+
 .el-table td,
 .el-table th {
   padding: 0;
@@ -461,6 +572,7 @@ export default {
   position: relative;
   text-align: left;
 }
+
 hr {
   color: gray;
   width: 90%;

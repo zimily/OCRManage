@@ -46,7 +46,14 @@
 <script>
 import UnitNameItem from '@/views/project/components/unitNameItem.vue'
 import ProjectInfo from '@/views/project/components/projectInfo'
-import { deleteSubprojects, getAllSubprojectsById, getProjectsById, postSubprojects } from '@/api/project'
+import {
+  deleteSubprojects,
+  getAllSubprojectsById, getNewSubprojectId,
+  getProjectsById,
+  getSubprojects,
+  postProjects, postSubAndTasks,
+  postSubprojects
+} from '@/api/project'
 
 export default {
   components: {
@@ -103,9 +110,29 @@ export default {
       }
     },
     async deleteSubprojects(subprojectId) {
+      if (subprojectId) {
+        try {
+          const result = await deleteSubprojects(subprojectId)
+          console.log('根据分项目ID删除分项目', this.projectId, result)
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    },
+    async getNewSubprojectId() {
       try {
-        const result = await deleteSubprojects(subprojectId)
-        console.log('根据分项目ID删除分项目', this.projectId, result)
+        const { result } = await getNewSubprojectId(this.projectId)
+        console.log(`获取一个在项目${this.projectId}中未被使用过的分项目ID`, result)
+        this.subprojectId = result
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
+    async postSubAndTasks(data) {
+      try {
+        const res = await postSubAndTasks(data)
+        console.log('根据分项目ID更新分项目全部字段', res)
       } catch (error) {
         console.log(error)
       }
@@ -122,6 +149,7 @@ export default {
         subprojectName: `新建节点 ${this.idCounter}`
       }
       const rootNode = this.treeData[0]
+      this.subprojectId = null
       this.$refs.tree.append(newChild, rootNode)
       // 新建按钮禁用，
       this.isAbled = true
@@ -131,13 +159,18 @@ export default {
 
       // 当前新建流程完成后，新建按钮才可用
     },
-    handleUnitNameItem(data) {
+    async handleUnitNameItem(data) {
       this.isShow = data.isShow
       this.isAbled = data.isAbled
       // console.log("handleUnitNameItem", data);
-      if (data.action === 'preserve' && this.lastAddedNode) {
+      if (data.action === 'preserve') {
         // 如果是保存操作，更新最新添加节点的名称
-        this.getAllSubprojectsById()
+        if (data.isNew) {
+          await this.getNewSubprojectId()
+        }
+        await this.postSubAndTasks(data.data)
+        console.log('更新最新添加节点的名称')
+        await this.getAllSubprojectsById()
       } else if (data.action === 'cancel' && this.lastAddedNode) {
         // 如果是取消操作，删除最新添加的节点
         const rootNode = this.treeData[0]
@@ -153,7 +186,7 @@ export default {
     // 点击树的节点
     hangleNodeClick(node) {
       console.log('点击树的节点', node, this.idCounter)
-      if (node.id === 0) return
+      if (node.$treeNodeId === 1) return
       this.isShow = 2
       this.subprojectId = node.subprojectId
     },
@@ -197,10 +230,7 @@ export default {
       this.$refs.tree.setCheckedKeys([]) // 清空勾选
       // 后端也要进行
     },
-    importProject() {},
-    getData() {
-
-    }
+    importProject() {}
   }
 }
 </script>

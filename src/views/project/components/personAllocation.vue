@@ -16,6 +16,7 @@
                 <el-col :span="6">
                   <el-form-item label="类别">
                     <el-select
+                      v-model="roleSelect"
                       placeholder="请选择"
                       value=""
                       @change="changeXiang()"
@@ -48,7 +49,7 @@
       <div>
         <!-- 表格 -->
         <el-table
-          :data="currentPageData"
+          :data="personList"
           style="width: 100%"
           border
           :header-cell-style="{background:'#eef1f6',color:'#606266'}"
@@ -59,12 +60,12 @@
             align="center"
           />
           <el-table-column
-            prop="role"
+            prop="roleName"
             label="角色"
             align="center"
           />
           <el-table-column
-            prop="affiliation"
+            prop="companyName"
             label="所属单位"
             align="center"
           />
@@ -73,7 +74,7 @@
               <el-button
                 type="info"
                 size="mini"
-                @click="lookUser"
+                @click="lookUser(scope)"
               >查看
               </el-button>
               <el-button
@@ -99,14 +100,24 @@
       </div>
 
       <!--弹窗-->
-      <AllocationDialog :looks="looks" @savePeople="savePeople" />
+      <AllocationDialog
+        :looks="looks"
+        :look-id="lookId"
+        :project="project"
+        :is-zong-gong="isZongGong"
+        :person-list="personList"
+        @savePeople="savePeople"
+      />
     </div>
   </div>
 </template>
 
 <script>
 
-import { getAssignDetailById, getSelectAssignment } from '@/api/personAllocation'
+import {
+  deleteAssignment,
+  postSelectAssignment, putDistribute
+} from '@/api/personAllocation'
 import { getProjectsById } from '@/api/project'
 import AllocationDialog from '@/views/project/components/allocationDialog.vue'
 
@@ -117,88 +128,126 @@ export default {
   data() {
     return {
       projectId: 0, // 当前项目的id
+      isZongGong: false, // 当前分项目下是否有总工
+      searchData: {
+        projectId: this.projectId,
+        // projectId: 1,
+        username: '',
+        roleName: '',
+        page: 1,
+        pageSize: 10
+      },
+      roleSelect: '', // 存下拉框内容
       form: {},
       personList: [],
-      project: [],
-      searchQuery: '', // 用于存储搜索框的最后内容
+      project: {},
       tempSearch: '', // 用于暂存搜索框的内容
       projectName: '', // 项目名称
       currentPage: 1, // 分页器当前页码
-      totalData: 0, // 总共筛选出的数据条目
       limit: 10, // 每页显示的数据
+      totalData: 0, // 总共筛选出的数据条目
       options: [
         {
           value: 1,
-          label: '黄金糕'
+          label: '总工'
         },
         {
           value: 2,
-          label: '双皮奶'
+          label: '资料员'
         },
         {
           value: 3,
-          label: '蚵仔煎'
+          label: '台账采集员'
+        },
+        {
+          value: 4,
+          label: '空'
         }
       ],
       looks: {
         isLook1: false,
         isLook2: false,
         pre: 0
-      }
+      },
+      lookId: 0// 查看用户详情的用户id
     }
   },
   computed: {
-    currentPageData() {
-      let res = this.personList
-      if (this.searchQuery !== '') {
-        res = this.personList.filter(item => item.name === this.searchQuery)
+    // currentPageData() {
+    //   let res = this.personList
+    //   if (this.searchQuery !== '') {
+    //     res = this.personList.filter(item => item.name === this.searchQuery)
+    //   }
+    //   return res.slice(
+    //     (this.currentPage - 1) * this.limit,
+    //     this.currentPage * this.limit
+    //   )
+    // },
+    // totalData() { // 总共筛选出的数据条目
+    //   return this.personList.length
+    // }
+  },
+  watch: {
+    searchData: {
+      handler() {
+        this.postSelectAssignment()
+      },
+      deep: true
+    },
+    roleSelect: {
+      handler() {
+        this.searchData.roleName = this.roleSelect === '空' ? '' : this.roleSelect
       }
-      this.totalData = res.length
-      return res.slice(
-        (this.currentPage - 1) * this.limit,
-        this.currentPage * this.limit
-      )
     }
   },
   created() {
     // 把projectId存到本地
     let id = this.$route.params.id
-    console.log(id, this.$route.params)
+    // console.log(id, this.$route.params)
     if (id) {
       localStorage.setItem('projectId', JSON.stringify(id))
     }
     id = JSON.parse(localStorage.getItem('projectId'))
     this.projectId = id
+    this.searchData.projectId = this.projectId
 
     this.getProject()
-    this.getSelectAssignment()
+    this.postSelectAssignment()
   },
   methods: {
-    async getAssignDetailById() {
-      try {
-        const id = 871763967
-        const result = await getAssignDetailById(id)
-        console.log('getAssignDetailById', id, result)
-      } catch (error) {
-        console.log(error)
-      }
-    },
     async getProject() {
       try {
         const { result } = await getProjectsById(this.projectId)
+        // console.log('项目详情', result)
         this.project = result
       } catch (error) {
         console.log(error)
       }
     },
-    async getSelectAssignment() {
-      const data = {
-        projectId: 1
-      }
-      console.log('分配好的人员的条件分页查询')
+    async postSelectAssignment() {
       try {
-        const result = await getSelectAssignment(data)
-        console.log('分配好的人员的条件分页查询', result)
+        console.log('searchData', this.searchData)
+        const { result } = await postSelectAssignment(this.searchData)
+        // console.log('分配好的人员的条件分页查询', result)
+        this.personList = result.list
+        this.isZongGong = !!result.list.find(item => item.roleName === '总工')
+        this.totalData = result.total
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async deleteAssignmentById(id) {
+      try {
+        const res = await deleteAssignment(id)
+        console.log(res)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async putDistribute(data) {
+      try {
+        const res = await putDistribute(data)
+        console.log('putDistribute', res)
       } catch (error) {
         console.log(error)
       }
@@ -216,25 +265,32 @@ export default {
     // 分页器
     handleSizeChange(val) {
       this.limit = val
+      this.searchData.pageSize = val
       console.log(this.limit)
     },
     handleCurrentChange(val) {
       this.currentPage = val
+      this.searchData.page = val
     },
     handleSearch() {
-      this.searchQuery = this.tempSearch
+      this.searchData.username = this.tempSearch
     },
-    lookUser() {
+    lookUser(scope) {
       this.looks = {
         isLook1: true,
         isLook2: true,
         pre: 1
       }
+      this.lookId = scope.row.userId
     },
-    deleteBatch() {
-
+    async deleteBatch(scope) {
+      if (scope.row.roleName === '总工') {
+        this.isZongGong = false
+      }
+      await this.deleteAssignmentById(scope.row.assignmentId)
+      await this.postSelectAssignment()
     },
-    savePeople(obj) {
+    async savePeople(obj) {
       const { option, data, looks } = obj
       // console.log(obj)
       if (option === 2 && looks.pre === 0) {
@@ -257,7 +313,15 @@ export default {
         }
       }
       if (option === -1) {
-        console.log(data)
+        data.forEach(item => {
+          item.projectName = this.project.projectName
+          item.projectId = this.project.projectId
+        })
+        console.log(data, 'data')
+        if (data.length > 0) {
+          await this.putDistribute(data)
+          await this.postSelectAssignment()
+        }
       }
     }
   }
