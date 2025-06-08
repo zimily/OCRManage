@@ -169,7 +169,8 @@
     <el-button type="primary" @click="addInspect">添加检验批部位</el-button>
     <el-table
       :data="allInspect"
-      style="width: 100%"
+      max-height="30em"
+      style="width: 100%;overflow-y:scroll;overflow-x:hidden;"
       border
       :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
     >
@@ -246,8 +247,7 @@
 <script>
 import TableItem from '@/views/project/components/tableItem.vue'
 import {
-  getNewSubprojectId,
-  getSubprojects, getTasksBySubprojectId, getYanShouRules, getYanSouRulesById, postSubAndTasks
+  getSubprojects, getTasksBySubprojectId, getYanShouRules, getYanSouRulesById
 } from '@/api/project'
 
 export default {
@@ -262,19 +262,32 @@ export default {
     return {
       form: {},
       defaultSubProInfo: {
-        subprojectName: '前端项目9-1', // 单位工程名称
-        kanchaDirector: '张三', // 勘察单位负责人
-        shigongDirector: '建工', // 施工单位负责人
-        jianduDirector: '监工', // 监督单位负责人
-        jiansheDirector: '建设单位负责人', // 建设单位负责人
-        area: 10000, // 施工面积
-        jianliDirector: '监理单位负责人', // 监理单位负责人
-        technicalDirector: '项目技术负责人', // 项目技术负责人
-        shejiDirector: '设计单位负责人', // 设计单位负责人
+        subprojectName: '', // 单位工程名称
+        kanchaDirector: '', // 勘察单位负责人
+        shigongDirector: '', // 施工单位负责人
+        jianduDirector: '', // 监督单位负责人
+        jiansheDirector: '', // 建设单位负责人
+        area: '', // 施工面积
+        jianliDirector: '', // 监理单位负责人
+        technicalDirector: '', // 项目技术负责人
+        shejiDirector: '', // 设计单位负责人
         startDate: '2025-05-01 00:00:00',
         finishDate: '2025-05-01 00:00:00',
         projectId: 0,
         subprojectId: 0
+        // subprojectName: '前端项目9-1', // 单位工程名称
+        // kanchaDirector: '张三', // 勘察单位负责人
+        // shigongDirector: '建工', // 施工单位负责人
+        // jianduDirector: '监工', // 监督单位负责人
+        // jiansheDirector: '建设单位负责人', // 建设单位负责人
+        // area: 10000, // 施工面积
+        // jianliDirector: '监理单位负责人', // 监理单位负责人
+        // technicalDirector: '项目技术负责人', // 项目技术负责人
+        // shejiDirector: '设计单位负责人', // 设计单位负责人
+        // startDate: '2025-05-01 00:00:00',
+        // finishDate: '2025-05-01 00:00:00',
+        // projectId: 0,
+        // subprojectId: 0
       },
       subProInfo: {} || this.defaultSubProInfo,
       allInspect: [], // 所有检验批部位,
@@ -289,14 +302,14 @@ export default {
       inspectName: '', // 检验批部位名称
       checkList: [], // 选中的复选框
       arrList: [
-        { value: 'obj0', label: '钢筋原材' },
-        { value: 'obj1', label: '钢筋加工' },
-        { value: 'obj2', label: '钢筋连接' },
-        { value: 'obj3', label: '钢筋安装' },
-        { value: 'obj4', label: '模板安装' },
-        { value: 'obj5', label: '混凝土拌合物' },
-        { value: 'obj6', label: '混凝土施工' },
-        { value: 'obj7', label: '现浇结构' }
+        { value: '1', label: '钢筋原材' },
+        { value: '2', label: '钢筋加工' },
+        { value: '3', label: '钢筋连接' },
+        { value: '4', label: '钢筋安装' },
+        { value: '5', label: '模板安装' },
+        { value: '6', label: '混凝土拌合物' },
+        { value: '7', label: '混凝土施工' },
+        { value: '8', label: '现浇结构' }
       ]
     }
   },
@@ -370,7 +383,7 @@ export default {
         console.log('根据分项目ID获取该分项目下的所有检验批信息', result)
         this.allInspect = []
         // 遍历楼层，把楼层相同的检验批名字放在一个数组里
-        const temp = []
+        let temp = []
         let pre = 0
         if (result.length) {
           temp.push(result[0].inspectType)
@@ -382,6 +395,8 @@ export default {
                 obj: JSON.parse(JSON.stringify(temp))
               })
               pre = i
+              temp = []
+              temp.push(result[i].inspectType)
             } else {
               temp.push(result[i].inspectType)
             }
@@ -464,6 +479,9 @@ export default {
       this.$emit('transmit', data)
     },
     async preserve() {
+      if (!this.checkSubProInfo()) {
+        return
+      }
       const tasks = []
       this.allInspect.forEach(item => {
         item.obj.forEach(item2 => {
@@ -472,7 +490,7 @@ export default {
             subprojectId: this.subprojectId,
             projectFenxiangId: 0,
             inspectPart: item.inspectName,
-            inspectId: 0,
+            inspectId: this.arrList.find(item3 => item3.label === item2).value,
             status: 0,
             finishDate: '2025-05-01 00:00:00',
             taskItemTableName: '',
@@ -534,43 +552,93 @@ export default {
     deletejianyan(scope) {
       console.log(scope)
       this.allInspect.splice(scope.$index, 1)
+    },
+    checkSubProInfo() {
+      let bool = true
+      if (this.subProInfo.subprojectName === '') {
+        // subprojectName: '前端项目9-1', // 单位工程名称
+        //   kanchaDirector: '张三', // 勘察单位负责人
+        //   shigongDirector: '建工', // 施工单位负责人
+        //   jianduDirector: '监工', // 监督单位负责人
+        //   jiansheDirector: '建设单位负责人', // 建设单位负责人
+        //   area: 10000, // 施工面积
+        //   jianliDirector: '监理单位负责人', // 监理单位负责人
+        //   technicalDirector: '项目技术负责人', // 项目技术负责人
+        //   shejiDirector: '设计单位负责人', // 设计单位负责人
+        //   startDate: '2025-05-01 00:00:00',
+        //   finishDate: '2025-05-01 00:00:00',
+        //   projectId: 0,
+        //   subprojectId: 0
+        this.$message.error('请填写单位工程名称')
+        bool = false
+      } else if (this.subProInfo.kanchaDirector === '') {
+        this.$message.error('请填写勘察单位负责人')
+        bool = false
+      } else if (this.subProInfo.shigongDirector === '') {
+        this.$message.error('请填写施工单位负责人')
+        bool = false
+      } else if (this.subProInfo.jianduDirector === '') {
+        this.$message.error('请填写监督单位负责人')
+        bool = false
+      } else if (this.subProInfo.jiansheDirector === '') {
+        this.$message.error('请填写建设单位负责人')
+        bool = false
+      } else if (this.subProInfo.area === '') {
+        this.$message.error('请填写施工面积')
+        bool = false
+      } else if (this.subProInfo.jianliDirector === '') {
+        this.$message.error('请填写监理单位负责人')
+        bool = false
+      } else if (this.subProInfo.technicalDirector === '') {
+        this.$message.error('请填写项目技术负责人')
+        bool = false
+      } else if (this.subProInfo.shejiDirector === '') {
+        this.$message.error('请填写设计单位负责人')
+        bool = false
+      }
+      return bool
     }
   }
 }
 </script>
 
-<style>
-.el-form-item {
+<style scoped>
+::v-deep .app-main-wrapper {
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+/*启用 Element Plus 的默认表头固定功能*/
+::v-deep.el-table__header-wrapper {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1;
+}
+
+::v-deep .el-form-item {
   margin-bottom: 0;
 }
 
-.el-table .cell,
+::v-deep .el-table .cell,
 .el-table--border td:first-child .cell,
 .el-table--border th:first-child .cell {
   padding-left: 0;
 }
 
-.el-table .cell {
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-  word-break: break-all;
-  line-height: 23px;
+::v-deep.el-table .cell {
+  line-height: 2em;
   padding-right: 0;
 }
 
-.el-table td,
+::v-deep .el-table td,
 .el-table th {
   padding: 0;
-  min-width: 0;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  position: relative;
-  text-align: left;
+  text-align: center;
+}
+
+::v-deep .el-table::before {
+  height: 0;
 }
 
 hr {

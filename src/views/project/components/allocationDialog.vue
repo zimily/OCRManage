@@ -137,6 +137,7 @@
 import { getAssignDetailById, getPerson, putDistribute } from '@/api/personAllocation'
 import user from '../../../store/modules/user'
 import ca from 'element-ui/src/locale/lang/ca'
+import { getUser } from '@/utils/storage'
 
 export default {
   props: {
@@ -233,7 +234,6 @@ export default {
     }
   },
   created() {
-    console.log('getPerson的号码写死，后期改变')
     this.getPersons()
   },
   methods: {
@@ -241,7 +241,9 @@ export default {
     async getPersons() {
       try {
         this.tableData = []
-        const { result } = await getPerson(1)// -----以后更改为id------
+        const user = getUser()
+        console.log('getUser', user.userId)
+        const { result } = await getPerson(user.userId)
         // this.tableData = result
         for (let i = 0; i < result.length; i++) {
           this.tableData.push({
@@ -272,7 +274,7 @@ export default {
         }
         // console.log('tableData', this.tableData)
         // this.changeCurrentPageData()
-        // console.log('getPerson', result)
+        console.log('getPerson', result)
         this.changeCurrentPageData()
       } catch (error) {
         console.log(error)
@@ -282,7 +284,7 @@ export default {
       try {
         console.log('lookDetailId', this.lookDetailId)
         const { result } = await getAssignDetailById(this.lookDetailId)
-        if (result) {
+        if (result && result.length) {
           this.userDetail = result[0]
           if (result.length > 1) {
             for (let i = 1; i < result.length; i++) {
@@ -304,9 +306,9 @@ export default {
         console.log(error)
       }
     },
-    putDistribute(data) {
+    async putDistribute(data) {
       try {
-        const res = putDistribute(data)
+        const res = await putDistribute(data)
         console.log('putDistribute', res)
       } catch (error) {
         console.log(error)
@@ -397,7 +399,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .el-table .info-row {
   background-color: #c5c1c1;
 }
