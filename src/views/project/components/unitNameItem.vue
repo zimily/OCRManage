@@ -3,7 +3,7 @@
     <div>
       <el-row>
         <el-col :span="24">
-          <el-form ref="form" :model="subProInfo" label-width="170px">
+          <el-form ref="form" :model="subProInfo" label-width="12em">
             <el-row>
               <el-col :span="12">
                 <el-form-item label="单位工程名称">
@@ -74,11 +74,32 @@
               </el-col>
             </el-row>
             <el-row>
-              <el-col :span="12">
+              <el-col :span="8">
                 <el-form-item label="设计单位项目负责人">
                   <el-input
                     v-model="subProInfo.shejiDirector"
                     placeholder="请输入内容"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="8" label-width="5em">
+                <el-form-item label="层数" label-width="6em">
+                  <span> 地下 </span>
+                  <el-input v-model="subProInfo.floorUnderground" style="width: 4em;" />
+                  <span> 层 ~ 地上</span>
+                  <el-input v-model="subProInfo.floorOverground" style="width: 4em;margin-left: 1em" />
+                  <span> 层</span>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8" label-width="3em">
+                <el-form-item label="开工时间">
+                  <el-date-picker
+                    v-model="subProInfo.startDate"
+                    style="width: 100%"
+                    type="date"
+                    placeholder="选择日期"
+                    format="yyyy-MM-dd"
+                    value-format="yyyy-MM-dd"
                   />
                 </el-form-item>
               </el-col>
@@ -98,6 +119,7 @@
                   <el-select
                     v-model="yanshou_rule1"
                     placeholder="请选择"
+                    style="width: 100%"
                     @change="changeXiang(scope)"
                   >
                     <el-option
@@ -114,6 +136,7 @@
                   <el-select
                     v-model="yanshou_rule2"
                     placeholder="请选择"
+                    style="width: 100%"
                     @change="changeXiang(scope)"
                   >
                     <el-option
@@ -132,6 +155,7 @@
                   <el-select
                     v-model="yanshou_rule3"
                     placeholder="请选择"
+                    style="width: 100%"
                     @change="changeXiang(scope)"
                   >
                     <el-option
@@ -148,6 +172,7 @@
                   <el-select
                     v-model="yanshou_rule4"
                     placeholder="请选择"
+                    style="width: 100%"
                     @change="changeXiang(scope)"
                   >
                     <el-option
@@ -174,7 +199,7 @@
       border
       :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
     >
-      <el-table-column prop="inspectName" label="检验批部位" align="center" />
+      <el-table-column prop="inspectName" label="检验批部位" align="center" width="200%" />
       <el-table-column
         v-for="(item, index) in arrList"
         :key="index"
@@ -239,7 +264,7 @@
         <el-button type="primary" @click="saveInspect">确 定</el-button>
       </span>
     </el-dialog>
-    <el-button type="primary" @click="preserve">保存</el-button>
+    <el-button v-if="!ischakan" type="primary" @click="preserve">保存</el-button>
     <el-button type="info" @click="cancel">取消</el-button>
   </div>
 </template>
@@ -253,9 +278,25 @@ import {
 export default {
   components: { TableItem },
   props: {
+    ischakan: {
+      type: Boolean,
+      default: false
+    },
     subprojectId: {
       type: String,
       default: null
+    },
+    subprojectExcel: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    },
+    jianyanExcel: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   data() {
@@ -271,8 +312,10 @@ export default {
         jianliDirector: '', // 监理单位负责人
         technicalDirector: '', // 项目技术负责人
         shejiDirector: '', // 设计单位负责人
-        startDate: '2025-05-01 00:00:00',
-        finishDate: '2025-05-01 00:00:00',
+        floorOverground: 0, // 层高（地上）
+        floorUnderground: 0, // 层高（地下）
+        startDate: '',
+        finishDate: '',
         projectId: 0,
         subprojectId: 0
         // subprojectName: '前端项目9-1', // 单位工程名称
@@ -310,7 +353,9 @@ export default {
         { value: '6', label: '混凝土拌合物' },
         { value: '7', label: '混凝土施工' },
         { value: '8', label: '现浇结构' }
-      ]
+      ],
+      jianyanMap: new Map(), // 由施工部位，检验批名称 =>施工依据
+      taskMap: new Map()// 由施工部位，检验批名称 =>
     }
   },
   computed: {
@@ -332,6 +377,61 @@ export default {
         this.yanshou_rule3 = ''
         this.yanshou_rule4 = ''
         this.allInspect = []
+      }
+    },
+    subprojectExcel(newVal) {
+      const temp = JSON.parse(JSON.stringify(newVal))
+      this.subProInfo.subprojectName = temp[0]['说明'] // 单位工程名称
+      this.subProInfo.jiansheDirector = temp[1]['说明'] // 建设单位负责人
+      this.subProInfo.shigongDirector = temp[2]['说明'] // 施工单位负责人
+      this.subProInfo.jianliDirector = temp[3]['说明'] // 监理单位负责人
+      this.subProInfo.shejiDirector = temp[4]['说明'] // 设计单位负责人
+      this.subProInfo.kanchaDirector = temp[5]['说明'] // 勘察单位负责人
+      this.subProInfo.jianduDirector = temp[6]['说明'] // 监督单位负责人
+      this.subProInfo.technicalDirector = temp[7]['说明']// 项目技术负责人
+      this.subProInfo.startDate = temp[8]['说明']// 开工时间
+      this.subProInfo.area = temp[9]['说明'] // 施工面积
+      this.subProInfo.floorOverground = parseInt(temp[10]['说明'])// 层高（地上）
+      this.subProInfo.floorUnderground = parseInt(temp[11]['说明']) // 层高（地下）
+    },
+    jianyanExcel(newVal) {
+      const arr = JSON.parse(JSON.stringify(newVal))
+      arr.sort((a, b) => {
+        return parseInt(a['施工部位'].substring(0, 4)) - parseInt(b['施工部位'].substring(0, 4))
+      })
+      this.allInspect = []
+      let temp = []
+      let pre = 0
+      if (arr.length) {
+        temp.push(arr[0]['检验批名称'])
+        this.setYanshouByExcel(arr[0])
+
+        const key = JSON.stringify({ name: arr[0]['施工部位'], obj: arr[0]['检验批名称'] })
+        this.jianyanMap.set(key, arr[0]['施工依据'])
+
+        // const key2 = JSON.stringify({ name: arr[0]['施工部位'], obj: arr[0]['检验批名称'] })
+        for (let i = 1; i < arr.length; i++) {
+          if (parseInt(arr[i]['施工部位'].substring(0, 4)) !== parseInt(arr[pre]['施工部位'].substring(0, 4))) {
+            this.allInspect.push({
+              floor: parseInt(arr[pre]['施工部位'].substring(0, 4)),
+              inspectName: arr[pre]['施工部位'],
+              obj: JSON.parse(JSON.stringify(temp))
+            })
+            pre = i
+            temp = []
+            temp.push(arr[i]['检验批名称'])
+          } else {
+            temp.push(arr[i]['检验批名称'])
+          }
+          this.setYanshouByExcel(arr[i])
+          const key2 = JSON.stringify({ name: arr[i]['施工部位'], obj: arr[i]['检验批名称'] })
+          this.jianyanMap.set(key2, arr[i]['施工依据'])
+        }
+        this.allInspect.push({
+          floor: parseInt(arr[pre]['施工部位'].substring(0, 4)),
+          inspectName: arr[pre]['施工部位'],
+          obj: temp
+        })
       }
     }
   },
@@ -387,6 +487,8 @@ export default {
         let pre = 0
         if (result.length) {
           temp.push(result[0].inspectType)
+          const key = JSON.stringify({ name: result[0].inspectPart, obj: result[0].inspectType })
+          this.taskMap.set(key, result[0])
           for (let i = 1; i < result.length; i++) {
             if (result[i].floor !== result[pre].floor) {
               this.allInspect.push({
@@ -400,6 +502,8 @@ export default {
             } else {
               temp.push(result[i].inspectType)
             }
+            const key2 = JSON.stringify({ name: result[i].inspectPart, obj: result[i].inspectType })
+            this.taskMap.set(key2, result[i])
           }
           this.allInspect.push({
             floor: result[pre].floor,
@@ -485,26 +589,30 @@ export default {
       const tasks = []
       this.allInspect.forEach(item => {
         item.obj.forEach(item2 => {
+          const key = JSON.stringify({ name: item.inspectName, obj: item2 })
+          const shigong = this.jianyanMap.get(key)
+          const jianyan = this.taskMap.get(key)
+          console.log(jianyan)
           tasks.push({
             taskId: 0,
             subprojectId: this.subprojectId,
-            projectFenxiangId: 0,
+            projectFenxiangId: jianyan ? jianyan.projectFenxiangId : 0,
             inspectPart: item.inspectName,
             inspectId: this.arrList.find(item3 => item3.label === item2).value,
-            status: 0,
+            status: jianyan ? jianyan.status : 0,
             finishDate: '2025-05-01 00:00:00',
-            taskItemTableName: '',
-            dataTableName: 'string',
-            shigongRule: 'string',
-            projectDirector: 'string',
+            taskItemTableName: jianyan ? jianyan.taskItemTableName : '',
+            dataTableName: jianyan ? jianyan.dataTableName : '',
+            shigongRule: shigong || '', // 施工依据
+            projectDirector: jianyan ? jianyan.projectDirector : '',
             finishDate2: '2025-05-01 00:00:00',
             floor: item.floor,
             projectId: this.projectId,
-            fenbaoCompany: 'string',
-            fenbaoDirector: 'string',
-            fenbaoTechnical: 'string',
-            checkResult: 'string',
-            conclusion: 'string',
+            fenbaoCompany: jianyan ? jianyan.fenbaoCompany : '',
+            fenbaoDirector: jianyan ? jianyan.fenbaoDirector : '',
+            fenbaoTechnical: jianyan ? jianyan.fenbaoTechnical : '',
+            checkResult: jianyan ? jianyan.checkResult : '',
+            conclusion: jianyan ? jianyan.conclusion : '',
             inspectType: item2,
             isUpdate: 1
           })
@@ -514,6 +622,7 @@ export default {
       // console.log('this.subProInfo', this.subProInfo)
       this.subProInfo.projectId = this.projectId
       this.subProInfo.subprojectId = this.subprojectId
+      this.subProInfo.startDate = this.subProInfo.startDate + ' 00:00:00'
       const tempData = {
         subproject: this.subProInfo,
         yanshouRules: [{
@@ -597,6 +706,22 @@ export default {
         bool = false
       }
       return bool
+    },
+    setYanshouByExcel(obj) {
+      // console.log('obj', obj['检验批名称'])
+      // console.log(obj['检验批名称'] === '钢筋原材')
+      if (obj['检验批名称'] === '钢筋原材' ||
+          obj['检验批名称'] === '钢筋加工' ||
+          obj['检验批名称'] === '钢筋连接' ||
+          obj['检验批名称'] === '钢筋安装') {
+        this.yanshou_rule1 = obj['验收依据']
+      } else if (obj['检验批名称'] === '模板安装') {
+        this.yanshou_rule2 = obj['验收依据']
+      } else if (obj['检验批名称'] === '现浇结构') {
+        this.yanshou_rule4 = obj['验收依据']
+      } else {
+        this.yanshou_rule3 = obj['验收依据']
+      }
     }
   }
 }

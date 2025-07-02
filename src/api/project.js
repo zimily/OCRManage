@@ -113,3 +113,25 @@ export function getYanShouRules() {
     }
   )
 }
+
+// 上传Excel表格，返回所有内容转成的JSON
+export function excelToJSON(data) {
+  return request(
+    {
+      url: `/api/projects/excel-to-json`,
+      method: 'post',
+      data: data
+    }
+  )
+}
+
+// 上传多个Excel表格，返回所有内容转成的JSON
+export function excelToJSONs(data) {
+  return request(
+    {
+      url: `/api/subprojects/excel-to-jsons`,
+      method: 'post',
+      data: data
+    }
+  )
+}

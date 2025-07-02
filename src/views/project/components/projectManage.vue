@@ -145,6 +145,7 @@ export default {
       console.log(error)
     }
     console.log('项目信息', this.info)
+    this.chakan = false
     // const list = JSON.parse(JSON.stringify(this.info))
     // for (let i = 0; i < list.length; i++) {
     //   this.info.push(list[i])
@@ -160,13 +161,13 @@ export default {
       console.log(scope)
       this.$router.push({
         path: '/menus/project/projectEdit',
-        query: { projectId: scope.row.projectId }
+        query: { projectId: scope.row.projectId, chakan: false }
       })
     },
     lookProject(scope) {
       this.$router.push({
         path: '/menus/project/projectEdit',
-        query: { projectId: scope.row.projectId }
+        query: { projectId: scope.row.projectId, chakan: true }
       })
     },
     // 搜索事件

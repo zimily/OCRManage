@@ -3,14 +3,31 @@
     <el-row :gutter="10" class="full-height-row">
       <el-col :span="6" class="full-height-col">
         <el-card shadow="hover" class="full-height-card">
-          <div>
+          <div class="button-group">
             <el-button
               type="primary"
               :disabled="isAbled"
               @click="addProject"
             >新建</el-button>
             <el-button type="danger" @click="delProject">删除</el-button>
-            <el-button type="warning" @click="importProject">导入</el-button>
+            <!--            <el-button-->
+            <!--              :disabled="!((!isCreated&&isShow===1)||(isShow===2&&!subprojectId))"-->
+            <!--              type="file"-->
+            <!--              @click="importProject"-->
+            <!--            >导入</el-button>-->
+            <el-upload
+              ref="upload"
+              :action="aaa"
+              :on-change="importProject"
+              name="excelFile"
+              multiple
+              :auto-upload="false"
+            >
+              <el-button
+                :disabled="!((!isCreated&&isShow===1)||(isShow===2&&!subprojectId))"
+                type="warning"
+              >导入</el-button>
+            </el-upload>
           </div>
           <div>
             <el-tree
@@ -31,11 +48,14 @@
             v-if="isShow === 1"
             :visible.sync="isShow"
             :project-id="projectId"
+            :project-excel="projectExcel"
             @transmit="getMessage"
           />
           <unit-name-item
             v-if="isShow === 2"
             :subproject-id="subprojectId"
+            :subproject-excel="subprojectExcel"
+            :jianyan-excel="jianyanExcel"
             @transmit="handleUnitNameItem"
           />
         </el-card>
@@ -47,7 +67,7 @@
 import UnitNameItem from '@/views/project/components/unitNameItem.vue'
 import ProjectInfo from '@/views/project/components/projectInfo'
 import {
-  deleteSubprojects,
+  deleteSubprojects, excelToJSON, excelToJSONs,
   getAllSubprojectsById, getNewSubprojectId,
   getProjectsById,
   getSubprojects,
@@ -62,8 +82,10 @@ export default {
   },
   data() {
     return {
+      aaa: '',
       isShow: 1,
       isAbled: true,
+      isCreated: false, // 是否为已创建
       treeData: [
         {
           id: 0,
@@ -78,7 +100,10 @@ export default {
       },
       idCounter: 1,
       lastAddedNode: null, // 记录最新添加的节点
-      subprojectId: null
+      subprojectId: null,
+      projectExcel: null, // 项目Excel表格
+      subprojectExcel: null, // 分项目基础信息Excel表格
+      jianyanExcel: null// 检验批Excel表格
     }
   },
   computed: {
@@ -95,7 +120,8 @@ export default {
       try {
         const { result } = await getProjectsById(this.projectId)
         this.treeData[0].subprojectName = result.projectName
-        // console.log('getProjectsById', result)
+        this.isCreated = result.isCreated
+        console.log('getProjectsById', result)
       } catch (error) {
         console.log(error)
       }
@@ -137,10 +163,38 @@ export default {
         console.log(error)
       }
     },
+    async excelToJSON(data) {
+      try {
+        console.log('excelToJSON', data)
+        const { result } = await excelToJSON(data)
+        console.log('上传Excel表格返回所有内容转成的JSON', result)
+        this.projectExcel = result
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async excelToJSONs(data) {
+      try {
+        console.log('excelToJSONs', data)
+        const { result } = await excelToJSON(data)
+        console.log('上传分项目Excel表格返回所有内容转成的JSON', result)
+        if (result[0]['填写范例'] === '单位工程名称') {
+          this.subprojectExcel = result
+        } else {
+          this.jianyanExcel = result
+        }
+        this.projectExcel = result
+      } catch (error) {
+        console.log(error)
+      }
+    },
     // 父子组件传参
     getMessage(data) {
       this.isShow = data.isShow
       this.isAbled = data.isAbled
+
+      this.projectExcel = null
+      this.$refs.upload.clearFiles()// 清空上传文件
       this.getAllSubprojectsById()
     },
     addProject() {
@@ -156,7 +210,6 @@ export default {
       this.lastAddedNode = newChild // 保存最新添加的子节点
       // 显示右侧组件，显示单位工程信息
       this.isShow = 2
-
       // 当前新建流程完成后，新建按钮才可用
     },
     async handleUnitNameItem(data) {
@@ -182,6 +235,8 @@ export default {
         }
         this.lastAddedNode = null // 清空最新添加的节点
       }
+      // 清空上传文件
+      this.$refs.upload.clearFiles()
     },
     // 点击树的节点
     hangleNodeClick(node) {
@@ -230,12 +285,25 @@ export default {
       this.$refs.tree.setCheckedKeys([]) // 清空勾选
       // 后端也要进行
     },
-    importProject() {}
+    importProject(file) {
+      const fd = new FormData()
+      if (!this.isCreated && this.isShow === 1) { // 导入项目数据
+        fd.append('file', file.raw)
+        this.excelToJSON(fd)
+      } else { // 导入分项目数据
+        console.log('file', file)
+        fd.append('file', file.raw)
+        this.excelToJSONs(fd)
+      }
+      // console.log('文件', file)
+      // console.log('fd', fd)
+    }
   }
 }
 </script>
 
 <style scoped>
+
 .container {
   height: 100vh;
   overflow: hidden; /* 防止溢出滚动条 */

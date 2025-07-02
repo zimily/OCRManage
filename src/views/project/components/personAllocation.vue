@@ -201,7 +201,6 @@ export default {
     }
   },
   created() {
-    console.log('人员分配的类别筛选写死，后期看看')
     this.projectId = this.$route.query.id
     this.searchData.projectId = this.projectId
 
