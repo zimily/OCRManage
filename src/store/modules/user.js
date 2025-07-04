@@ -74,11 +74,7 @@ const actions = {
         setToken(token)
         // 获取用户信息
         const name = data.username
-<<<<<<< HEAD
-        setUser(username,password,data.userId)
-=======
         setUser(username, password, data.userId)
->>>>>>> d8aa94c61a834c4a8ac4ecfae9bcc332a91d0b98
         commit('SET_NAME', name)
         resolve()// 表示 Promise 成功完成
       }).catch(error => {
