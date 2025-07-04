@@ -79,6 +79,18 @@
             label="y2"
             align="center"
           />
+          <el-table-column prop="fenzu" label="分组" align="center">
+            <template v-slot="scope">
+              <el-select v-model="scope.row.xiang" :placeholder="fenzu[0].label" @change="changeXiang(scope)">
+                <el-option
+                  v-for="item in fenzu"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.label"
+                />
+              </el-select>
+            </template>
+          </el-table-column>
           <el-table-column prop="xiang" label="项" align="center">
             <template v-slot="scope">
               <el-select v-model="scope.row.xiang" :placeholder="options[0].label" @change="changeXiang(scope)">
@@ -173,6 +185,28 @@ export default {
       companyName: '', // 公司名称的初始值
       reportName: '', // 报告名称的初始值
       form: {},
+      fenzu: [{
+        value: 0,
+        label: '公共'
+      }, {
+        value: 1,
+        label: '第1组'
+      }, {
+        value: 2,
+        label: '第2组'
+      }, {
+        value: 3,
+        label: '第3组'
+      }, {
+        value: 4,
+        label: '第4组'
+      }, {
+        value: 5,
+        label: '第5组'
+      }, {
+        value: 6,
+        label: '第6组'
+      }],
       options: [{
         value: 1,
         label: '黄金糕'

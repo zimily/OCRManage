@@ -7,13 +7,13 @@
           <el-col :span="24">
             <el-form ref="form" :model="form" label-width="170px">
               <el-row>
-                <el-col :span="6">
+                <el-col :span="4">
                   <el-form-item label="项目号">{{ project.projectInnerCode }}</el-form-item>
                 </el-col>
                 <el-col :span="6">
                   <el-form-item label="项目名称">{{ project.projectName }}</el-form-item>
                 </el-col>
-                <el-col :span="6">
+                <el-col :span="8">
                   <el-form-item label="类别">
                     <el-select
                       v-model="roleSelect"
@@ -201,14 +201,7 @@ export default {
     }
   },
   created() {
-    // 把projectId存到本地
-    let id = this.$route.params.id
-    // console.log(id, this.$route.params)
-    if (id) {
-      localStorage.setItem('projectId', JSON.stringify(id))
-    }
-    id = JSON.parse(localStorage.getItem('projectId'))
-    this.projectId = id
+    this.projectId = this.$route.query.id
     this.searchData.projectId = this.projectId
 
     this.getProject()
@@ -218,7 +211,8 @@ export default {
     async getProject() {
       try {
         const { result } = await getProjectsById(this.projectId)
-        // console.log('项目详情', result)
+        console.log('项目详情', result)
+        this.companyId = result.companyId
         this.project = result
       } catch (error) {
         console.log(error)
@@ -328,7 +322,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .title {
   text-align: center;
   font-weight: bold; /* 加粗 */

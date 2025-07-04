@@ -60,7 +60,7 @@
             </el-button>
             <el-button
               type="info"
-              icon="el-icon-delete"
+              icon="el-icon-view"
               size="mini"
               @click="lookProject(scope)"
             >查看
@@ -126,7 +126,7 @@ export default {
       if (this.finalSearchQuery !== '') {
         res = this.info.filter((item) => !!item.projectName.includes(this.finalSearchQuery))
       }
-      if (this.projectState !== '空') {
+      if (this.projectState !== '空' && this.projectState !== '') {
         const state = this.projectState !== '待创建'
         res = res.filter((item) => item.isCreated === state)
       }
@@ -145,6 +145,7 @@ export default {
       console.log(error)
     }
     console.log('项目信息', this.info)
+    this.chakan = false
     // const list = JSON.parse(JSON.stringify(this.info))
     // for (let i = 0; i < list.length; i++) {
     //   this.info.push(list[i])
@@ -160,13 +161,13 @@ export default {
       console.log(scope)
       this.$router.push({
         path: '/menus/project/projectEdit',
-        query: { projectId: scope.row.projectId }
+        query: { projectId: scope.row.projectId, chakan: false }
       })
     },
     lookProject(scope) {
       this.$router.push({
         path: '/menus/project/projectEdit',
-        query: { projectId: scope.row.projectId }
+        query: { projectId: scope.row.projectId, chakan: true }
       })
     },
     // 搜索事件
@@ -192,7 +193,7 @@ export default {
       // 注意params/query传参的时候，params-name/query-path  路径的内容是不同，对应于路由中的name,path属性，注意区分大小写
       this.$router.push({
         name: 'PersonAllocation',
-        params: {
+        query: {
           id: scope.row.projectId
         }
       })
@@ -218,4 +219,4 @@ export default {
   align-items: center;
   padding: 0.5em;
 }
-</style>
+</stylesc>
