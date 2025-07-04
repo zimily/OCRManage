@@ -111,6 +111,7 @@ export default {
   }
 }
 .app-main-wrapper {
+  height: calc(100vh-100px); //减去navbar
   overflow-y: auto; /* 允许滚动 */
 }
 

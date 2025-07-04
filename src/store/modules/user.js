@@ -10,6 +10,7 @@ const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
+    userId:'',//用户的ID
     avatar: '',
     role: {}, // 从存储中读取角色  对象需要序列化
     flag: '',
@@ -26,6 +27,9 @@ const mutations = {
   },
   SET_TOKEN: (state, token) => {
     state.token = token
+  },
+  SET_USERID: (state, id) => {
+    state.userId = id
   },
   SET_NAME: (state, name) => {
     state.name = name
@@ -67,10 +71,11 @@ const actions = {
         //1.获取并存储token
         const token = data.token
         commit('SET_TOKEN', token)
+        commit('SET_USERID', data.userId)
         setToken(token)
         //获取用户信息
         const name = data.username
-        setUser(username,password)
+        setUser(username,password,data.userId)
         commit('SET_NAME', name)
         resolve()//表示 Promise 成功完成
       }).catch(error => {

@@ -7,6 +7,8 @@ import user from './modules/user'
 import authority from './modules/authority'
 import ocr from '@/store/modules/ocr'
 import projectEdit from '@/store/modules/projectEdit'
+import inspectionDetail from '@/store/modules/inspectionDetail'
+import collection from '@/store/modules/collection'
 
 Vue.use(Vuex)
 
@@ -17,7 +19,10 @@ const store = new Vuex.Store({
     user,
     authority,
     ocr,
-    projectEdit
+    projectEdit,
+    inspectionDetail,
+    collection,
+    
   },
   getters
 })

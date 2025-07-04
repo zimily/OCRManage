@@ -18,11 +18,24 @@
     </el-card>
     <el-card style="margin-top: 5px">
       <el-table
+        ref="multipleTable"
         :data="tableData"
         stripe
         style="width: 100%"
-        :row-class-name="rowClassName"
+        @selection-change="handleSelectionChange"
       >
+        <!-- 复选框列 -->
+        <el-table-column
+          type="selection"
+          width="55"
+          align="center"
+        ></el-table-column>
+        <!-- <el-table-column label="是否通过" width="60" align="center">
+          <template slot-scope="scope">
+            <el-checkbox v-model="scope.row.isChecked"></el-checkbox>
+          </template>
+        </el-table-column> -->
+        <!-- 其他列 -->
         <el-table-column
           prop="project"
           label="验收项目"
@@ -79,10 +92,20 @@
       </el-table>
     </el-card>
     <div style="margin-top: 10px">
-      <el-button type="primary" @click="turnBack()">返回</el-button>
+      <el-button
+        type="primary"
+        :disabled="multipleSelection.length === 0"
+        @click="pass()"
+        >通过</el-button
+      >
+      <el-button @click="cancel()">取消</el-button>
     </div>
     <!-- 弹窗 -->
-    <el-dialog title="原始数据展示" :visible.sync="dialogTableVisible"  :show-close="false">
+    <el-dialog
+      title="原始数据展示"
+      :visible.sync="dialogTableVisible"
+      :show-close="false"
+    >
       <el-table :data="gridData">
         <el-table-column
           property="position"
@@ -179,6 +202,7 @@ export default {
           master: "是",
         },
       ],
+      multipleSelection: [],
     };
   },
   computed: {
@@ -200,26 +224,24 @@ export default {
     console.log(this.subprojectName);
   },
   methods: {
-    rowClassName({ row }) {
-      return row.isChecked ? "checked-row" : "unchecked-row";
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
     },
-    //返回
-    turnBack(){
-       this.$router.push({
-          name: "CollectionManage",
-        });
-    }
+    //通过
+    pass() {
+      this.$router.push({
+        name: "CollectionManage",
+      });
+    },
+    //取消
+    cancel() {
+      this.$router.push({
+        name: "CollectionManage",
+      });
+    },
   },
 };
 </script>
 
 <style>
-/* 被选中时颜色 */
-/* .checked-row{
-  color: #999999;
-} */
-/* 未被选中时颜色 */
-.unchecked-row {
-  color: #a9a9a9;
-}
 </style>

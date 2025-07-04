@@ -87,38 +87,60 @@ export default {
   },
   methods: {
     async getSpecifications() {
-      try {
-        let res = await getAllSpecifications(1, 15);
-        if (res.code == 200) {
-          console.log("获取所有验收规范", res);
-          this.specInfo = res.result.records;
-          this.total = res.result.total;
-          this.limit = res.result.size;
-          this.currentPage = res.result.current;
-        } else {
-          this.$message.error("获取所有检验批失败！");
-          throw new Error(res.message);
-        }
-      } catch (error) {
-        console.log(error);
-      }
+       this.specInfo =[
+         {
+           "fenxiangName":"钢筋分项",
+           "inspectTypeVarchar":"钢筋原材",
+           "inspectName":"《混凝土结构工程施工质量验收规范》GB50204-2015"
+         },
+          {
+           "fenxiangName":"钢筋分项",
+           "inspectTypeVarchar":"钢筋加工",
+           "inspectName":"《混凝土结构工程施工质量验收规范》GB50204-2015"
+         }, {
+           "fenxiangName":"钢筋分项",
+           "inspectTypeVarchar":"钢筋连接",
+           "inspectName":"《混凝土结构工程施工质量验收规范》GB50204-2015"
+         },
+          {
+           "fenxiangName":"钢筋分项",
+           "inspectTypeVarchar":"钢筋安装",
+           "inspectName":"《混凝土结构工程施工质量验收规范》GB50204-2015"
+         }
+       ]
+
+      //请求
+      // try {
+      //   let res = await getAllSpecifications(1, 15);
+      //   if (res.code == 200) {
+      //     console.log("获取所有验收规范", res);
+      //     this.specInfo = res.result.records;
+      //     this.total = res.result.total;
+      //     this.limit = res.result.size;
+      //     this.currentPage = res.result.current;
+      //   } else {
+      //     this.$message.error("获取所有检验批失败！");
+      //     throw new Error(res.message);
+      //   }
+      // } catch (error) {
+      //   console.log(error);
+      // }
     },
     //新建检验批
     addBatch() {
-      console.log("触发新建检验批事件");
-      const isShow = false;
-      const data = { isShow };
-      this.$emit("transmit", data);
+      this.$router.push({
+        path: "batchDetailBuilt",
+      });
     },
-    //修改检验批
+    //编辑检验批
     async updateBatch(row,index) {
-      const isShow = false;
-      const id=row.inspectId
-      const data = { isShow,id };
-      // console.log("修改检验批事件",row,index);
-      this.$emit("transmit", data);
-     
-      
+      const inspectId=3
+      this.$router.push({
+        path: "batchDetailEdit",
+          query: {
+            id: inspectId,
+          },
+      });
     },
     //删除检验批
     deleteBatch() {
