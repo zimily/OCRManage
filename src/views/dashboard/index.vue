@@ -1,55 +1,43 @@
 <template>
   <div class="dashboard-container">
-    <el-row :gutter="20" class="mt-20">
-      <!-- 最近使用 -->
+    <!-- 第一行：最近使用 + 待办中心 -->
+    <el-row :gutter="10" class="row-recent">
       <el-col :xs="24" :md="16">
-        <DashboardCard title="最近使用" class="recent-used">
+        <DashboardCard title="最近使用">
           <el-card shadow="hover">
             <app-list :apps="recentApps" @click-app="handleAppClick" />
           </el-card>
         </DashboardCard>
       </el-col>
-
-      <!-- 快捷操作 -->
-      <el-col :xs="24" :md="8">
-        <DashboardCard title="快捷操作" key="" class="quick-actions">
+       <el-col :xs="24" :md="8">
+        <DashboardCard title="消息中心">
           <el-card shadow="hover">
-            <quick-actions @action-click="handleAction" />
+            <news-list :news="news" @click-item="handleNewsClick" />
           </el-card>
         </DashboardCard>
       </el-col>
     </el-row>
 
-    <el-row :gutter="20" class="mt-20">
-      <!-- 应用中心 -->
-      <el-col :span="24" :md="16">
-        <DashboardCard title="应用中心" class="app-center">
+    <!-- 第二行：应用中心 -->
+    <el-row :gutter="10" class="row-app-center mt-20">
+      <el-col :xs="24" :md="16">
+        <DashboardCard title="应用中心">
           <el-card shadow="hover">
             <app-list :apps="allApps" @click-app="handleAppClick" />
           </el-card>
         </DashboardCard>
       </el-col>
-
-      <!-- 代办中心 -->
-      <el-col :span="24" :md="8">
-        <DashboardCard title="待办中心" class="todo-center">
+      <el-col :xs="24" :md="8">
+        <DashboardCard title="待办中心">
           <el-card shadow="hover">
             <todo-list :todos="todos" @complete="handleCompleteTodo" />
           </el-card>
         </DashboardCard>
       </el-col>
     </el-row>
-
-    <el-row :gutter="20" class="mt-20">
-      <!-- 消息中心 -->
-      <el-col :span="24" :md="24">
-        <dashboard-card title="消息中心" class="news-center">
-          <news-list :news="news" @click-item="handleNewsClick" />
-        </dashboard-card>
-      </el-col>
-    </el-row>
   </div>
 </template>
+
 
 <script>
 import DashboardCard from "./components/DashboardCard.vue";
@@ -101,47 +89,6 @@ export default {
           color: "#F56C6C",
         },
       ],
-      chartData: {
-        xAxis: ["1月", "2月", "3月", "4月", "5月", "6月", "7月"],
-        series: [
-          { name: "访问量", data: [120, 200, 150, 80, 70, 110, 130] },
-          { name: "订单量", data: [60, 85, 72, 45, 32, 55, 68] },
-        ],
-      },
-      activities: [
-        {
-          id: 1,
-          user: "张三",
-          action: "创建了订单",
-          target: "#23456",
-          time: "10分钟前",
-          avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-        },
-        {
-          id: 2,
-          user: "李四",
-          action: "更新了产品",
-          target: "iPhone 13",
-          time: "25分钟前",
-          avatar: "https://randomuser.me/api/portraits/women/2.jpg",
-        },
-        {
-          id: 3,
-          user: "王五",
-          action: "完成了付款",
-          target: "¥1,299",
-          time: "1小时前",
-          avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-        },
-        {
-          id: 4,
-          user: "赵六",
-          action: "提交了工单",
-          target: "技术支持",
-          time: "2小时前",
-          avatar: "https://randomuser.me/api/portraits/women/4.jpg",
-        },
-      ],
       recentApps: [
         { id: 1, name: "项目管理", icon: "program", usedAt: "2023-05-15" },
         {
@@ -166,13 +113,13 @@ export default {
       todos: [
         {
           id: 1,
-          title: "完成季度报告",
+          title: "完成项目审核",
           deadline: "2023-05-20",
           completed: false,
         },
         {
           id: 2,
-          title: "审批采购申请",
+          title: "项目采集",
           deadline: "2023-05-18",
           completed: false,
         },
@@ -266,7 +213,22 @@ export default {
 </script>
 
 <style scoped>
+.row-recent {
+  margin-bottom: 5px;
+}
+
+.row-recent .el-card {
+  height: 100px;
+  overflow: auto;
+}
+
+.row-app-center .el-card {
+  height: 500px; /* 主功能最大 */
+  overflow: auto;
+}
+
 .mt-20 {
   margin-top: 20px;
 }
+
 </style>

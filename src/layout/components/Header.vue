@@ -1,12 +1,14 @@
 <template>
-  <div class="header">
+  <div class="header" style=" background-color: #f8f8f8;">
     <!-- <img src="@/assets/zh_logol.jpg" style="height: 80" /> -->
-    <span class="title">数字化验收系统</span>
 
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="avatar + '?imageView2/1/w/80/h/80'" class="user-avatar" />
+          <!-- <img :src="avatar + '?imageView2/1/w/80/h/80'" class="user-avatar" /> -->
+          <svg class="user-avatar">
+            <use :xlink:href="`#icon-avatar`" />
+          </svg>
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -19,11 +21,14 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
+     <span class="title" >数字化验收系统</span>
+
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import variables from '@/styles/variables.scss'
 export default {
   computed: {
     ...mapGetters(["avatar"]),
@@ -43,31 +48,31 @@ export default {
 
 <style lang="scss" scoped>
 .header {
+  width: calc(100% - $sideBarWidth);
   display: flex; /* 设置为 Flexbox 容器 */
   align-items: center; /* 垂直居中 */
   justify-content: space-between; /* 元素之间的间距，居中对齐 */
+ 
 }
 .header > img {
-  margin-left: 5px;
-  margin-top: 10px;
+  margin-left: 10px;
+  margin-top: 100px;
   height: 30px;
   width: 200px;
 }
 .title {
- 
-    display: flex;
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
-    font-size: 30px;
-    font-weight: 500;
-    color: rgb(51, 51, 51);
-    letter-spacing:15px
-    
+  flex: 1;
+  text-align: center;
+  font-size: 30px;
+  letter-spacing: 15px;
+  color: rgb(54, 54, 54);
 }
 .right-menu {
   float: right;
   height: 100%;
   line-height: 50%;
+  background-color: #3875c5;
+  width: 64px;
 
   &:focus {
     outline: none;
@@ -96,6 +101,7 @@ export default {
 
     .avatar-wrapper {
       margin-top: 5px;
+      margin-left: 5px;
       position: relative;
 
       .user-avatar {
@@ -115,4 +121,5 @@ export default {
     }
   }
 }
+
 </style>

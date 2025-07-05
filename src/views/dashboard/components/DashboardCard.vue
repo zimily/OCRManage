@@ -31,7 +31,7 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-  min-height: 300px; /* 或者设置一个适当的最小高度 */
+  min-height: 100px; /* 或者设置一个适当的最小高度 */
 }
 .dashboard-card:hover {
   box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.2); /* 鼠标悬停时增加阴影 */

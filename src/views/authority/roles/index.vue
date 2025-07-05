@@ -1,8 +1,7 @@
 <template>
   <div>
       <roles-manage v-if="isShow"  :visible.sync='isShow' @transmit="getMessage"></roles-manage>
-    <roles-detail v-if="!isShow" @transmit="getMessage"></roles-detail>
-
+      <roles-detail v-if="!isShow" @transmit="getMessage"></roles-detail>
   </div>
 </template>
 

@@ -1,40 +1,94 @@
 <template>
   <div>
     <div class="nav-buttons">
-      <el-button 
-        type="primary" 
-        @click="navigate('RawMaterial', 'raw')"
-        :class="{ active: $route.name === 'RawMaterial' }">钢筋原材</el-button>
-      <el-button 
-        type="primary" 
-        @click="navigate('Connection', 'connection')"
-        :class="{ active: $route.name === 'Connection' }">钢筋机械连接</el-button>
-      <el-button 
-        type="primary" 
-        @click="navigate('Weld', 'weld')"
-        :class="{ active: $route.name === 'Weld' }">钢筋焊接</el-button>
-      <el-button 
-        type="primary" 
-        @click="navigate('Beton', 'beton')"
-        :class="{ active: $route.name === 'Beton' }">混凝土强度</el-button>
+      <el-button
+        type="primary"
+        @click="navigate(data_raw)"
+        :class="{ active: activeButton === data_raw }"
+         :disabled="index !== 0"
+        >{{ data_raw }}</el-button
+      >
+      <el-button
+        type="primary"
+        @click="navigate(data_connection)"
+        :class="{ active: activeButton === data_connection }"
+         :disabled="index !== 0"
+        >{{ data_connection }}</el-button
+      >
+      <el-button
+        type="primary"
+        @click="navigate(data_weld)"
+        :class="{ active: activeButton === data_weld }"
+         :disabled="index !== 0"
+        >{{ data_weld }}</el-button
+      >
+      <el-button
+        type="primary"
+        @click="navigate(data_beton)"
+        :class="{ active: activeButton === data_beton }"
+        :disabled="index !== 0"
+        >{{ data_beton }}</el-button
+      >
     </div>
     <div class="content-container">
-      <router-view />
+      <div>
+        <!-- 动态切换三个组件渲染 -->
+        <ledger-list
+          v-if="index === 0"
+          :index="index"
+          :category="activeButton"
+          @update-index="handleUpdateIndex"
+        />
+
+        <OCREntry
+          v-else-if="index === 1"
+          :index="index"
+          :category="activeButton"
+          @update-index="handleUpdateIndex"
+        />
+
+        <ledger-entry
+          v-else-if="index === 2"
+          :index="index"
+          :category="activeButton"
+          @update-index="handleUpdateIndex"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import ledgerList from "@/views/ledgerManage/components/ledgerList";
+import OCREntry from "@/views/ledgerManage/components/OCREntry";
+import ledgerEntry from "@/views/ledgerManage/components/ledgerEntry";
+
 export default {
+  data() {
+    return {
+      data_raw: "钢筋原材",
+      data_connection: "钢筋机械连接",
+      data_weld: "钢筋焊接",
+      data_beton: "混凝土强度",
+      activeButton: "钢筋原材", //当前选中的按钮
+       index: 0, // 控制显示哪个组件
+    };
+  },
+  components: {
+    ledgerList,
+    OCREntry,
+    ledgerEntry,
+  },
   methods: {
-    navigate(routeName, category) {
-      this.$router.push({ 
-        name: routeName,
-        params: { category }
-      });
-    }
-  }
-}
+    navigate(category) {
+      console.log(category);
+      this.activeButton = category;
+    },
+    handleUpdateIndex(newIndex) {
+      this.index = newIndex;
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -45,14 +99,14 @@ export default {
 }
 
 .el-button.active {
-  background-color: #409EFF !important; /* 更深的蓝色 */
-  border-color: #409EFF !important;
+  background-color: #409eff !important; /* 更深的蓝色 */
+  border-color: #409eff !important;
   color: #fff !important;
 }
 
 .el-button:not(.active) {
   background-color: #fff;
-  color: #409EFF;
+  color: #409eff;
   border-color: #dcdfe6;
 }
 

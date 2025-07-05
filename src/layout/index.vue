@@ -5,6 +5,7 @@
       class="drawer-bg"
       @click="handleClickOutside"
     />
+  
     <Header></Header>
     <sidebar class="sidebar-container" /><!--侧边导航栏-->
     <div class="main-container">
@@ -68,7 +69,7 @@ export default {
   position: relative;
   height: 100%;
   width: 100%;
-  overflow: hidden; /* 禁止全局滚动 */
+  // overflow: hidden; /* 禁止全局滚动 */
   &.mobile.openSidebar {
     position: fixed;
     top: 0;
@@ -96,26 +97,29 @@ export default {
 }
 
 .hideSidebar .fixed-header {
-  width: calc(100% - 54px);
+  width: calc(100% - 64px);
 }
 
 .main-container {
   position: relative;
   margin-left: $sideBarWidth; /* 与侧边栏宽度一致 */
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   transition: margin-left 0.28s;
   &.hideSidebar {
-    margin-left: 54px; /* 侧边栏折叠时的宽度 */
+    margin-left: 64px; /* 侧边栏折叠时的宽度 */
   }
 }
 .app-main-wrapper {
-  height: calc(100vh-100px); //减去navbar
+  // height: calc(100vh-100px); //减去navbar
+  flex: 1; /* 自动填充剩余高度 */
   overflow-y: auto; /* 允许滚动 */
 }
 
 .mobile .fixed-header {
   width: 100%;
 }
+
+
 </style>

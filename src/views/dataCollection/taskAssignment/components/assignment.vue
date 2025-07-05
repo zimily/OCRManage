@@ -1,42 +1,42 @@
 <template>
   <div>
     <!-- 项目信息 -->
-    <el-row :gutter="10" class="equal-height-row">
+    <el-row :gutter="2" class="equal-height-row">
       <el-col :span="6">
-        <el-card class="pro-card card-box">
+        <el-card class="pro-card card-box" :body-style="{ padding: '10px' }" >
           <el-row :gutter="2" class="spaced-row">
-            <el-col :span="10">
+            <el-col :span="8">
               <div class="card-item">单位工程:</div>
             </el-col>
-            <el-col :span="14">
+            <el-col :span="16">
               <div class="card-item-name">{{ rowData.subprojectName }}</div>
             </el-col>
           </el-row>
-          <el-row :gutter="2" class="spaced-row">
-            <el-col :span="10">
+          <el-row :gutter="2" class="spaced-row" >
+            <el-col :span="8">
               <div class="card-item">检验批部位:</div>
             </el-col>
-            <el-col :span="14">
+            <el-col :span="16">
               <div class="card-item-name">{{ rowData.inspectPart }}</div>
             </el-col>
           </el-row>
           <el-row :gutter="2" class="spaced-row">
-            <el-col :span="10">
+            <el-col :span="8">
               <div class="card-item">检验批类别:</div>
             </el-col>
-            <el-col :span="14">
+            <el-col :span="16">
               <div class="card-item-name">{{ rowData.inspectType }}</div>
             </el-col>
           </el-row>
         </el-card>
       </el-col>
-      <el-col :span="10">
-        <el-card class="sub-card card-box">
-          <el-row :gutter="5" class="spaced-row">
-            <el-col :span="8">
-              <div class="card-item">分包单位</div>
+      <el-col :span="8">
+        <el-card class="sub-card card-box" :body-style="{ padding: '10px' }" >
+          <el-row :gutter="3" class="spaced-row">
+            <el-col :span="9">
+              <div class="card-item">分包单位:</div>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="15">
               <el-input
                 v-model="fenbaoCompany"
                 placeholder="请输入分包单位"
@@ -45,11 +45,11 @@
               ></el-input>
             </el-col>
           </el-row>
-          <el-row :gutter="5" class="spaced-row">
-            <el-col :span="8">
-              <div class="card-item">分包单位项目负责人</div>
+          <el-row :gutter="3" class="spaced-row">
+            <el-col :span="9">
+              <div class="card-item">分包单位项目负责人:</div>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="15">
               <el-input
                 v-model="fenbaoDirector"
                 placeholder="请输入项目负责人"
@@ -58,11 +58,11 @@
               ></el-input>
             </el-col>
           </el-row>
-          <el-row :gutter="5" class="spaced-row">
-            <el-col :span="8">
-              <div class="card-item">分包单位技术负责人</div>
+          <el-row :gutter="3" class="spaced-row">
+            <el-col :span="9">
+              <div class="card-item">分包单位技术负责人:</div>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="15">
               <el-input
                 v-model="fenbaoTechnical"
                 placeholder="请输入技术负责人"
@@ -73,13 +73,13 @@
           </el-row>
         </el-card>
       </el-col>
-      <el-col :span="8">
-        <el-card class="build-card card-box">
+      <el-col :span="10">
+        <el-card class="build-card card-box" :body-style="{ padding: '10px' }" >
           <el-row :gutter="2" class="spaced-row">
-            <el-col :span="6">
-              <div class="card-item">施工规范</div>
+            <el-col :span="4">
+              <div class="card-item">施工规范:</div>
             </el-col>
-            <el-col :span="14">
+            <el-col :span="20">
               <el-input
                 v-model="shigongRule"
                 size="small"
@@ -88,10 +88,10 @@
             </el-col>
           </el-row>
           <el-row :gutter="2" class="spaced-row">
-            <el-col :span="6">
-              <div class="card-item">检验批容量</div>
+            <el-col :span="4">
+              <div class="card-item">检验批容量:</div>
             </el-col>
-            <el-col :span="14">
+            <el-col :span="20">
               <div class="card-item-name">
                 <span class="capacity-text">{{ capactity }}</span>
                 <el-button
@@ -101,20 +101,29 @@
                   style="margin-left: 10px"
                   >编辑</el-button
                 >
+                <el-button
+                  type="primary"
+                  @click="importLedger"
+                  size="small"
+                  style="margin-left: 10px"
+                  >选择台账</el-button
+                >
               </div>
             </el-col>
           </el-row>
           <el-row :gutter="2" class="spaced-row">
-            <el-col :span="6">
-              <div class="card-item">验收规范</div>
+            <el-col :span="4">
+              <div class="card-item">验收规范:</div>
             </el-col>
-            <el-col :span="14">
+            <el-col :span="20">
               <div class="card-item-name">{{ yanshouRule }}</div>
             </el-col>
           </el-row>
           <el-row>
-            <el-col :span="6">设计值</el-col>
-            <el-col :span="14">
+            <el-col :span="4">
+              <div class="card-item">设计值:</div>
+            </el-col>
+            <el-col :span="20">
                <div class="card-item-name">
                   <span class="capacity-text">{{shejizhi}}</span>
                   <el-button type="primary" @click="editDesignValue" size="small"  style="margin-left: 10px"
@@ -695,6 +704,10 @@ export default {
          this.$router.push({
           name: "CollectionManage",
         });
+    },
+    //选择台账
+    importLedger(){
+      console.log("选择台账")
     }
   },
 };

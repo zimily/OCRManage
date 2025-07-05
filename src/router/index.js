@@ -57,6 +57,30 @@ export const constantRoutes = [
     }]
   },
   {
+    path: '/notify',
+    component: Layout,
+    children: [
+      {
+        path: 'notice',
+        name: 'Notify',
+        component: () => import('@/views/messageNotice/index'), // 需要创建对应组件
+        meta: { title: '消息通知', icon: 'el-icon-chat-dot-square' }
+      }
+    ]
+  },
+  {
+    path: '/system',
+    component: Layout,
+    children: [
+      {
+        path: 'systemSetting',
+        name: 'SystemSetting',
+        component: () => import('@/views/systemSetting/index'), // 需要创建对应组件
+        meta: { title: '系统设置', icon: 'el-icon-setting' }
+      }
+    ]
+  },
+  {
     path: '/menus',
     component: Layout,
     redirect: '/dashboard',
@@ -185,50 +209,8 @@ export const constantRoutes = [
         component: () => import('@/views/ledgerManage'),
         meta: { title: '台账管理', icon: 'approve' },
         children: [
-          {
-            path: 'rawMaterial',
-            name: 'RawMaterial',
-            component: () => import('@/views/ledgerManage/rawMaterial.vue'),
-            meta: { title: '钢筋原材', breadcrumb: false },
-          },
-          {
-            path: 'connection',
-            name: 'Connection',
-            component: () => import('@/views/ledgerManage/connection.vue'),
-            meta: { title: '钢筋机械连接' }
-          },
-          {
-            path: 'weld',
-            name: 'Weld',
-            component: () => import('@/views/ledgerManage/weld.vue'),
-            meta: { title: '钢筋焊接' }
-          },
-          {
-            path: 'beton',
-            name: 'Beton',
-            component: () => import('@/views/ledgerManage/beton.vue'),
-            meta: { title: '混凝土强度' }
-          },
-          {
-            path: 'ledgerEntry/:type',
-            name: 'LedgerEntry',
-            component: () => import('@/views/ledgerManage/ledgerEntry.vue'),
-            meta: { title: '台账录入' }
-          },
-          {
-            path: 'OCREntry/:type',
-            name: 'OCREntry',
-            component: () => import('@/views/ledgerManage/OCREntry.vue'),
-            meta: { title: 'OCR数据录入' }
-          },
         ]
       },
-      // {
-      //   path: 'ledger',
-      //   name: 'Ledger',
-      //   component: () => import('@/views/ledgerManage'),
-      //   meta: { title: '台账管理', icon: 'approve' }
-      // },
       {
         path: 'statement',
         name: 'StateMent',
@@ -248,7 +230,7 @@ export const constantRoutes = [
         meta: { title: '角色管理', icon: 'el-icon-lock' }
       }
     ]
-  }
+  },
   // { path: '*', redirect: '/404', hidden: true }
 ]
 // 异步路由

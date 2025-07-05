@@ -23,7 +23,6 @@
     width: $sideBarWidth !important;
     background-color: $menuBg;
     height: calc(100% - 50px);
-    height: 100%;
     position: fixed;
     font-size: 0px;
     top: 50px;
@@ -104,8 +103,8 @@
   }
 
   .hideSidebar {
-    .sidebar-container {
-      width: 54px !important;
+    .sidebar-container { //侧边栏收起（collapse）时的宽度
+      width: 64px !important;
     }
 
     .main-container {
