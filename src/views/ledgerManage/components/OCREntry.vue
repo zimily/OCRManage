@@ -8,23 +8,29 @@
 
 <script>
 export default {
-  data() {
-    return {};
-  },
   props: {
-    index: Number,
-    category: String,
+    index: {
+      type: Number,
+      default: 0
+    },
+    category: {
+      type: String,
+      default: ''
+    }
+  },
+  data() {
+    return {}
   },
   mounted() {
-    console.log("OCREntry", this.category);
+    console.log('OCREntry', this.category)
   },
   methods: {
-    //取消按钮，同时向父组件传参，
+    // 取消按钮，同时向父组件传参，
     changeIndex() {
-      this.$emit("update-index", 0);
-    },
-  },
-};
+      this.$emit('update-index', 0, null)
+    }
+  }
+}
 </script>
 
 <style></style>

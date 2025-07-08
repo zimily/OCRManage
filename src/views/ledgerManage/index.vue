@@ -51,6 +51,7 @@
           v-else-if="index === 2"
           :index="index"
           :category="activeButton"
+          :dataId="dataId"
           @update-index="handleUpdateIndex"
         />
       </div>
@@ -71,7 +72,8 @@ export default {
       data_weld: "钢筋焊接",
       data_beton: "混凝土强度",
       activeButton: "钢筋原材", //当前选中的按钮
-       index: 0, // 控制显示哪个组件
+      index: 0, // 控制显示哪个组件
+      dataId:null,
     };
   },
   components: {
@@ -81,12 +83,13 @@ export default {
   },
   methods: {
     navigate(category) {
-      console.log(category);
       this.activeButton = category;
     },
-    handleUpdateIndex(newIndex) {
+    handleUpdateIndex(newIndex,newDataId) {
       this.index = newIndex;
+      this.dataId=newDataId
     },
+    
   },
 };
 </script>
