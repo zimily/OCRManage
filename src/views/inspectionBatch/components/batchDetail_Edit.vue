@@ -552,10 +552,10 @@ export default {
           console.log("所有验收类别", res);
           // console.log(res.result)
           this.options0 = res.result.map((item, index) => ({
-            value: index+1,
-            label: item,
+            value: item.inspectType,
+            label: item.typeName,
           }));
-          // console.log(this.options0);
+          console.log(this.options0);
         } else {
           throw new Error(res.message || "获取所有验收类别信息失败");
         }

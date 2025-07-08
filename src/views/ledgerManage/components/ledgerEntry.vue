@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 根据类别控制按钮显示 -->
-    <el-row style="margin-bottom: 20px" v-if="showMaterialButtons">
+    <el-row style="margin-bottom: 20px">
       <el-button
         type="primary"
         @click="dialogTableVisible = true"
@@ -10,6 +10,129 @@
       >
       <el-button type="primary">二维码扫描</el-button>
     </el-row>
+
+    <div class="scrollable-content">
+      <el-card>
+        <el-row :gutter="2" style="margin-bottom: 20px;">
+          <el-col :span="6">
+            <span>项目名称:</span>
+            <el-select v-model="project" placeholder="请选择" @change="changeProject">
+              <el-option
+                v-for="item in options1"
+                :key="item.projectId"
+                :label="item.projectName"
+                :value="item.projectId"
+              >
+              </el-option>
+            </el-select>
+          </el-col>
+          <el-col :span="6" >
+            <span>单位工程（栋）:</span>
+            <el-select v-model="subProject" placeholder="请选择" >
+              <el-option
+                v-for="item in options2"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </el-col>
+        </el-row>
+        <el-row :gutter="2" style="margin-bottom: 10px;">
+          <el-col :span="6">
+            <span>施工单位: </span>
+            <span>{{ constructionUnit }}</span>
+          </el-col>
+          <el-col :span="6">
+            <span>建设单位: </span>
+            <span>{{ developmentUnit }}</span>
+          </el-col>
+          <el-col :span="6">
+            <span>工程号: </span>
+            <span>{{ projectNumber }}</span>
+          </el-col>
+        </el-row>
+      </el-card> 
+      <!-- 三个卡片内容 -->
+      <el-row :gutter="2" class="equal-height-row">
+        <el-col :span="8" >
+          <el-card class="card-box">
+            <el-form :model="formData" label-width="80px">
+              <el-form-item
+                v-for="(item, index) in field1"
+                :key="index"
+                :label="item.label"
+                :required="item.required"
+              >
+                <el-input v-model="formData[item.fieldName]" />
+              </el-form-item>
+            </el-form> 
+          </el-card>
+        </el-col>
+        <el-col :span="8">   
+          <el-card class="card-box">
+              <el-form :model="formData" label-width="80px">
+                <el-form-item 
+                  v-for="(item, index2) in field2" 
+                  :key="index2" 
+                  :label="item.label"
+                  :required="item.required"
+                >
+                  <el-date-picker
+                    v-if="item.dataType === 'DATE'"
+                    v-model="formData[item.fieldName]"
+                    type="date"
+                    placeholder="选择日期"
+                  />
+                  <el-input
+                    v-else
+                    v-model="formData[item.fieldName]"
+                  />
+                </el-form-item>
+              </el-form>
+            </el-card>
+        </el-col>
+        <el-col :span="8" >
+           <el-card class="card-box">
+              <el-form :model="formData" label-width="80px">
+                <el-form-item
+                  v-for="(item, index3) in field3"
+                  :key="index3"
+                  :label="item.label"
+                  :required="item.required"
+                >
+                  <!-- 单输入框（直接绑定） -->
+                  <el-input
+                    v-if="item.dataCount === 1"
+                    v-model="formData[item.fieldName]"
+                  />
+
+                  <!-- 多输入框（手动处理 JSON 数组） -->
+                  <template v-else> 
+                    <el-input
+                      v-for="i in item.dataCount"
+                      :key="`${item.fieldName}_${i}`"
+                      :value="getMultiInputValue(item.fieldName, i - 1)"
+                      :style="getInputStyle(item.dataCount)"
+                      :placeholder="`请输入${item.label}${item.dataCount > 1 ? i : ''}`"
+                      @input="val => updateMultiInputValue(item.fieldName, i - 1, val)"
+                    />
+                  </template>
+                </el-form-item>
+              </el-form>
+            </el-card>
+        </el-col>
+       
+       
+       
+      </el-row>
+
+      <div class="footer-buttons">
+        <el-button type="primary">保存</el-button>
+        <el-button @click="changeIndex()">取消</el-button>
+      </div>
+    </div>
 
     <!-- 物资选择对话框 -->
     <el-dialog title="选择物资平台数据" :visible.sync="dialogTableVisible">
@@ -56,675 +179,20 @@
         >
       </div>
     </el-dialog>
-    <div class="scrollable-content">
-      <el-row :gutter="10">
-        <el-col :span="8">
-          <el-card class="pro-card">
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">项目名称</div>
-              </el-col>
-              <el-col :span="14">
-                <el-select v-model="value1" placeholder="请选择" size="mini">
-                  <el-option
-                    v-for="item in options1"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  >
-                  </el-option>
-                </el-select>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">单位工程（栋）</div>
-              </el-col>
-              <el-col :span="14">
-                <el-select v-model="value2" placeholder="请选择" size="mini">
-                  <el-option
-                    v-for="item in options2"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  >
-                  </el-option>
-                </el-select>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">施工单位</div>
-              </el-col>
-              <el-col :span="14">
-                <div class="card-item-name">{{ constructionUnit }}</div>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">建设单位</div>
-              </el-col>
-              <el-col :span="14">
-                <div class="card-item-name">{{ developmentUnit }}</div>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">工程号</div>
-              </el-col>
-              <el-col :span="14">
-                <div class="card-item-name">{{ projectNumber }}</div>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">钢筋种类</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="steelType"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">生产厂家</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="manufacturer"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">炉批号</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="batchNumber"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">公称直径</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="nominalDiameter"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">抗震等级</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="seismicGrade"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">进场批量</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="incomingBatch"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">送检数量（组）</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="inspectionQuantity"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">本单位工程数量（吨）</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="projectQuantity"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">使用部位</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="usageLocation"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">本组试件分表数量</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="specimenQuantity"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-          </el-card>
-        </el-col>
-
-        <el-col :span="9">
-          <el-card class="pro-card">
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">进场日期</div>
-              </el-col>
-              <div class="block">
-                <el-date-picker
-                  v-model="entryDate"
-                  type="date"
-                  placeholder="选择日期"
-                  size="mini"
-                >
-                </el-date-picker>
-              </div>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">见证日期</div>
-              </el-col>
-              <div class="block">
-                <el-date-picker
-                  v-model="witnessDate"
-                  type="date"
-                  placeholder="选择日期"
-                  size="mini"
-                >
-                </el-date-picker>
-              </div>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">送样日期</div>
-              </el-col>
-              <div class="block">
-                <el-date-picker
-                  v-model="sampleDate"
-                  type="date"
-                  placeholder="选择日期"
-                  size="mini"
-                >
-                </el-date-picker>
-              </div>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">报告日期</div>
-              </el-col>
-              <div class="block">
-                <el-date-picker
-                  v-model="reportDate"
-                  type="date"
-                  placeholder="选择日期"
-                  size="mini"
-                >
-                </el-date-picker>
-              </div>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">验收规范</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="acceptanceSpecification"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">报告编号</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="reportNumber"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">监督号</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="supervisionNumber"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">检测单位</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="testingUnit"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">委托单位</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="clientUnit"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">委托编号</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="clientNumber"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">见证单位</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="witnessUnit"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">见证人</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="witnessPerson"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">送样人</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="samplePerson"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row :gutter="2" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">检验类别</div>
-              </el-col>
-              <el-col :span="12">
-                <el-input
-                  v-model="inspectionType"
-                  placeholder="请输入"
-                  class="card-item-name"
-                  size="mini"
-                ></el-input>
-              </el-col>
-            </el-row>
-          </el-card>
-        </el-col>
-
-        <el-col :span="7">
-          <el-card class="pro-card">
-            <el-row :gutter="10" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">屈服强度（MPa）</div>
-              </el-col>
-              <el-col :span="14">
-                <el-row :gutter="10">
-                  <el-col :span="8">
-                    <el-input
-                      v-model="yieldStrength1"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="yieldStrength2"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="yieldStrength3"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-            <el-row :gutter="10" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">抗拉强度（MPa）</div>
-              </el-col>
-              <el-col :span="14">
-                <el-row :gutter="10">
-                  <el-col :span="8">
-                    <el-input
-                      v-model="tensileStrength1"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="tensileStrength2"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="tensileStrength3"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-            <el-row :gutter="10" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">伸长率（%）</div>
-              </el-col>
-              <el-col :span="14">
-                <el-row :gutter="10">
-                  <el-col :span="8">
-                    <el-input
-                      v-model="elongation1"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="elongation2"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="elongation3"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-            <el-row :gutter="10" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">总伸长率（%）</div>
-              </el-col>
-              <el-col :span="14">
-                <el-row :gutter="10">
-                  <el-col :span="8">
-                    <el-input
-                      v-model="totalElongation1"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="totalElongation2"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="totalElongation3"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-            <el-row :gutter="10" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">强屈比</div>
-              </el-col>
-              <el-col :span="14">
-                <el-row :gutter="10">
-                  <el-col :span="8">
-                    <el-input
-                      v-model="strengthRatio1"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="strengthRatio2"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="strengthRatio3"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-            <el-row :gutter="10" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">超屈比</div>
-              </el-col>
-              <el-col :span="14">
-                <el-row :gutter="10">
-                  <el-col :span="8">
-                    <el-input
-                      v-model="yieldRatio1"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="yieldRatio2"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="yieldRatio3"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-            <el-row :gutter="10" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">弯曲压头直径（mm）</div>
-              </el-col>
-              <el-col :span="14">
-                <el-row :gutter="10">
-                  <el-col :span="8">
-                    <el-input
-                      v-model="bendingDiameter1"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="bendingDiameter2"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="bendingDiameter3"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-            <el-row :gutter="10" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">弯曲角度（°）</div>
-              </el-col>
-              <el-col :span="14">
-                <el-row :gutter="10">
-                  <el-col :span="8">
-                    <el-input
-                      v-model="bendingAngle1"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="bendingAngle2"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="bendingAngle3"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-            <el-row :gutter="10" class="spaced-row">
-              <el-col :span="10">
-                <div class="card-item">结果</div>
-              </el-col>
-              <el-col :span="14">
-                <el-row :gutter="10">
-                  <el-col :span="8">
-                    <el-input
-                      v-model="result1"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="result2"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input
-                      v-model="result3"
-                      placeholder=""
-                      size="mini"
-                    ></el-input>
-                  </el-col>
-                </el-row>
-              </el-col>
-            </el-row>
-          </el-card>
-        </el-col>
-      </el-row>
-
-      <div class="footer-buttons">
-        <el-button type="primary">保存</el-button>
-        <el-button @click="changeIndex()">取消</el-button>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
+import {
+ getAllProjectName,
+ getAllSubrojectName,
+ getFieldName,
+ getProjectInfo,
+ getFormData,
+
+} from "@/api/ledger";
+import { getUser } from "@/utils/storage";
+import da from "element-ui/src/locale/lang/da";
 export default {
   data() {
     return {
@@ -765,6 +233,7 @@ export default {
         },
       ],
       dialogTableVisible: false,
+      userId:null,
       options1: [
         {
           value: "选项1",
@@ -787,7 +256,7 @@ export default {
           label: "D",
         },
       ],
-      value1: "",
+      project: "",
       options2: [
         {
           value: "选项1",
@@ -810,128 +279,183 @@ export default {
           label: "I",
         },
       ],
-      value2: "",
-      pickerOptions: {
-        disabledDate(time) {
-          return time.getTime() > Date.now();
-        },
-        shortcuts: [
-          {
-            text: "今天",
-            onClick(picker) {
-              picker.$emit("pick", new Date());
-            },
-          },
-          {
-            text: "昨天",
-            onClick(picker) {
-              const date = new Date();
-              date.setTime(date.getTime() - 3600 * 1000 * 24);
-              picker.$emit("pick", date);
-            },
-          },
-          {
-            text: "一周前",
-            onClick(picker) {
-              const date = new Date();
-              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", date);
-            },
-          },
-        ],
-      },
+      subProject: "",
       // 项目基本信息
-      projectName: "",
-      buildingNumber: "",
-      projectOptions: [],
-      buildingOptions: [],
       constructionUnit: "",
       developmentUnit: "",
       projectNumber: "",
-      // 钢筋信息
-      steelType: "",
-      manufacturer: "",
-      batchNumber: "",
-      nominalDiameter: "",
-      seismicGrade: "",
-      incomingBatch: "",
-      inspectionQuantity: "",
-      projectQuantity: "",
-      usageLocation: "",
-      specimenQuantity: "",
-      // 日期信息
-      entryDate: "",
-      witnessDate: "",
-      sampleDate: "",
-      reportDate: "",
-      // 规范与编号
-      acceptanceSpecification: "",
-      reportNumber: "",
-      supervisionNumber: "",
-      testingUnit: "",
-      clientUnit: "",
-      clientNumber: "",
-      witnessUnit: "",
-      witnessPerson: "",
-      samplePerson: "",
-      inspectionType: "",
-      // 检测数据
-      yieldStrength1: "",
-      yieldStrength2: "",
-      yieldStrength3: "",
-      tensileStrength1: "",
-      tensileStrength2: "",
-      tensileStrength3: "",
-      elongation1: "",
-      elongation2: "",
-      elongation3: "",
-      totalElongation1: "",
-      totalElongation2: "",
-      totalElongation3: "",
-      strengthRatio1: "",
-      strengthRatio2: "",
-      strengthRatio3: "",
-      yieldRatio1: "",
-      yieldRatio2: "",
-      yieldRatio3: "",
-      bendingDiameter1: "",
-      bendingDiameter2: "",
-      bendingDiameter3: "",
-      bendingAngle1: "",
-      bendingAngle2: "",
-      bendingAngle3: "",
-      result1: "",
-      result2: "",
-      result3: "",
-      // 模拟接口返回延迟
-      mockDelay: 300,
+      // 相关字段
+      field1:[],
+      field2:[],
+      field3:[],
+      formData:{},
+     
     };
   },
   props: {
     index: Number,
-    category:String,
+    category: String,
+    dataId: {
+      type: Number,
+      default: null, // 默认值为null
+    },
   },
   computed: {
-    categoryText() {
-      const map = {
-        raw: "钢筋原材",
-        connection: "钢筋机械连接",
-        weld: "钢筋焊接",
-        beton: "混凝土强度",
-      };
-      return map[this.category] || "未知类别";
-    },
     // 控制物资相关按钮的显示
     showMaterialButtons() {
       return this.category === "raw";
     },
+    //台账类型
+    ledgerType() {
+      if (this.category === "钢筋原材") {
+        return 1;
+      }else if (this.category === "钢筋机械连接") {
+        return 2;
+      } else if (this.category === "钢筋焊接") {
+        return 3;
+      } else if (this.category === "混凝土强度") {
+        return 4;
+      } else {
+        return 0; // 默认值
+      }
+    },
   },
-  watch: {
+  watch: {},
+  created(){
+    const user =getUser()
+    this.userId=user.userId
   },
-  mounted(){
-    console.log("ledgerEntry",this.category)
+  mounted() {
+     this.getAllProjectName();
+     this.getFieldName();
+     if (this.dataId) {
+       // 如果有 dataId，说明是编辑状态
+       this.editMaterialData();
+     }
+   
+   
   },
   methods: {
+    async getAllProjectName(){
+       try {
+        let res = await getAllProjectName(this.userId);
+        if (res.code == 200) {
+          this.options1=res.result
+          
+        } else {
+          throw new Error(res.message || "获取项目名称失败");
+        }
+      } catch (error) {
+        console.log(error);
+        this.$message.error("出错啦，请稍后重试！");
+      }
+
+    },
+    changeProject(value) {
+      // console.log("选中的项目ID:", value);
+      const projectId = String(value);
+      // 处理项目选择变化
+      this.getAllSubrojectName(projectId);
+      this.getProjectInfo(projectId);
+    },
+    async getAllSubrojectName(projectId) {
+      // 获取所有子项目名称
+      try {
+        let res = await getAllSubrojectName(projectId);
+        if (res.code == 200) {
+          console.log(res.result);
+          this.options2 = res.result.map(item => ({
+            value: item.subprojectId,
+            label: item.subprojectName
+          }));
+        } else {
+          throw new Error(res.message || "获取项目信息失败");
+        }
+      } catch (error) {
+        console.log(error);
+        this.$message.error("出错啦，请稍后重试！");
+      }
+    },  
+    async getProjectInfo(projectId) {
+      // 获取项目基本信息
+         try {
+        let res = await getProjectInfo(projectId);
+        if (res.code == 200) {
+          console.log(res.result);
+          this.constructionUnit = res.result.jiansheCompanyName || "";
+          this.developmentUnit = res.result.shigongCompanyName || "";
+          this.projectNumber = res.result.projectInnerCode || "";
+
+        } else {
+          throw new Error(res.message || "获取项目信息失败");
+        }
+      } catch (error) {
+        console.log(error);
+        this.$message.error("出错啦，请稍后重试！");
+      }
+    },
+    //获取字段名称
+    async getFieldName() { 
+     try {
+        let res = await getFieldName(this.ledgerType);
+        if (res.code == 200) {
+          // 遍历 result 数组
+          res.result.forEach(item => {
+            switch (item.showPosition) {
+              case 1:
+                this.field1.push(item);
+                break;
+              case 2:
+                this.field2.push(item);
+                break;
+              case 3:
+                this.field3.push(item);
+                break;
+              default:
+                console.warn(`发现未知 showPosition 值: ${item.showPosition}`, item);
+            }
+          });
+          console.log("字段名称获取成功", this.field1, this.field2, this.field3 );
+        } else {
+          throw new Error(res.message || "获取字段名称失败");
+        }
+      } catch (error) {
+        console.log(error);
+        this.$message.error("出错啦，请稍后重试！");
+      }
+    },
+    getInputStyle(count) {
+      return { width: `${100 / count}%` };
+    },
+    // 从 JSON 字符串中获取第 n 个值
+    getMultiInputValue(fieldName, index) {
+        if (!this.formData[fieldName]) return "";
+        const arr = JSON.parse(this.formData[fieldName]);
+        return arr[index] || "";
+    },
+    // 更新 JSON 字符串中的第 n 个值
+    updateMultiInputValue(fieldName, index, val) {
+        const arr = this.formData[fieldName] ? JSON.parse(this.formData[fieldName]) : [];
+        arr[index] = val;
+        this.$set(this.formData, fieldName, JSON.stringify(arr));
+    },
+    //编辑状态 获取原始物资数据
+    async editMaterialData() {
+      try {
+        console.log("编辑状态，获取物资数据" , this.ledgerType, this.dataId);
+        let res = await getFormData(this.ledgerType,this.dataId);
+        if (res.code == 200) {
+          console.log("获取物资数据成功", res);
+          this.formData = res.result;
+        } else {
+          throw new Error(res.message || "获取物资数据失败");
+        }
+      } catch (error) {
+        console.log(error);
+        this.$message.error("出错啦，请稍后重试！");
+      }
+
+    },
     handleMaterialSelect(row) {
       // 处理物资选择
       this.selectedMaterialData = row;
@@ -954,6 +478,23 @@ export default {
   },
 };
 </script>
+<style scoped>
+.equal-height-row {
+  display: flex;
+  align-items: stretch; /* 让每个列的高度一致 */
+}
+
+.equal-height-row >>> .el-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-box {
+  flex: 1; /* 让 card 撑满列的高度 */
+  display: flex;
+  flex-direction: column;
+}
+</style>
 
 <style>
 .ledger-entry-container {

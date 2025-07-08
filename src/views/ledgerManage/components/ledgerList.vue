@@ -75,7 +75,6 @@ import {
   getConnection,
   getWeld,
   getBeton,
-  deleteRawById,
   deleteRaw,
   deleteConnect,
   deleteWeld,
