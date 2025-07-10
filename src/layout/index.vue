@@ -5,8 +5,8 @@
       class="drawer-bg"
       @click="handleClickOutside"
     />
-  
-    <Header></Header>
+
+    <Header />
     <sidebar class="sidebar-container" /><!--侧边导航栏-->
     <div class="main-container">
       <div :class="{ 'fixed-header': fixedHeader }">
@@ -21,62 +21,77 @@
 </template>
 
 <script>
-import { Navbar, Sidebar, AppMain,Header} from "./components";
-import ResizeMixin from "./mixin/ResizeHandler";
+import { Navbar, Sidebar, AppMain, Header } from './components'
+import ResizeMixin from './mixin/ResizeHandler'
 
 export default {
-  name: "Layout",
+  name: 'Layout',
   components: {
     Navbar,
     Sidebar,
     AppMain,
-    Header,
+    Header
   },
   mixins: [ResizeMixin],
   computed: {
     sidebar() {
-      return this.$store.state.app.sidebar;
+      return this.$store.state.app.sidebar
     },
     device() {
-      return this.$store.state.app.device;
+      return this.$store.state.app.device
     },
     fixedHeader() {
-      return this.$store.state.settings.fixedHeader;
+      return this.$store.state.settings.fixedHeader
     },
     classObj() {
       return {
         hideSidebar: !this.sidebar.opened,
         openSidebar: this.sidebar.opened,
         withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === "mobile",
-      };
-    },
+        mobile: this.device === 'mobile'
+      }
+    }
   },
   methods: {
     handleClickOutside() {
-      this.$store.dispatch("app/closeSideBar", { withoutAnimation: false });
-    },
-  },
-};
+      this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>
 @import "~@/styles/mixin.scss";
 @import "~@/styles/variables.scss";
 
-.app-wrapper {
-  @include clearfix;
-  position: relative;
+//.app-wrapper {
+//  @include clearfix;
+//  position: relative;
+//  height: 100%;
+//  width: 100%;
+//   //overflow: hidden; /* 禁止全局滚动 */
+//  &.mobile.openSidebar {
+//    position: fixed;
+//    top: 0;
+//  }
+//}
+html, body {
+  margin: 0;
+  padding: 0;
   height: 100%;
-  width: 100%;
-  // overflow: hidden; /* 禁止全局滚动 */
-  &.mobile.openSidebar {
-    position: fixed;
-    top: 0;
-  }
+  overflow: hidden; /* 防止整个页面滚动 */
 }
 
+#app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
+.main-content {
+  flex: 1;
+  overflow-y: auto; /* 允许主要内容区域滚动 */
+}
 .drawer-bg {
   background: #000;
   opacity: 0.3;
@@ -120,6 +135,5 @@ export default {
 .mobile .fixed-header {
   width: 100%;
 }
-
 
 </style>

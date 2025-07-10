@@ -281,6 +281,7 @@ export default {
       //   const isShow = false;
       //   const data = { isShow };
       //   this.$emit("transmit", data);
+      this.$router.back()
     },
     // 事件触发  区域选择
     handleChange(e) {
@@ -301,5 +302,9 @@ export default {
 }
 .el-form-item {
     margin-bottom: 10px;
+}
+.app-main-wrapper {
+  height: calc(100vh - 100px);
+  overflow-y: auto;
 }
 </style>

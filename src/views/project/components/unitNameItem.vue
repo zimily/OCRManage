@@ -120,6 +120,7 @@
                     v-model="yanshou_rule1"
                     placeholder="请选择"
                     style="width: 100%"
+                    :disabled="!checkRule[1]"
                     @change="changeXiang(scope)"
                   >
                     <el-option
@@ -137,6 +138,7 @@
                     v-model="yanshou_rule2"
                     placeholder="请选择"
                     style="width: 100%"
+                    :disabled="!checkRule[2]"
                     @change="changeXiang(scope)"
                   >
                     <el-option
@@ -156,6 +158,7 @@
                     v-model="yanshou_rule3"
                     placeholder="请选择"
                     style="width: 100%"
+                    :disabled="!checkRule[3]"
                     @change="changeXiang(scope)"
                   >
                     <el-option
@@ -173,6 +176,7 @@
                     v-model="yanshou_rule4"
                     placeholder="请选择"
                     style="width: 100%"
+                    :disabled="!checkRule[4]"
                     @change="changeXiang(scope)"
                   >
                     <el-option
@@ -339,6 +343,7 @@ export default {
       yanshou_rule2: '', // 存验收依据下拉框2的选择
       yanshou_rule3: '', // 存验收依据下拉框3的选择
       yanshou_rule4: '', // 存验收依据下拉框4的选择
+      checkRule: [0, 0, 0, 0, 0], // 存验收依据是否能选中
       dialogVisible: false,
       buildingFloor: 0,
       buildingTop: 0,
@@ -381,18 +386,18 @@ export default {
     },
     subprojectExcel(newVal) {
       const temp = JSON.parse(JSON.stringify(newVal))
-      this.subProInfo.subprojectName = temp[0]['说明'] // 单位工程名称
-      this.subProInfo.jiansheDirector = temp[1]['说明'] // 建设单位负责人
-      this.subProInfo.shigongDirector = temp[2]['说明'] // 施工单位负责人
-      this.subProInfo.jianliDirector = temp[3]['说明'] // 监理单位负责人
-      this.subProInfo.shejiDirector = temp[4]['说明'] // 设计单位负责人
-      this.subProInfo.kanchaDirector = temp[5]['说明'] // 勘察单位负责人
-      this.subProInfo.jianduDirector = temp[6]['说明'] // 监督单位负责人
-      this.subProInfo.technicalDirector = temp[7]['说明']// 项目技术负责人
-      this.subProInfo.startDate = temp[8]['说明']// 开工时间
-      this.subProInfo.area = temp[9]['说明'] // 施工面积
-      this.subProInfo.floorOverground = parseInt(temp[10]['说明'])// 层高（地上）
-      this.subProInfo.floorUnderground = parseInt(temp[11]['说明']) // 层高（地下）
+      this.subProInfo.subprojectName = temp[0]['填写范例'] // 单位工程名称
+      this.subProInfo.jiansheDirector = temp[1]['填写范例'] // 建设单位负责人
+      this.subProInfo.shigongDirector = temp[2]['填写范例'] // 施工单位负责人
+      this.subProInfo.jianliDirector = temp[3]['填写范例'] // 监理单位负责人
+      this.subProInfo.shejiDirector = temp[4]['填写范例'] // 设计单位负责人
+      this.subProInfo.kanchaDirector = temp[5]['填写范例'] // 勘察单位负责人
+      this.subProInfo.jianduDirector = temp[6]['填写范例'] // 监督单位负责人
+      this.subProInfo.technicalDirector = temp[7]['填写范例']// 项目技术负责人
+      this.subProInfo.startDate = temp[8]['填写范例']// 开工时间
+      this.subProInfo.area = temp[9]['填写范例'] // 施工面积
+      this.subProInfo.floorOverground = parseInt(temp[10]['填写范例'])// 层高（地上）
+      this.subProInfo.floorUnderground = parseInt(temp[11]['填写范例']) // 层高（地下）
     },
     jianyanExcel(newVal) {
       const arr = JSON.parse(JSON.stringify(newVal))
@@ -433,6 +438,7 @@ export default {
           obj: temp
         })
       }
+      this.checkRules()
     }
   },
   async created() {
@@ -511,6 +517,7 @@ export default {
             obj: temp
           })
         }
+        this.checkRules()
       } catch (error) {
         console.log(error)
       }
@@ -568,6 +575,7 @@ export default {
 
       console.log(this.allInspect)
       this.dialogVisible = false
+      this.checkRules()
     },
     addInspect() {
       this.dialogVisible = true
@@ -661,6 +669,7 @@ export default {
     deletejianyan(scope) {
       console.log(scope)
       this.allInspect.splice(scope.$index, 1)
+      this.checkRules()
     },
     checkSubProInfo() {
       let bool = true
@@ -722,6 +731,24 @@ export default {
       } else {
         this.yanshou_rule3 = obj['验收依据']
       }
+    },
+    checkRules() {
+      const bol = [0, 0, 0, 0, 0]
+      this.allInspect.forEach(item => {
+        item.obj.forEach(item2 => {
+          if (item2 === '钢筋原材' || item2 === '钢筋加工' || item2 === '钢筋连接' || item2 === '钢筋安装') {
+            bol[1] = 1
+          } else if (item2 === '模板安装') {
+            bol[2] = 1
+          } else if (item2 === '现浇结构') {
+            bol[4] = 1
+          } else {
+            bol[3] = 1
+          }
+        })
+      })
+      this.checkRule = JSON.parse(JSON.stringify(bol))
+      console.log(this.checkRule)
     }
   }
 }
