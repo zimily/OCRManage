@@ -2,7 +2,7 @@
   <div>
     <div>
       <el-row>
-        <el-col :span="6" offset="1">
+        <el-col :span="6" :offset="2">
           <div>
             <span>状态</span>
             <el-select
@@ -19,7 +19,7 @@
           </div>
         </el-col>
 
-        <el-col :span="6" offset="1">
+        <el-col :span="6" :offset="2">
           <div>
             <span>检验批部位：</span>
             <el-input
@@ -30,7 +30,7 @@
           </div>
         </el-col>
 
-        <el-col :span="6" offset="1">
+        <el-col :span="6" :offset="2">
           <div>
             <span>单位工程：</span>
             <el-input
@@ -41,8 +41,8 @@
           </div>
         </el-col>
 
-        <el-col :span="2" offset="1">
-          <el-button type="primary" @click="search" 
+        <el-col :span="2" :offset="2">
+          <el-button type="primary" @click="search"
             >搜索</el-button
           >
         </el-col>
@@ -171,8 +171,8 @@ export default {
       try {
         const res = await getAllAtatus(this.bodyData);
         if (res.code == "200") {
-          console.log("所有项目信息", res);
-          this.total = res.result.total;
+          console.log("所有项目信息", res); 
+          this.total = Number(res.result.total);
           this.tableData = res.result.list;
         } else {
           this.$message.error("获取全部项目的数据采集状态失败！");
@@ -214,9 +214,9 @@ export default {
         //已完成 状态 也是要条状到详情页面，但是和上面的详情页面有点区别。
         //也可以单独写一个新的页面，我这里先简写一下，让它与上面的详情页面是一样
         this.$router.push({
-          name: "CollectionDetail",
-          params: {
-            row: value.row,
+          path: "collectionDetail",
+          query: {
+            taskId: value.row.taskId,
           },
         });
       }

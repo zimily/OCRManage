@@ -34,3 +34,10 @@ export function distribution(data) {
   })
 }
 
+// 获取任务详情
+export function getTaskDetailData(taskId) {
+  return request({
+    url: `/status/getTaskDetailWithBatchAndItems?taskId=${taskId}`,
+    method: 'get',
+  })
+}

@@ -544,9 +544,9 @@ export default {
       try {
         let res = await getBaseRule(value);
         if (res.code == 200) {
-          console.log("已有验收规范", res);
+          // console.log("已有验收规范", res);
           this.existingRulesOptions = res.result || [];
-          console.log("已有验收规范选项", this.existingRulesOptions); 
+          // console.log("已有验收规范选项", this.existingRulesOptions); 
         } else {
           throw new Error(res.message || "获取已有验收规范信息失败");
         }

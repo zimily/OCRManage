@@ -104,7 +104,7 @@
 
   .hideSidebar {
     .sidebar-container { //侧边栏收起（collapse）时的宽度
-      width: 64px !important;
+      width: 68px !important;
     }
 
     .main-container {
@@ -116,10 +116,13 @@
       position: relative;
 
       .el-tooltip {
+        display: flex !important;
+        align-items: center;//图标剧中
         padding: 0 !important;
 
         .svg-icon {
           margin-left: 20px;
+
         }
 
         .sub-el-icon {

@@ -1,59 +1,20 @@
 <template>
   <div>
-    <div class="nav-buttons">
-      <el-button
-        type="primary"
-        @click="navigate(data_raw)"
-        :class="{ active: activeButton === data_raw }"
-         :disabled="index !== 0"
-        >{{ data_raw }}</el-button
-      >
-      <el-button
-        type="primary"
-        @click="navigate(data_connection)"
-        :class="{ active: activeButton === data_connection }"
-         :disabled="index !== 0"
-        >{{ data_connection }}</el-button
-      >
-      <el-button
-        type="primary"
-        @click="navigate(data_weld)"
-        :class="{ active: activeButton === data_weld }"
-         :disabled="index !== 0"
-        >{{ data_weld }}</el-button
-      >
-      <el-button
-        type="primary"
-        @click="navigate(data_beton)"
-        :class="{ active: activeButton === data_beton }"
-        :disabled="index !== 0"
-        >{{ data_beton }}</el-button
-      >
+    <div class="nav-text">
+      <span v-for="item in [data_raw, data_connection, data_weld, data_beton]" :key="item"
+        :class="{ active: activeButton === item }" @click="handleNavClick(item)">
+        {{ item }}
+      </span>
     </div>
     <div class="content-container">
       <div>
-        <!-- 动态切换三个组件渲染 -->
-        <ledger-list
-          v-if="index === 0"
-          :index="index"
-          :category="activeButton"
-          @update-index="handleUpdateIndex"
-        />
+        <!-- 动态切换三个组件渲染  0710-->
+        <ledger-list v-if="index === 0" :index="index" :category="activeButton" @update-index="handleUpdateIndex" />
 
-        <OCREntry
-          v-else-if="index === 1"
-          :index="index"
-          :category="activeButton"
-          @update-index="handleUpdateIndex"
-        />
+        <OCREntry v-else-if="index === 1" :index="index" :category="activeButton" @update-index="handleUpdateIndex" />
 
-        <ledger-entry
-          v-else-if="index === 2"
-          :index="index"
-          :category="activeButton"
-          :dataId="dataId"
-          @update-index="handleUpdateIndex"
-        />
+        <ledger-entry v-else-if="index === 2" :index="index" :category="activeButton" :dataId="dataId"
+          @update-index="handleUpdateIndex" />
       </div>
     </div>
   </div>
@@ -73,7 +34,7 @@ export default {
       data_beton: "混凝土强度",
       activeButton: "钢筋原材", //当前选中的按钮
       index: 0, // 控制显示哪个组件
-      dataId:null,
+      dataId: null,
     };
   },
   components: {
@@ -82,38 +43,59 @@ export default {
     ledgerEntry,
   },
   methods: {
-    navigate(category) {
-      this.activeButton = category;
+    handleNavClick(item) {
+      this.activeButton = item;
+      this.index = 0;
     },
-    handleUpdateIndex(newIndex,newDataId) {
+    handleUpdateIndex(newIndex, newDataId) {
       this.index = newIndex;
-      this.dataId=newDataId
+      this.dataId = newDataId
     },
-    
+
   },
 };
 </script>
 
 <style scoped>
-.nav-buttons {
-  padding: 20px;
-  background: #f5f5f5;
-  margin-bottom: 20px;
-}
-
-.el-button.active {
-  background-color: #409eff !important; /* 更深的蓝色 */
-  border-color: #409eff !important;
-  color: #fff !important;
-}
-
-.el-button:not(.active) {
-  background-color: #fff;
-  color: #409eff;
-  border-color: #dcdfe6;
-}
-
 .content-container {
-  padding: 0 20px;
+  padding:20px;
 }
+
+.nav-text {
+  display: flex;
+  align-items: center;
+  gap: 20px;      /* 保证菜单项之间有间距 */
+  padding: 10px 20px;
+  background: #f9f9f9; /* 菜单栏背景色 */
+  border-bottom: 1px solid #ddd;
+}
+
+.nav-text span {
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.nav-text span:hover {
+  color: #409EFF; /* 鼠标悬停时颜色 */
+}
+
+.nav-text span.active {
+  color: #409EFF;       /* 选中高亮 */
+  font-weight: 600;
+}
+
+.nav-text span.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 2px;
+  background: #409EFF; /* 选中下划线 */
+  border-radius: 1px;
+}
+
 </style>

@@ -111,6 +111,7 @@
 </template>
 
 <script>
+import { getTaskDetailData } from "@/api/collection";
 export default {
   data() {
     return {
@@ -182,24 +183,39 @@ export default {
     };
   },
   computed: {
-    rowData() {
-      return this.$route.params.row;
+    taskId() {
+      return this.$route.query.taskId;
     },
-    subprojectName() {
-      return this.$route.params.row.subprojectName;
-    },
-    inspectPart() {
-      return this.$route.params.row.inspectPart;
-    },
-    inspectName() {
-      return this.$route.params.row.inspectType;
-    },
+    // rowData() {
+    //   return this.$route.params.row;
+    // },
+    // subprojectName() {
+    //   return this.$route.params.row.subprojectName;
+    // },
+    // inspectPart() {
+    //   return this.$route.params.row.inspectPart;
+    // },
+    // inspectName() {
+    //   return this.$route.params.row.inspectType;
+    // },
   },
   mounted() {
-    console.log("row", this.rowData);
-    console.log(this.subprojectName);
+    console.log("当前任务ID:", this.taskId);
+    this.getData();
   },
   methods: {
+    async getData() {
+      try {
+        const response = await getTaskDetailData(this.taskId);
+        if (response && response.data) {
+         console.log("获取到的任务详情数据:", response);
+        } else {
+          console.error("获取数据失败，响应数据格式不正确");
+        }
+      } catch (error) {
+        console.error("获取数据失败:", error);
+      }
+    },
     rowClassName({ row }) {
       return row.isChecked ? "checked-row" : "unchecked-row";
     },

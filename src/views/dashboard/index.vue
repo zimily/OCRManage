@@ -59,36 +59,6 @@ export default {
   },
   data() {
     return {
-      summaryData: [
-        {
-          title: "总用户数",
-          value: "12,345",
-          trend: 12.5,
-          icon: "el-icon-user",
-          color: "#409EFF",
-        },
-        {
-          title: "订单数量",
-          value: "2,543",
-          trend: -3.2,
-          icon: "el-icon-s-order",
-          color: "#67C23A",
-        },
-        {
-          title: "销售额",
-          value: "¥45,678",
-          trend: 18.7,
-          icon: "el-icon-money",
-          color: "#E6A23C",
-        },
-        {
-          title: "转化率",
-          value: "32.5%",
-          trend: 5.4,
-          icon: "el-icon-data-line",
-          color: "#F56C6C",
-        },
-      ],
       recentApps: [
         { id: 1, name: "项目管理", icon: "program", usedAt: "2023-05-15" },
         {
@@ -218,12 +188,12 @@ export default {
 }
 
 .row-recent .el-card {
-  height: 100px;
+  height: 150px;
   overflow: auto;
 }
 
 .row-app-center .el-card {
-  height: 500px; /* 主功能最大 */
+  height: 480px; /* 主功能最大 */
   overflow: auto;
 }
 

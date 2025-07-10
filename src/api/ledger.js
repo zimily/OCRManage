@@ -95,3 +95,12 @@ export function getProjectInfo(projectId) {
     method: 'post'
   })
 }
+
+//台账数据保存
+export function saveLedgerData(data) {
+  return request({
+    url: '/ledger/save',
+    method: 'post',
+    data: data
+  })
+}

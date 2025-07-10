@@ -51,6 +51,18 @@ export default {
     isCollapse() {
       return !this.sidebar.opened
     }
-  }
+  },
 }
 </script>
+<style>
+.el-menu--collapse .el-menu-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.el-menu--collapse .el-menu-item i,
+.el-menu--collapse .el-menu-item .svg-icon {
+  margin: 0 auto;
+}
+</style>
