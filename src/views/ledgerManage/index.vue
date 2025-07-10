@@ -21,9 +21,9 @@
 </template>
 
 <script>
-import ledgerList from "@/views/ledgerManage/components/ledgerList";
-import OCREntry from "@/views/ledgerManage/components/OCREntry";
-import ledgerEntry from "@/views/ledgerManage/components/ledgerEntry";
+import ledgerList from '@/views/ledgerManage/components/ledgerList'
+import OCREntry from '@/views/ledgerManage/components/OCREntry'
+import ledgerEntry from '@/views/ledgerManage/components/ledgerEntry'
 
 export default {
   data() {
@@ -40,7 +40,17 @@ export default {
   components: {
     ledgerList,
     OCREntry,
-    ledgerEntry,
+    ledgerEntry
+  },
+  data() {
+    return {
+      data_raw: '钢筋原材',
+      data_connection: '钢筋机械连接',
+      data_weld: '钢筋焊接',
+      data_beton: '混凝土强度',
+      activeButton: '钢筋原材', // 当前选中的按钮
+      index: 0 // 控制显示哪个组件
+    }
   },
   methods: {
     handleNavClick(item) {

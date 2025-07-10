@@ -129,7 +129,7 @@ export function excelToJSON(data) {
 export function excelToJSONs(data) {
   return request(
     {
-      url: `/api/subprojects/excel-to-jsons`,
+      url: `/api/subprojects/excel-to-json`,
       method: 'post',
       data: data
     }

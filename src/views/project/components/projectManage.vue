@@ -22,6 +22,7 @@
               placeholder="请输入搜索内容"
               style="width: 20em; margin-right: 1em"
               @click="handleSearch"
+              @keyup.enter.native="handleSearch"
             />
             <el-button type="primary" @click="handleSearch">搜索</el-button>
           </div>

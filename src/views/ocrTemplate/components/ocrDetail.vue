@@ -81,7 +81,7 @@
           />
           <el-table-column prop="fenzu" label="分组" align="center">
             <template v-slot="scope">
-              <el-select v-model="scope.row.xiang" :placeholder="fenzu[0].label" @change="changeXiang(scope)">
+              <el-select v-model="scope.row.fenzu" :placeholder="fenzu[0].label" @change="changeXiang(scope)">
                 <el-option
                   v-for="item in fenzu"
                   :key="item.value"
@@ -299,7 +299,7 @@ export default {
     // 展示图片
     showImage() {
       const file = document.getElementById('showimg').files[0]
-      // console.log(file)
+      console.log(file)
       this.imgUrl = URL.createObjectURL(file)
       // console.log(this.imgUrl)
     },

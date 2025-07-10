@@ -5,22 +5,20 @@
         <el-card shadow="hover" class="full-height-card">
           <div class="button-group">
             <el-button
+              class="add-button"
               type="primary"
               :disabled="isAbled"
               @click="addProject"
             >新建</el-button>
-            <el-button type="danger" @click="delProject">删除</el-button>
-            <!--            <el-button-->
-            <!--              :disabled="!((!isCreated&&isShow===1)||(isShow===2&&!subprojectId))"-->
-            <!--              type="file"-->
-            <!--              @click="importProject"-->
-            <!--            >导入</el-button>-->
+            <el-button class="del-button" type="danger" @click="delProject">删除</el-button>
             <el-upload
               ref="upload"
+              class="imp-button"
               :action="aaa"
               :on-change="importProject"
               name="excelFile"
               multiple
+              :show-file-list="false"
               :auto-upload="false"
             >
               <el-button
@@ -28,6 +26,11 @@
                 type="warning"
               >导入</el-button>
             </el-upload>
+            <!--            <el-button-->
+            <!--              :disabled="!((!isCreated&&isShow===1)||(isShow===2&&!subprojectId))"-->
+            <!--              type="file"-->
+            <!--              @click="importProject"-->
+            <!--            >导入</el-button>-->
           </div>
           <div>
             <el-tree
@@ -102,8 +105,8 @@ export default {
       lastAddedNode: null, // 记录最新添加的节点
       subprojectId: null,
       projectExcel: null, // 项目Excel表格
-      subprojectExcel: null, // 分项目基础信息Excel表格
-      jianyanExcel: null// 检验批Excel表格
+      subprojectExcel: [], // 分项目基础信息Excel表格
+      jianyanExcel: []// 检验批Excel表格
     }
   },
   computed: {
@@ -176,26 +179,36 @@ export default {
     async excelToJSONs(data) {
       try {
         console.log('excelToJSONs', data)
-        const { result } = await excelToJSON(data)
+        const { result } = await excelToJSONs(data)
         console.log('上传分项目Excel表格返回所有内容转成的JSON', result)
-        if (result[0]['填写范例'] === '单位工程名称') {
-          this.subprojectExcel = result
-        } else {
-          this.jianyanExcel = result
+        for (let i = 0; i <= 11; i++) {
+          this.subprojectExcel.push(result[i])
         }
-        this.projectExcel = result
+        for (let i = 12; i < result.length; i++) {
+          if (typeof (result[i]['施工部位']) !== 'undefined') {
+            this.jianyanExcel.push(result[i])
+          } else {
+            break
+          }
+        }
+        // if (result[0]['填写范例'] === '单位工程名称') {
+        //   this.subprojectExcel = result
+        // } else {
+        //   this.jianyanExcel = result
+        // }
       } catch (error) {
         console.log(error)
       }
     },
     // 父子组件传参
-    getMessage(data) {
+    async getMessage(data) {
       this.isShow = data.isShow
       this.isAbled = data.isAbled
 
       this.projectExcel = null
       this.$refs.upload.clearFiles()// 清空上传文件
-      this.getAllSubprojectsById()
+      await this.getProjectsById()
+      await this.getAllSubprojectsById()
     },
     addProject() {
       const newChild = {
@@ -223,6 +236,7 @@ export default {
         }
         await this.postSubAndTasks(data.data)
         console.log('更新最新添加节点的名称')
+        await this.getProjectsById()
         await this.getAllSubprojectsById()
       } else if (data.action === 'cancel' && this.lastAddedNode) {
         // 如果是取消操作，删除最新添加的节点
@@ -241,7 +255,7 @@ export default {
     // 点击树的节点
     hangleNodeClick(node) {
       console.log('点击树的节点', node, this.idCounter)
-      if (node.$treeNodeId === 1) return
+      if (node.id === 0) return
       this.isShow = 2
       this.subprojectId = node.subprojectId
     },
@@ -303,7 +317,10 @@ export default {
 </script>
 
 <style scoped>
-
+.button-group {
+  display: flex;
+  gap: 2em;
+}
 .container {
   height: 100vh;
   overflow: hidden; /* 防止溢出滚动条 */
@@ -321,6 +338,10 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+.app-main-wrapper {
+  height: calc(100vh - 100px);
+  overflow-y: auto;
 }
 </style>
 
