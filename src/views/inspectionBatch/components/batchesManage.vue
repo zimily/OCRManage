@@ -31,9 +31,9 @@
       >
         <el-table-column prop="fenxiangName" label="分项" align="center">
         </el-table-column>
-        <el-table-column prop="inspectTypeVarchar" label="类别" align="center">
+        <el-table-column prop="typeName" label="类别" align="center">
         </el-table-column>
-        <el-table-column prop="inspectName" label="验收依据" align="center">
+        <el-table-column prop="yanshouRule" label="验收依据" align="center">
         </el-table-column>
         <el-table-column prop="prop" label="操作" align="center">
           <template slot-scope="{ row, $index }">
@@ -77,8 +77,8 @@ export default {
     return {
       searchQuery: "", // 用于存储输入框的内容
       specInfo: [],
-      currentPage: 0, //分页器数据
-      limit: 0, //每页显示的数据
+      currentPage: 1, //分页器数据
+      limit: 10, //每页显示的数据
       total: 0, //全部数据条数
     };
   },
@@ -87,44 +87,22 @@ export default {
   },
   methods: {
     async getSpecifications() {
-       this.specInfo =[
-         {
-           "fenxiangName":"钢筋分项",
-           "inspectTypeVarchar":"钢筋原材",
-           "inspectName":"《混凝土结构工程施工质量验收规范》GB50204-2015"
-         },
-          {
-           "fenxiangName":"钢筋分项",
-           "inspectTypeVarchar":"钢筋加工",
-           "inspectName":"《混凝土结构工程施工质量验收规范》GB50204-2015"
-         }, {
-           "fenxiangName":"钢筋分项",
-           "inspectTypeVarchar":"钢筋连接",
-           "inspectName":"《混凝土结构工程施工质量验收规范》GB50204-2015"
-         },
-          {
-           "fenxiangName":"钢筋分项",
-           "inspectTypeVarchar":"钢筋安装",
-           "inspectName":"《混凝土结构工程施工质量验收规范》GB50204-2015"
-         }
-       ]
-
       //请求
-      // try {
-      //   let res = await getAllSpecifications(1, 15);
-      //   if (res.code == 200) {
-      //     console.log("获取所有验收规范", res);
-      //     this.specInfo = res.result.records;
-      //     this.total = res.result.total;
-      //     this.limit = res.result.size;
-      //     this.currentPage = res.result.current;
-      //   } else {
-      //     this.$message.error("获取所有检验批失败！");
-      //     throw new Error(res.message);
-      //   }
-      // } catch (error) {
-      //   console.log(error);
-      // }
+      try {
+        let res = await getAllSpecifications(this.currentPage, this.limit);
+        if (res.code == 200) {
+          console.log("获取所有验收规范", res);
+          this.specInfo = res.result.records;
+          this.total = Number(res.result.total);
+          this.limit = Number(res.result.size);
+          this.currentPage = Number(res.result.pages);
+        } else {
+          this.$message.error("获取所有检验批失败！");
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
     //新建检验批
     addBatch() {
@@ -134,7 +112,7 @@ export default {
     },
     //编辑检验批
     async updateBatch(row,index) {
-      const inspectId=3
+      const inspectId=row.inspectId
       this.$router.push({
         path: "batchDetailEdit",
           query: {

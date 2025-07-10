@@ -2,7 +2,7 @@ import request from '@/utils/request'
 //接口管理  验收规范
 export function getAllSpecifications(page,limit) {
     return request({
-      url: `acceptCode/list?pageNum=${page}&pageSize=${limit}`,
+      url: `api/inspect-rules/with-type-fenxiang/page?current=${page}&size=${limit}`,
       method: 'get',
   
     })
@@ -20,7 +20,7 @@ export function getAllSpecifications(page,limit) {
   //获取所有验收类别
   export function getAllInspectType(){
     return request({
-      url: 'inspection-lot-template-item/type-names',
+      url: 'inspection-lot-template-item/types',
       method: 'get',
     })
   }

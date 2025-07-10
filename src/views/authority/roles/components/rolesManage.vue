@@ -368,7 +368,7 @@ export default {
       this.form.roleId = row.roleId
       try {
         const res = await getRoleById(id)
-        // console.log("编辑权限", res, res.code);
+        console.log("编辑权限", res, res.code);
         if (res.code == 200) {
           // console.log("**", this.form.name);
           this.form.name = res.result.roleName

@@ -36,7 +36,7 @@
             v-for="item in existingRulesOptions"
             :key="item.inspectId"
             :label="item.yanshouRule"
-            :value="item"
+            :value="item.inspectId"
             :value-key="item.inspectId"
           ></el-option>
         </el-select>
@@ -526,8 +526,8 @@ export default {
         if (res.code == 200) {
           // console.log('所有验收类别',res)
           this.options0 = res.result.map((item, index) => ({
-            value: index + 1,
-            label: item,
+            value: item.inspectType,
+            label: item.typeName,
           }));
           // console.log(this.options0)
         } else {
@@ -546,6 +546,7 @@ export default {
         if (res.code == 200) {
           console.log("已有验收规范", res);
           this.existingRulesOptions = res.result || [];
+          console.log("已有验收规范选项", this.existingRulesOptions); 
         } else {
           throw new Error(res.message || "获取已有验收规范信息失败");
         }
@@ -556,8 +557,8 @@ export default {
     },
     //选中已有验收规范
     async handleBaseRule(value) {
-      console.log("已有验收规范", value);
-      const inspectId = value.inspectId;
+      // console.log("已有验收规范", value);
+      const inspectId = value;
       //获取已有验收规范的验收细则
       try {
         let res = await getSpecificationsById(inspectId);
