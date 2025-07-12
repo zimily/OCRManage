@@ -300,13 +300,14 @@ $text-light: #909399; // 次要文字颜色
   }
 
   .svg-container {
-    padding: 0 12px;
+    padding-top: 10px;
     color: $text-light;
     transition: color 0.3s;
   }
 
   .show-pwd {
     right: 15px;
+    padding-top: 10px;
     color: $text-light;
     transition: color 0.3s;
 

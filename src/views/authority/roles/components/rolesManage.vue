@@ -2,52 +2,37 @@
   <div>
     <div>
       <!-- 按钮 -->
-      <el-button
-        type="primary"
-        icon="el-icon-plus"
-        style="margin: 10px 10px"
-        @click="addRoles"
-      >新建角色</el-button>
-      <el-dialog
-        title="新建角色"
-        :visible.sync="dialogFormVisible"
-        :show-close="false"
-      >
-        <el-form :model="form">
+      <el-button type="primary" icon="el-icon-plus" style="margin: 10px 10px" @click="addRoles">新建角色</el-button>
+      <!-- 弹窗 -->
+      <el-dialog title="新建角色" :visible.sync="dialogFormVisible" :show-close="false">
+        <el-form :model="form" label-width="200px">
           <el-form-item label="角色名称:" :label-width="formLabelWidth">
             <el-input v-model="form.name" autocomplete="off" />
           </el-form-item>
           <el-form-item label="权限名称:" :label-width="formLabelWidth">
-            <el-checkbox
-              v-model="checkAll"
-              :indeterminate="isIndeterminate"
-              @change="handleCheckAllChange"
-            >全选</el-checkbox>
+            <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate"
+              @change="handleCheckAllChange">全选</el-checkbox>
             <div style="margin: 15px 0" />
-            <el-checkbox-group
-              v-model="form.checkedPermissions"
-              @change="handleCheckedCitiesChange"
-            >
-              <el-checkbox
-                v-for="permission in form.permissions"
-                :key="permission.id"
-                :label="permission"
-              >{{ permission.pageName }}</el-checkbox>
+            <el-checkbox-group v-model="form.checkedPermissions" @change="handleCheckedCitiesChange">
+              <el-checkbox v-for="permission in form.permissions" :key="permission.id" :label="permission">{{
+                permission.pageName }}</el-checkbox>
             </el-checkbox-group>
+          </el-form-item>
+          <el-form-item label="是否为采集员:" :label-width="formLabelWidth">
+            <el-radio-group v-model="form.isCollector">
+              <el-radio :label="true">是</el-radio>
+              <el-radio :label="false">否</el-radio>
+            </el-radio-group>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="cancelAddRole">取 消</el-button>
           <el-button type="primary" @click="confirmAddRole">确 定</el-button>
+          <el-button @click="cancelAddRole">取 消</el-button>
         </div>
       </el-dialog>
       <span class="search-container" style="float: right">
         <!--搜索栏--->
-        <el-input
-          v-model="searchQuery"
-          placeholder="请输入搜索内容"
-          style="width: 300px; margin-right: 10px"
-        />
+        <el-input v-model="searchQuery" placeholder="请输入搜索内容" style="width: 300px; margin-right: 10px" />
         <el-button type="primary" @click="handleSearch">搜索</el-button>
       </span>
     </div>
@@ -55,121 +40,72 @@
     <div>
       <el-table :data="role_list">
         <el-table-column type="index" width="100" align="center" />
-        <el-table-column
-          label="角色名称"
-          prop="roleName"
-          align="center"
-        />
+        <el-table-column label="角色名称" prop="roleName" align="center" />
         <el-table-column label="操作" prop="prop" align="center">
           <template slot-scope="{ row, $index }">
-            <el-button
-              type="info"
-              icon="el-icon-view"
-              size="mini"
-              @click="checkRole(row, $index)"
-            >
+            <el-button type="info" icon="el-icon-view" size="mini" @click="checkRole(row, $index)">
               查看</el-button>
-            <el-dialog
-              title="查看角色权限信息"
-              :visible.sync="dialogCheckRoleVisible"
-            >
+            <el-dialog title="查看角色权限信息" :visible.sync="dialogCheckRoleVisible" :show-close="false">
               <el-form :model="curRole">
-                <el-form-item label="角色名称" :label-width="formLabelWidth">
+                <el-form-item label="角色名称：" :label-width="formLabelWidth">
                   <span v-text="curRole.roleName" />
                 </el-form-item>
-                <el-form-item label="权限列表" :label-width="formLabelWidth">
+                <el-form-item label="权限列表：" :label-width="formLabelWidth">
                   <!-- 循环渲染每个权限标签 -->
                   <div class="tag-container">
-                    <el-tag
-                      v-for="(permission, index) in curRole.permissions"
-                      :key="index"
-                      type="warning"
-                    >
+                    <el-tag v-for="(permission, index) in curRole.permissions" :key="index" type="warning">
                       {{ permission.pageName }}
                     </el-tag>
                   </div>
                 </el-form-item>
+                <el-form-item label="是否为采集员：" :label-width="formLabelWidth">
+                  <span v-text="curRole.isCollector ? '是' : '否'" />
+                </el-form-item>
               </el-form>
               <div slot="footer" class="dialog-footer">
-                <el-button
-                  type="primary"
-                  @click="dialogCheckRoleVisible = false"
-                >确 定</el-button>
+                <el-button type="primary" @click="dialogCheckRoleVisible = false">确 定</el-button>
               </div>
             </el-dialog>
-            <el-button
-              type="warning"
-              icon="el-icon-edit"
-              size="mini"
-              @click="updateRole(row, $index)"
-            >编辑</el-button>
-            <el-dialog
-              title="编辑角色信息"
-              :visible.sync="dialogUpdateRoleVisible"
-              :show-close="false"
-            >
+            <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateRole(row, $index)">编辑</el-button>
+            <el-dialog title="编辑角色信息" :visible.sync="dialogUpdateRoleVisible" :show-close="false">
               <el-form :model="form">
                 <el-form-item label="角色名称:" :label-width="formLabelWidth">
                   <el-input v-model="form.name" autocomplete="off" />
                 </el-form-item>
                 <el-form-item label="权限名称:" :label-width="formLabelWidth">
-                  <el-checkbox
-                    v-model="checkAll"
-                    :indeterminate="isIndeterminate"
-                    @change="handleCheckAllChange"
-                  >全选</el-checkbox>
+                  <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate"
+                    @change="handleCheckAllChange">全选</el-checkbox>
                   <div style="margin: 15px 0" />
-                  <el-checkbox-group
-                    v-model="form.checkedPermissions"
-                    @change="handleCheckedCitiesChange"
-                  >
-                    <el-checkbox
-                      v-for="permission in form.permissions"
-                      :key="permission.id"
-                      :label="permission"
-                    >{{ permission.pageName }}</el-checkbox>
+                  <el-checkbox-group v-model="form.checkedPermissions" @change="handleCheckedCitiesChange">
+                    <el-checkbox v-for="permission in form.permissions" :key="permission.id" :label="permission">{{
+                      permission.pageName }}</el-checkbox>
                   </el-checkbox-group>
+                </el-form-item>
+                <el-form-item label="是否为采集员:" :label-width="formLabelWidth">
+                  <el-radio-group v-model="form.isCollector">
+                    <el-radio :label="true">是</el-radio>
+                    <el-radio :label="false">否</el-radio>
+                  </el-radio-group>
                 </el-form-item>
               </el-form>
               <div slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="confirmUpdateRole">确 定</el-button>
                 <el-button @click="cancelUpdateRole">取 消</el-button>
-                <el-button
-                  type="primary"
-                  @click="confirmUpdateRole"
-                >确 定</el-button>
               </div>
             </el-dialog>
-            <el-popconfirm
-              confirm-button-text="是"
-              cancel-button-text="否"
-              icon="el-icon-info"
-              icon-color="red"
-              :title="'确认删除 ' + row.roleName + ' 角色信息吗？'"
-              @onConfirm="deleteRole(row, $index)"
-            >
-              <el-button
-                slot="reference"
-                type="danger"
-                icon="el-icon-delete"
-                size="mini"
-              >删除</el-button>
+            <el-popconfirm confirm-button-text="是" cancel-button-text="否" icon="el-icon-info" icon-color="red"
+              :title="'确认删除 ' + row.roleName + ' 角色信息吗？'" @onConfirm="deleteRole(row, $index)">
+              <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini">删除</el-button>
             </el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
-      
+
     </div>
     <!-- 分页器 -->
-    <el-pagination
-      style="margin-top: 20px; text-align: center"
-      :current-page="curPage"
-      :page-sizes="[10, 15, 20]"
-      :page-size="limit"
-      layout=" prev, pager, next, jumper,->,sizes,total"
-      :total="total"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
+    <el-pagination style="margin-top: 20px; text-align: center" :current-page="curPage" :page-sizes="[10, 15, 20]"
+      :page-size="limit" layout=" prev, pager, next, jumper,->,sizes,total" :total="total"
+      @size-change="handleSizeChange" @current-change="handleCurrentChange" />
   </div>
 </template>
 
@@ -199,7 +135,7 @@ export default {
         checkedPermissions: [],
         permissions: []
       },
-      formLabelWidth: '100px',
+      formLabelWidth: '150px',
       allPermissionList: [],
       checkAll: false,
       isIndeterminate: true, // 控制全选复选框的中间状态（部分选中）
@@ -220,7 +156,7 @@ export default {
     this.getAllRoles() // 添加 await 确保异步操作完成后再获取
     this.getAllPermissions()
   },
-  mounted() {},
+  mounted() { },
   methods: {
     async getAllRoles() {
       try {
@@ -230,7 +166,7 @@ export default {
         if (res.code == 200 && res.result) {
           // console.log(res)
           this.role_list = res.result.records || []
-          this.total = res.result.total || 0
+          this.total = Number(res.result.total || 0)
           // console.log('role_list',this.role_list)
         } else {
           throw new Error(res.message || '获取角色列表失败')
@@ -245,7 +181,7 @@ export default {
       this.form = {
         name: '',
         checkedPermissions: [],
-        permissions: []
+        permissions: [],
       }
       this.checkAll = false
       // 或者更精准的字段重置（推荐）
@@ -326,8 +262,8 @@ export default {
         const res = await searchRole(this.searchQuery)
         if (res.code == 200) {
           this.role_list = res.result.records || []
-          this.total = res.result.total || 0
-          this.limit = res.result.size || 0
+          this.total = Number(res.result.total || 0)
+          this.limit = Number(res.result.size || 0)
           console.log('搜索', res)
         } else {
           throw new Error(res.message || '角色搜索失败')
@@ -363,20 +299,21 @@ export default {
     // 编辑权限
     async updateRole(row, index) {
       this.dialogUpdateRoleVisible = true
-      console.log(row, index)
+      // console.log(row, index)
       const id = row.roleId
       this.form.roleId = row.roleId
       try {
         const res = await getRoleById(id)
-        console.log("编辑权限", res, res.code);
+        console.log("编辑", res, res.code);
         if (res.code == 200) {
           // console.log("**", this.form.name);
           this.form.name = res.result.roleName
           // console.log("当前权限", this.form.name, res.result.permissions);
           this.form.permissions = this.allPermissionList // 全部权限
           const havePermissions = res.result.permissions // 已有权限
-          console.log(havePermissions, this.form.permissions)
-          console.log(havePermissions.length, this.form.permissions.length)
+          this.form.isCollector = res.result.isCollector // 是否为采集员
+          // console.log(havePermissions, this.form.permissions)
+          // console.log(havePermissions.length, this.form.permissions.length)
 
           // 判断哪一些是已选的，是否已全选
           if (havePermissions.length == this.form.permissions.length) {
@@ -393,7 +330,7 @@ export default {
               }
             }
           }
-          // console.log("已选权限", this.form.checkedPermissions);
+          console.log("编辑表单数据", this.form);
         } else {
           // 如果后端返回了错误码（非200）
           this.$message.error('获取角色信息失败！')
@@ -479,8 +416,11 @@ export default {
 
 <style>
 .tag-container {
-  display: flex; /* 启用 Flex 布局 */
-  flex-wrap: wrap; /* 允许换行 */
-  gap: 12px; /* 标签间距（包括水平和垂直） */
+  display: flex;
+  /* 启用 Flex 布局 */
+  flex-wrap: wrap;
+  /* 允许换行 */
+  gap: 12px;
+  /* 标签间距（包括水平和垂直） */
 }
 </style>

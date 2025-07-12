@@ -95,12 +95,11 @@ export default {
 </script>
 <style scoped>
 .el-menu-item {
-  height: 80px;          /* 增大每个菜单项高度 */
+  height: 100px;          /* 增大每个菜单项高度 */
   display: flex !important;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 60px;
 }
 
 .el-menu-item i {
@@ -113,4 +112,6 @@ export default {
   display: block;
   font-size: 12px;
 }
+
+
 </style>

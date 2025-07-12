@@ -72,7 +72,7 @@ export default {
   height: 100%;
   line-height: 50%;
   background-color: #3875c5;
-  width: 64px;
+  width: 68px;
 
   &:focus {
     outline: none;

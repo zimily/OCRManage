@@ -64,7 +64,7 @@ export const constantRoutes = [
         path: 'notice',
         name: 'Notify',
         component: () => import('@/views/messageNotice/index'), // 需要创建对应组件
-        meta: { title: '消息通知', icon: 'el-icon-chat-dot-square' }
+        meta: { title: '消息通知', icon: 'message' }
       }
     ]
   },
@@ -76,7 +76,7 @@ export const constantRoutes = [
         path: 'systemSetting',
         name: 'SystemSetting',
         component: () => import('@/views/systemSetting/index'), // 需要创建对应组件
-        meta: { title: '系统设置', icon: 'el-icon-setting' }
+        meta: { title: '系统设置', icon: 'setting' }
       }
     ]
   },
@@ -118,8 +118,17 @@ export const constantRoutes = [
       {
         path: 'task',
         name: 'Task',
+        redirect: '/menus/task/taskList', 
         component: () => import('@/views/dataCollection/task'),
-        meta: { title: '数据采集任务', icon: 'task' }
+        meta: { title: '数据采集任务', icon: 'task' },
+        children: [
+          {
+            path: 'taskList',
+            name: 'TaskList',
+            component: () => import('@/views/dataCollection/task/components/taskList.vue'),
+            meta: { title: '任务列表' }
+          },
+        ]
       },
       {
         path: 'collection',

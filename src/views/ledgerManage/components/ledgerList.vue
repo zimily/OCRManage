@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- 路由出口：子组件将在这里渲染 -->
+    <!-- 路由出口：子组件将在这里渲染    0710-->
     <router-view></router-view>
     <!-- 顶部操作栏 -->
     <el-row>
@@ -9,61 +9,43 @@
       <el-col :offset="2">
         <div class="top_right">
           <span>项目名称</span>
-          <el-input
-            v-model="searchProjectName"
-            placeholder=""
-            style="width: 8em; margin-left: 1em; margin-right: 1em"
-            size="mini"
-          ></el-input>
+          <el-input v-model="searchProjectName" placeholder="" style="width: 8em; margin-left: 1em; margin-right: 1em"
+            size="mini"></el-input>
           <span>单位工程名称</span>
-          <el-input
-            v-model="searchSubprojectName"
-            placeholder=""
-            style="width: 8em; margin-left: 1em; margin-right: 1em"
-            size="mini"
-          ></el-input>
+          <el-input v-model="searchSubprojectName" placeholder=""
+            style="width: 8em; margin-left: 1em; margin-right: 1em" size="mini"></el-input>
           <span>使用部位</span>
-          <el-input
-            v-model="searchFloorWithInspectPart"
-            placeholder=""
-            style="width: 8em; margin-left: 1em; margin-right: 1em"
-            size="mini"
-          ></el-input>
+          <el-input v-model="searchFloorWithInspectPart" placeholder=""
+            style="width: 8em; margin-left: 1em; margin-right: 1em" size="mini"></el-input>
           <el-button type="primary" @click="search">搜索</el-button>
         </div>
       </el-col>
     </el-row>
+
+
     <!-- 列表数据展示 -->
     <el-table :data="tableData" stripe style="width: 100%">
-      <el-table-column
-        v-for="(col, index) in tableColumns"
-        :key="index"
-        :prop="col.prop"
-        :label="col.label"
-        :width="col.width"
-        align="center"
-      ></el-table-column>
-      <el-table-column prop="operation" label="操作" align="center">
+      <el-table-column v-for="(col, index) in tableColumns" :key="index" :prop="col.prop" :label="col.label"
+        :width="col.width" align="center" show-overflow-tooltip>
+        <!-- 添加作用域插槽强制单行显示 -->
+        <template #default="scope">
+          <div class="single-line">{{ scope.row[col.prop] }}</div>
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="operation" label="操作" align="center" width="250">
         <template v-slot="scope">
-          <el-button type="warning" @click="editItem(scope.row)"
-            >编辑</el-button
-          >
-          <el-button type="danger" @click="deleteItem(scope.row)"
-            >删除</el-button
-          >
+          <el-button type="warning" @click="editItem(scope.row)">编辑</el-button>
+          <el-button type="danger" @click="deleteItem(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      style="margin-top: 20px; text-align: center"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="curPage"
-      :page-sizes="[10, 15, 20]"
-      :page-size="limit"
-      layout="prev, pager, next, jumper,->,sizes,total"
-      :total="total"
-    >
+
+
+
+    <el-pagination style="margin-top: 20px; text-align: center" @size-change="handleSizeChange"
+      @current-change="handleCurrentChange" :current-page="curPage" :page-sizes="[10, 15, 20]" :page-size="limit"
+      layout="prev, pager, next, jumper,->,sizes,total" :total="total">
     </el-pagination>
   </div>
 </template>
@@ -95,43 +77,43 @@ export default {
         rawMaterial: [
           // 存储所有列配置
           { prop: "dataId", label: "批次", width: 50 },
-          { prop: "projectName", label: "项目名称", width: 150 },
-          { prop: "subprojectName", label: "单位工程名称", width: 150 },
-          { prop: "usePart", label: "使用部位", width: 100 },
+          { prop: "projectName", label: "项目名称", width: 200 },
+          { prop: "subprojectName", label: "单位工程名称", width: 200 },
+          { prop: "usePart", label: "使用部位", },
           { prop: "diameter", label: "钢筋直径（mm）", width: 100 },
           { prop: "steelType", label: "钢筋牌号", width: 100 },
           { prop: "heatBatchNumber", label: "炉批号", width: 100 },
-          { prop: "isPassed", label: "是否采集完毕", width: 100 },
+          { prop: "isPassed", label: "是否采集完毕", width: 80 },
         ],
         connection: [
           { prop: "dataId", label: "批次", width: 50 },
-          { prop: "projectName", label: "项目名称", width: 150 },
-          { prop: "subprojectName", label: "单位工程名称", width: 150 },
-          { prop: "usePart", label: "使用部位", width: 100 },
+          { prop: "projectName", label: "项目名称", width: 200 },
+          { prop: "subprojectName", label: "单位工程名称", width: 200 },
+          { prop: "usePart", label: "使用部位" },
           { prop: "connectorType", label: "接头型号", width: 150 },
           { prop: "connectorLevel", label: "等级", width: 100 },
           { prop: "representAmount", label: "代表数量", width: 100 },
-          { prop: "isPassed", label: "是否采集完毕", width: 100 },
+          { prop: "isPassed", label: "是否采集完毕", width: 80 },
         ],
         weld: [
           { prop: "dataId", label: "批次", width: 50 },
-          { prop: "projectName", label: "项目名称", width: 150 },
-          { prop: "subProjectName", label: "单位工程名称", width: 150 },
-          { prop: "usePart", label: "使用部位", width: 100 },
+          { prop: "projectName", label: "项目名称", width: 200 },
+          { prop: "subProjectName", label: "单位工程名称", width: 200 },
+          { prop: "usePart", label: "使用部位" },
           { prop: "steelType", label: "钢筋牌号", width: 150 },
           { prop: "weldType", label: "焊接类型", width: 100 },
           { prop: "representAmount", label: "代表数量", width: 100 },
-          { prop: "conclusion", label: "是否采集完毕", width: 100 },
+          { prop: "conclusion", label: "是否采集完毕", width: 80 },
         ],
         beton: [
           { prop: "dataId", label: "批次", width: 50 },
-          { prop: "projectName", label: "项目名称", width: 150 },
-          { prop: "subProjectName", label: "单位工程名称", width: 150 },
-          { prop: "usePart", label: "使用部位", width: 100 },
+          { prop: "projectName", label: "项目名称", width: 200 },
+          { prop: "subProjectName", label: "单位工程名称", width: 200 },
+          { prop: "usePart", label: "使用部位" },
           { prop: "concreteStrength", label: "强度等级", width: 150 },
           { prop: "maintCondition", label: "养护条件", width: 100 },
           { prop: "representAmount", label: "代表数量", width: 100 },
-          { prop: "isPassed", label: "是否采集完毕", width: 100 },
+          { prop: "isPassed", label: "是否采集完毕", width: 80 },
         ],
       },
       userId: null,
@@ -142,7 +124,7 @@ export default {
     index: Number,
     category: String,
   },
-  created() {},
+  created() { },
   computed: {
     tableColumns() {
       if (this.category === "钢筋原材") {
@@ -384,7 +366,7 @@ export default {
         subprojectName: this.searchSubprojectName,
         usePart: this.searchFloorWithInspectPart,
       };
-       console.log("页面大小", newSize,data);
+      console.log("页面大小", newSize, data);
       if (this.category === "钢筋原材") {
         this.getRawAllData(data);
       } else if (this.category === "钢筋机械连接") {
@@ -434,5 +416,12 @@ export default {
 .top_right {
   display: flex;
   align-items: center;
+}
+
+/* 强制单行显示 */
+.single-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

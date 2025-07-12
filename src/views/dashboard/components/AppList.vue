@@ -1,6 +1,6 @@
 <template>
   <div class="app-list">
-    <el-row :gutter="0">
+    <el-row :gutter="100">
       <el-col
         v-for="app in apps"
         :key="app.id"
@@ -63,8 +63,8 @@ export default {
 }
 
 .app-icon {
-  width: 32px;
-  height: 32px;
+  width: 60px;
+  height: 60px;
   margin-bottom: 8px;
   fill: #409eff; /* 或 fill: currentColor; 搭配 color 使用 */
   flex-shrink: 0;
@@ -72,10 +72,16 @@ export default {
 
 
 .app-name {
-  font-size: 12px;
+  font-size: 15px;
   text-align: center;
   word-break: break-all;
   white-space: nowrap; /* 禁止换行 */
   display: block;
 }
+
+.app-item:hover {
+  background-color: #f5f7fa;
+  transform: translateY(-5px);
+}
+
 </style>

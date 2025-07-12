@@ -10,12 +10,11 @@
 <script>
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
-import Hamburger from '@/components/Hamburger'
+// import Hamburger from '@/components/Hamburger'
 
 export default {
   components: {
     Breadcrumb,
-    Hamburger
   },
   computed: {
     ...mapGetters([
@@ -25,6 +24,7 @@ export default {
   },
   methods: {
     toggleSideBar() {
+      console.log('toggle sidebar点击')
       this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {
