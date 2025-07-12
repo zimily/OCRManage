@@ -42,3 +42,13 @@ new Vue({
   store,
   render: h => h(App)
 })
+
+//在项目的main.js 定一个自定义指令,为了去掉择出el-radio__original元素，并删除掉属性aria-hidden
+Vue.directive('removeAriaHidden', {
+  bind(el, binding) {
+    const ariaEls = el.querySelectorAll('.el-radio__original')
+    ariaEls.forEach((item) => {
+      item.removeAttribute('aria-hidden')
+    })
+  }
+})

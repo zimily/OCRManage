@@ -1,11 +1,23 @@
 <template>
   <div>
     <!-- 根据类别控制按钮显示 -->
-    <el-row style="margin-bottom: 20px">
-      <el-button type="primary" @click="dialogTableVisible = true" style="margin-right: 20px">选择物资平台数据</el-button>
-      <el-button type="primary">二维码扫描</el-button>
+    <el-row style="margin-bottom: 20px" v-if="category === '钢筋原材'">
+      <el-button type="primary" @click="openMaterialPlatformDialog" style="margin-right: 20px">选择物资平台数据</el-button>
+      <el-button type="primary" @click="scanQRCode">二维码扫描</el-button>
     </el-row>
+    <!-- 点击二维码扫描后，提交本地的二维码信息，并上传至服务器，服务器会返回数据，并保存到数据库中。 -->
+    <el-dialog title="二维码扫描" :visible.sync="qrCodeDialogVisible">
+      <!-- 添加 ref="upload" -->
+      <el-upload ref="upload" action="#" list-type="picture-card" :auto-upload="false" :on-success="handleUploadSuccess"
+        :before-upload="beforeUpload" :http-request="uploadQRCodeFile" :limit="1" accept="image/*">
+        <i class="el-icon-plus"></i>
+      </el-upload>
 
+      <div slot="footer">
+        <el-button type="primary" @click="submitQRCode">提交</el-button>
+        <el-button @click="qrCodeDialogVisible = false">取消</el-button>
+      </div>
+    </el-dialog>
     <div class="scrollable-content">
       <el-card>
         <el-row :gutter="2" style="margin-bottom: 10px;">
@@ -115,8 +127,10 @@ import {
   getFieldName,
   getProjectInfo,
   getFormData,
-  saveLedgerData
+  saveLedgerData,
+  uploadQrCode
 } from "@/api/ledger";
+import { getMaterialPlatformData } from "@/api/materialPlatform";
 import { getUser } from "@/utils/storage";
 export default {
   data() {
@@ -171,9 +185,21 @@ export default {
       field1: [],
       field2: [],
       field3: [],
-      formData: {},
-      rules: {},
+      formData: {
 
+      },
+      rules: {},
+      // 物资平台相关
+      pageNumber: 1, // 当前页码 必填
+      pageSize: 10, // 每页条数 必填
+      projectName: "润雅苑", // 项目名称
+      beginTime: "",  // 开始时间
+      endTime: "",    // 结束时间 
+      materialType: "", // 材料分类类型
+      materialName: "", // 材料名称
+      spec: "", // 规格型号
+      qrCodeDialogVisible: false, // 二维码对话框可见性
+      qrCodeImage: null, // 用于存储上传的图片
     };
   },
   props: {
@@ -333,6 +359,7 @@ export default {
         if (res.code == 200) {
           console.log("获取物资数据成功", res);
           this.formData = res.result;
+          console.log("获取的物资数据", this.formData);
         } else {
           throw new Error(res.message || "获取物资数据失败");
         }
@@ -435,8 +462,110 @@ export default {
     changeIndex() {
       this.$emit("update-index", 0);
     },
-  },
-};
+    //物资平台数据选择对话框
+    async openMaterialPlatformDialog() {
+      //发送数据
+      const pageNumber = 1;
+      const pageSize = 10;
+      const projectName = this.projectName;
+      const beginTime = this.beginTime;
+      const endTime = this.endTime;
+      const materialType = this.materialType;
+      const materialName = this.materialName;
+      const spec = this.spec;
+      //发送请求
+      try {
+        let res = await getMaterialPlatformData(
+          pageNumber,
+          pageSize,
+          projectName,
+          beginTime,
+          endTime,
+          materialType,
+          materialName,
+          spec
+        )
+        if (res.code === 200) {
+          console.log("物资平台数据获取成功", res);
+        }
+        else {
+          throw new Error(res.message || "获取物资平台数据失败");
+        }
+      } catch (error) {
+        console.error("获取物资平台数据出错:", error);
+        this.$message.error(error.message || "获取物资平台数据失败");
+      }
+      this.dialogTableVisible = true;
+    },
+    scanQRCode() {
+      // 扫描二维码逻辑
+      console.log("扫描二维码");
+      this.qrCodeDialogVisible = true; // 打开二维码输入对话框
+    },
+    submitQRCode() {
+      if (!this.$refs.upload) {
+        this.$message.error("上传组件未初始化");
+        return;
+      }
+      // 手动触发上传
+      this.$refs.upload.submit();
+    },
+    // 自定义上传方法
+    async uploadQRCodeFile(params) {
+      const { file } = params;
+      // 构造请求数据
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await uploadQrCode(formData);
+        if (res.code === 200) {
+          this.$message.success("二维码上传成功");
+          console.log("上传响应:", res);
+          this.formData = {
+            diameter: res.result.diameter,
+            steelType: res.result.steelType,
+            heatBatchNumber: res.result.heatBatchNumber,
+            getAmount: res.result.getAmount,
+          }
+          this.formData.diameter = res.result.diameter
+          this.formData.steelType = res.result.steelType
+          this.formData.heatBatchNumber = res.result.heatBatchNumber
+          this.formData.getAmount = res.result.getAmount
+          // 关闭对话框
+          this.qrCodeDialogVisible = false;
+          // 清空上传组件中的文件列表
+          this.$refs.upload.clearFiles();
+          // 清空二维码图片对象
+          this.qrCodeImage = null;
+
+
+        } else {
+          throw new Error(res.message || "二维码上传失败");
+        }
+      } catch (error) {
+        console.error("上传出错:", error);
+        this.$message.error(error.message || "出错啦，请稍后重试！");
+      }
+    },
+    // 处理文件上传成功
+    handleUploadSuccess(response, file) {
+      const fileObject = file.raw; // 获取原始文件对象
+      this.qrCodeImage = fileObject; // 将文件对象赋值给 qrCodeImage
+      this.$message.success("图片上传成功");
+      // console.log("提交二维码信息", this.qrCodeImage); // 现在应该能正确输出文件对象
+    },
+    // 文件上传前检查
+    beforeUpload(file) {
+      const isValidType = file.type.startsWith('image/');
+      if (!isValidType) {
+        this.$message.error('只能上传图片文件');
+      }
+      return isValidType;
+    },
+  }
+}
+
 </script>
 <style scoped>
 .equal-height-row {

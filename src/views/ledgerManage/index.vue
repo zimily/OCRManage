@@ -2,7 +2,8 @@
   <div>
     <div class="nav-text">
       <span v-for="item in [data_raw, data_connection, data_weld, data_beton]" :key="item"
-        :class="{ active: activeButton === item }" @click="handleNavClick(item)">
+        :class="{ active: activeButton === item }" 
+        @click="index === 0 ? handleNavClick(item) : null">
         {{ item }}
       </span>
     </div>
@@ -88,9 +89,7 @@ export default {
   transition: all 0.3s;
 }
 
-.nav-text span:hover {
-  color: #409EFF; /* 鼠标悬停时颜色 */
-}
+
 
 .nav-text span.active {
   color: #409EFF;       /* 选中高亮 */

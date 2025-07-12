@@ -2,216 +2,102 @@
   <div>
     <div>
       <!-- 按钮 -->
-      <el-button
-        type="primary"
-        icon="el-icon-plus"
-        style="margin: 10px 10px"
-        @click="addUsers"
-      >新建用户</el-button>
+      <el-button type="primary" icon="el-icon-plus" style="margin: 10px 10px" @click="addUsers">新建用户</el-button>
       <!--新建用户 对话框 -->
-      <el-dialog
-        :title="dialog_title"
-        :visible.sync="dialogFormVisible"
-        :show-close="false"
-      >
+      <el-dialog :title="dialog_title" :visible.sync="dialogFormVisible" :show-close="false" @close="resetForm">
         <el-form :model="form">
           <el-form-item label="用户名称" :label-width="formLabelWidth">
-            <el-input
-              v-model="form.username"
-              placeholder="请输入内容(必填)"
-              autocomplete="off"
-            />
+            <el-input v-model="form.username" placeholder="请输入内容(必填)" autocomplete="off" style="width: 500px;" />
           </el-form-item>
           <el-form-item label="密码" :label-width="formLabelWidth">
-            <el-input
-              v-model="form.password"
-              placeholder="请输入内容（必填）"
-              autocomplete="off"
-            />
+            <el-input v-model="form.password" placeholder="请输入内容（必填）" autocomplete="off" style="width: 500px;"/>
           </el-form-item>
           <el-form-item label="用户真实姓名" :label-width="formLabelWidth">
-            <el-input
-              v-model="form.realname"
-              placeholder="请输入内容（必填）"
-              autocomplete="off"
-            />
+            <el-input v-model="form.realname" placeholder="请输入内容（必填）" autocomplete="off" style="width: 500px;" />
           </el-form-item>
           <el-form-item label="角色ID" :label-width="formLabelWidth">
-            <el-input
-              v-model="form.userTypeId"
-              placeholder="请输入内容（必填）"
-              autocomplete="off"
-            />
+            <el-input v-model="form.userTypeId" placeholder="请输入内容（必填）" autocomplete="off" style="width: 500px;" />
           </el-form-item>
           <el-form-item label="年龄" :label-width="formLabelWidth">
-            <el-input
-              v-model="form.age"
-              placeholder="请输入内容"
-              autocomplete="off"
-            />
+            <el-input v-model="form.age" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
           </el-form-item>
           <el-form-item label="性别" :label-width="formLabelWidth">
-            <el-input
-              v-model="form.userGender"
-              placeholder="请输入内容"
-              autocomplete="off"
-            />
+            <el-input v-model="form.userGender" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
           </el-form-item>
           <el-form-item label="电话号码" :label-width="formLabelWidth">
-            <el-input
-              v-model="form.userPhone"
-              placeholder="请输入内容"
-              autocomplete="off"
-            />
+            <el-input v-model="form.userPhone" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
           </el-form-item>
           <el-form-item label="所属公司" :label-width="formLabelWidth">
-            <el-input
-              v-model="form.userCompanyId"
-              placeholder="请输入内容"
-              autocomplete="off"
-            />
+            <el-input v-model="form.userCompanyId" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="cancelAddUser">取 消</el-button>
           <el-button type="primary" @click="confirmAddUser">确 定</el-button>
+          <el-button @click="cancelAddUser">取 消</el-button>
+        </div>
+      </el-dialog>
+      <!--查看用户 对话框 -->
+      <el-dialog title="查看用户信息" :visible.sync="dialogCheckFormVisible" :show-close="false"
+        @close="resetForm">
+        <el-form :model="form">
+          <el-form-item label="用户名称" :label-width="formLabelWidth">
+            <el-input v-model="form.username" placeholder="请输入内容(必填)" autocomplete="off" style="width: 500px;"/>
+          </el-form-item>
+          <el-form-item label="密码" :label-width="formLabelWidth">
+            <el-input v-model="form.password" placeholder="请输入内容（必填）" autocomplete="off" style="width: 500px;"/>
+          </el-form-item>
+          <el-form-item label="用户真实姓名" :label-width="formLabelWidth">
+            <el-input v-model="form.realname" placeholder="请输入内容（必填）" autocomplete="off" style="width: 500px;"/>
+          </el-form-item>
+          <el-form-item label="角色ID" :label-width="formLabelWidth">
+            <el-input v-model="form.userTypeId" placeholder="请输入内容（必填）" autocomplete="off" style="width: 500px;"/>
+          </el-form-item>
+          <el-form-item label="年龄" :label-width="formLabelWidth">
+            <el-input v-model="form.age" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
+          </el-form-item>
+          <el-form-item label="性别" :label-width="formLabelWidth">
+            <el-input v-model="form.userGender" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
+          </el-form-item>
+          <el-form-item label="电话号码" :label-width="formLabelWidth">
+            <el-input v-model="form.userPhone" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
+          </el-form-item>
+          <el-form-item label="所属公司" :label-width="formLabelWidth">
+            <el-input v-model="form.userCompanyId" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="confirmCheckUser">确 定</el-button>
         </div>
       </el-dialog>
       <span class="search-container" style="float: right">
         <!--搜索栏--->
-        <el-input
-          v-model="searchQuery"
-          placeholder="请输入搜索内容"
-          style="width: 300px; margin-right: 10px"
-        />
+        <el-input v-model="searchQuery" placeholder="请输入搜索内容" style="width: 300px; margin-right: 10px" />
         <el-button type="primary" @click="handleSearch">搜索</el-button>
       </span>
       <!-- 表格 -->
       <div>
         <el-table :data="userInfo" style="width: 100%">
-          <el-table-column type="index" width="100" align="center" />
+          <el-table-column type="index" label="序号" width="100" align="center" />
           <el-table-column prop="username" label="用户名称" align="center" />
           <el-table-column prop="userGender" label="性别" align="center" />
           <el-table-column prop="userTypeName" label="角色" align="center" />
           <el-table-column label="操作" prop="prop" align="center">
             <template slot-scope="{ row, $index }">
-              <el-button
-                type="info"
-                icon="el-icon-view"
-                size="mini"
-                @click="checkUser(row, $index)"
-              >
+              <el-button type="info" icon="el-icon-view" size="mini" @click="checkUser(row, $index)">
                 查看</el-button>
-              <!--查看用户 对话框 -->
-              <el-dialog
-                title="查看用户信息"
-                :visible.sync="dialogCheckFormVisible"
-                :show-close="false"
-              >
-                <el-form :model="form">
-                  <el-form-item label="用户名称" :label-width="formLabelWidth">
-                    <el-input
-                      v-model="form.username"
-                      placeholder="请输入内容(必填)"
-                      autocomplete="off"
-                    />
-                  </el-form-item>
-                  <el-form-item label="密码" :label-width="formLabelWidth">
-                    <el-input
-                      v-model="form.password"
-                      placeholder="请输入内容（必填）"
-                      autocomplete="off"
-                    />
-                  </el-form-item>
-                  <el-form-item
-                    label="用户真实姓名"
-                    :label-width="formLabelWidth"
-                  >
-                    <el-input
-                      v-model="form.realname"
-                      placeholder="请输入内容（必填）"
-                      autocomplete="off"
-                    />
-                  </el-form-item>
-                  <el-form-item label="角色ID" :label-width="formLabelWidth">
-                    <el-input
-                      v-model="form.userTypeId"
-                      placeholder="请输入内容（必填）"
-                      autocomplete="off"
-                    />
-                  </el-form-item>
-                  <el-form-item label="年龄" :label-width="formLabelWidth">
-                    <el-input
-                      v-model="form.age"
-                      placeholder="请输入内容"
-                      autocomplete="off"
-                    />
-                  </el-form-item>
-                  <el-form-item label="性别" :label-width="formLabelWidth">
-                    <el-input
-                      v-model="form.userGender"
-                      placeholder="请输入内容"
-                      autocomplete="off"
-                    />
-                  </el-form-item>
-                  <el-form-item label="电话号码" :label-width="formLabelWidth">
-                    <el-input
-                      v-model="form.userPhone"
-                      placeholder="请输入内容"
-                      autocomplete="off"
-                    />
-                  </el-form-item>
-                  <el-form-item label="所属公司" :label-width="formLabelWidth">
-                    <el-input
-                      v-model="form.userCompanyId"
-                      placeholder="请输入内容"
-                      autocomplete="off"
-                    />
-                  </el-form-item>
-                </el-form>
-                <div slot="footer" class="dialog-footer">
-                  <el-button
-                    type="primary"
-                    @click="confirmCheckUser"
-                  >确 定</el-button>
-                </div>
-              </el-dialog>
-              <el-button
-                type="warning"
-                icon="el-icon-edit"
-                size="mini"
-                @click="updateUser(row, $index)"
-              >编辑</el-button>
-              <el-popconfirm
-                confirm-button-text="是"
-                cancel-button-text="否"
-                icon="el-icon-info"
-                icon-color="red"
-                :title="'确认删除 ' + row.username + ' 用户信息吗？'"
-                @onConfirm="deleteUser(row, $index)"
-              >
-                <el-button
-                  slot="reference"
-                  type="danger"
-                  icon="el-icon-delete"
-                  size="mini"
-                >删除</el-button>
+              <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateUser(row, $index)">编辑</el-button>
+              <el-popconfirm confirm-button-text="是" cancel-button-text="否" icon="el-icon-info" icon-color="red"
+                :title="'确认删除 ' + row.username + ' 用户信息吗？'" @onConfirm="deleteUser(row, $index)">
+                <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini">删除</el-button>
               </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
       </div>
       <!-- 分页器 -->
-      <el-pagination
-        style="margin-top: 20px; text-align: center"
-        :current-page="curPage"
-        :page-sizes="[10, 15, 20]"
-        :page-size="limit"
-        layout=" prev, pager, next, jumper,->,sizes,total"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+      <el-pagination style="margin-top: 20px; text-align: center" :current-page="curPage" :page-sizes="[10, 15, 20]"
+        :page-size="limit" layout=" prev, pager, next, jumper,->,sizes,total" :total="total"
+        @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
   </div>
 </template>
@@ -253,6 +139,8 @@ export default {
       dialogCheckFormVisible: false
     }
   },
+    watch: {
+  },
   created() {
     this.getAllUser()
   },
@@ -261,9 +149,9 @@ export default {
       try {
         const res = await getAllUser(this.curPage, this.limit)
         if (res.code == 200) {
-          console.log('请求用户', res)
+          console.log('全部用户列表', res)
           this.userInfo = res.result.records
-          this.total = res.result.total
+          this.total =Number(res.result.total)
         } else {
           throw new Error(res.message || '获取所有用户列表失败')
         }
@@ -391,7 +279,7 @@ export default {
     async checkUser(row, index) {
       this.dialogCheckFormVisible = true
       const id = row.userId
-      this.form = row
+      this.form = { ...row }; // 使用深拷贝避免直接修改 row
       try {
         const res = await getUserById(id)
         if (res.code == 200) {
@@ -419,5 +307,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>

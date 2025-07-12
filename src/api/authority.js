@@ -15,9 +15,9 @@ export function reqPermissionList() {
   })
 }
 
-export function addRoleWithPermissions(roleName, permissions) {
+export function addRoleWithPermissions(roleName, permissions,isCollector) {
   return request({
-    url: `/role/addRoleWithPermissions?roleName=${roleName}&permissions=${permissions}`,
+    url: `/role/addRoleWithPermissions?roleName=${roleName}&permissions=${permissions}&isCollector=${isCollector}`,
     method: 'post'
   })
 }
@@ -35,9 +35,9 @@ export function getRoleById(id) {
     method: 'get'
   })
 }
-export function updateRole(roleId, permissions) {
+export function updateRole(roleId, roleName,permissions,isCollector) {
   return request({
-    url: `/role/updateRole?roleId=${roleId}&permissions=${permissions}`,
+    url: `/role/updateRole?roleId=${roleId}&roleName=${roleName}&permissions=${permissions}&isCollector=${isCollector}`,
     method: 'put'
   })
 }

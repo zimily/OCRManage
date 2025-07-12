@@ -1,10 +1,10 @@
 <template>
   <div>
     <div>
-      <el-row>
-        <el-col :span="6" :offset="2">
+      <el-row :gutter="24">
+        <el-col :span="5" >
           <div>
-            <span>状态</span>
+            <span>状态：</span>
             <el-select
               v-model="searchStatus"
               placeholder="请选择"
@@ -18,30 +18,29 @@
             </el-select>
           </div>
         </el-col>
-
-        <el-col :span="6" :offset="2">
+        <el-col :span="6" >
           <div>
             <span>检验批部位：</span>
             <el-input
               v-model="searchPart"
-              placeholder="请输入检验批部位"
+              placeholder="请输入搜索内容"
               style="width: calc(100% - 100px)"
             ></el-input>
           </div>
         </el-col>
 
-        <el-col :span="6" :offset="2">
+        <el-col :span="6" >
           <div>
             <span>单位工程：</span>
             <el-input
               v-model="searchUnit"
-              placeholder="请输入单位工程"
+              placeholder="请输入搜索内容"
               style="width: calc(100% - 80px)"
             ></el-input>
           </div>
         </el-col>
 
-        <el-col :span="2" :offset="2">
+        <el-col :span="2" >
           <el-button type="primary" @click="search"
             >搜索</el-button
           >
@@ -255,6 +254,7 @@ export default {
     },
     async search() {
       // 触发搜索，重新请求数据
+      this.curPage=1
       console.log(this.searchStatus,this.searchUnit,this.searchPart)
       const user = getUser();
       this.bodyData.userId = user.userId;
@@ -266,8 +266,8 @@ export default {
        try {
         const res = await getAllAtatus(this.bodyData);
         if (res.code == "200") {
-          // console.log("所有项目信息", res);
-          this.total = res.result.total;
+          console.log("搜索", res);
+          this.total = Number(res.result.total);
           this.tableData = res.result.list;
         } else {
           this.$message.error("搜素失败！");

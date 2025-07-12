@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-//接口管理  验收规范
+//验收规范管理
 export function getAllSpecifications(page,limit) {
     return request({
       url: `api/inspect-rules/with-type-fenxiang/page?current=${page}&size=${limit}`,
@@ -7,6 +7,24 @@ export function getAllSpecifications(page,limit) {
   
     })
   }
+
+//删除一项验收规范
+export function deleteSpecifications(inspectId) {
+    return request({
+      url: `api/inspect-rules/cascade/${inspectId}`,
+      method: 'delete',
+    })
+  }
+
+//搜索
+export function searchSpecifications(fenxiangName,typeName,yanshouRule) {
+    return request({
+      url: `api/inspect-rules/search?fenxiangName=${fenxiangName}&typeName=${typeName}&yanshouRule=${yanshouRule}`,
+      method: 'get',
+    })
+  }
+
+//细则
 //获取每一个分项的所有验收细则
   export function getSpecificationsById(inspectId) {
     // console.log("inspectId 的数据类型:", typeof inspectId); // 打印数据类型

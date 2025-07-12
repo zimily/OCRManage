@@ -2,60 +2,34 @@
   <div>
     <!-- 验收规范 -->
     <el-card :body-style="{ padding: '20px' }">
-      <el-form
-        :inline="true"
-        class="demo-form-inline"
-      >
+      <el-form :inline="true" class="demo-form-inline">
         <el-form-item label="类别">
-           <el-select v-model="inspectTypeId" placeholder="请选择"  @change="handleInspectTypeChange">
-            <el-option
-              v-for="item in options0"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+          <el-select v-model="inspectTypeId" placeholder="请选择" @change="handleInspectTypeChange">
+            <el-option v-for="item in options0" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="验收依据">
-          <el-input
-            v-model="yanshouRule"
-            placeholder="输入验收依据"
-            style="width: 400px"
-          ></el-input>
+          <el-input v-model="yanshouRule" placeholder="输入验收依据" style="width: 300px"></el-input>
         </el-form-item>
-       <!-- 基于已有规范 -->
-      <el-form-item label="基于已有规范">
-        <el-select
-          v-model="selectedExistingRules"
-          placeholder="请选择已有规范"
-          style="width: 400px"
-          @change="handleBaseRule"
-        >
-        <!-- @change="handleBaseRule"  -->
-          <el-option
-            v-for="item in existingRulesOptions"
-            :key="item.inspectId"
-            :label="item.yanshouRule"
-            :value="item.inspectId"
-            :value-key="item.inspectId"
-          ></el-option>
-        </el-select>
-      </el-form-item>
+        <!-- 基于已有规范 -->
+        <el-form-item label="基于已有规范">
+          <el-select v-model="selectedExistingRules" placeholder="请选择已有规范" style="width: 300px"
+            @change="handleBaseRule">
+            <!-- @change="handleBaseRule"  -->
+            <el-option v-for="item in existingRulesOptions" :key="item.inspectId" :label="item.yanshouRule"
+              :value="item.inspectId" :value-key="item.inspectId"></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
     </el-card>
     <!-- 验收规范细则 -->
     <el-card>
       <!-- 添加按钮 -->
-      <el-button type="primary" icon="el-icon-plus" style="margin: 10px 10px" @click="addRule()"
-        >添加规则</el-button
-      >
+      <el-button type="primary" icon="el-icon-plus" style="margin: 10px 10px" @click="addRule()">添加规则</el-button>
       <!-- 指标表格 -->
       <el-table :data="indices" style="width: 100%" border>
-        <el-table-column
-          type="index"
-          label="序号"
-          align="center"
-        ></el-table-column>
+        <el-table-column type="index" label="序号" align="center" width="50"></el-table-column>
         <el-table-column prop="itemName" label="验收项目" align="center">
         </el-table-column>
         <el-table-column prop="ruleType" label="规则" align="center" width="100">
@@ -70,17 +44,12 @@
             <span v-else>未知规则</span>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="ruleStandard"
-          label="标准值或规范"
-          align="center"
-          width="130"
-        >
+        <el-table-column prop="ruleStandard" label="标准值或规范" align="center" width="130">
         </el-table-column>
         <el-table-column prop="variableMeaning" label="参数含义" align="center" width="100">
-        </el-table-column> 
-         <el-table-column prop="dataUnit" label="单位" align="center" width="80">
-        </el-table-column> 
+        </el-table-column>
+        <el-table-column prop="dataUnit" label="单位" align="center" width="80">
+        </el-table-column>
         <el-table-column prop="itemType" label="项目类型" align="center" width="100">
           <template v-slot="scope">
             <span v-if="scope.row.itemType === 1">主控项目</span>
@@ -88,8 +57,8 @@
             <span v-else>未知项目类型</span>
           </template>
         </el-table-column>
-         <el-table-column prop="dataType" label="数据类型" align="center" width="100">
-            <template v-slot="scope">
+        <el-table-column prop="dataType" label="数据类型" align="center" width="100">
+          <template v-slot="scope">
             <span v-if="scope.row.ruleType === 1">目测</span>
             <span v-else-if="scope.row.ruleType === 2">尺量</span>
             <span v-else-if="scope.row.ruleType === 3">实验报告</span>
@@ -97,118 +66,71 @@
           </template>
         </el-table-column>
         </el-table-column>
-        <el-table-column
-          prop="passThresh"
-          label="合格率阈值"
-          align="center"
-          width="80"
-        >
-         <!-- :formatter="(row) => row.passThresh !== null ? (row.passThresh * 100) + '%' : 'N/A'" -->
-        
+        <el-table-column prop="passThresh" label="合格率阈值" align="center" width="100">
+          <!-- :formatter="(row) => row.passThresh !== null ? (row.passThresh * 100) + '%' : 'N/A'" -->
+
         </el-table-column>
-        <el-table-column
-          prop="totalText"
-          label="样本总数"
-          align="center"
-          width="80"
-          :formatter="(row) => Array.isArray(row.totalText) ? row.totalText.join('、') : row.totalText"
-        >
+        <el-table-column prop="totalText" label="样本总数" align="center" width="80"
+          :formatter="(row) => Array.isArray(row.totalText) ? row.totalText.join('、') : row.totalText">
         </el-table-column>
-        <el-table-column
-          prop="minSampleText"
-          label="最小抽样批量"
-          align="center"
-          width="200"
-        >
-         </el-table-column>
+        <el-table-column prop="minSampleText" label="最小抽样批量" align="center" width="200">
+        </el-table-column>
         <el-table-column prop="prop" label="操作" align="center" width="250">
           <template v-slot="scope">
-            <el-button
-            type="warning"
-            icon="el-icon-edit"
-            size="mini"
-            @click="updateRule(scope)"
-            >编辑规则</el-button
-          >
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            size="mini"
-            @click="deleteRule(scope)"
-            >删除规则</el-button
-          >
+            <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateRule(scope)">编辑规则</el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteRule(scope)">删除规则</el-button>
           </template>
-          
+
         </el-table-column>
       </el-table>
-      <div>
+      <div style="margin-top: 10px;">
         <el-button type="primary" @click="preserve">保存</el-button>
         <el-button type="info" @click="quxiao">取消</el-button>
       </div>
     </el-card>
-   <!-- 弹窗 -->
+    <!-- 弹窗 -->
     <el-dialog :title="dialogFormTitle" :visible.sync="dialogFormVisible">
       <el-form :model="form">
         <el-form-item label="验收项目" :label-width="formLabelWidth">
-          <el-input v-model="form.itemName" autocomplete="off"></el-input>
+          <el-input v-model="form.itemName" autocomplete="off" style="width: 500px;"></el-input>
         </el-form-item>
         <el-form-item label="规则" :label-width="formLabelWidth">
-           <el-select v-model="form.ruleType" placeholder="请选择">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+          <el-select v-model="form.ruleType" placeholder="请选择">
+            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="标准值或规范" :label-width="formLabelWidth">
-          <el-input v-model="form.ruleStandard" autocomplete="off"></el-input>
+          <el-input v-model="form.ruleStandard" autocomplete="off" style="width: 500px;"></el-input>
         </el-form-item>
         <el-form-item label="参数含义" :label-width="formLabelWidth">
-          <el-input v-model="form.variableMeaning" autocomplete="off"></el-input>
+          <el-input v-model="form.variableMeaning" autocomplete="off" style="width: 500px;"></el-input>
         </el-form-item>
         <el-form-item label="单位" :label-width="formLabelWidth">
-          <el-input v-model="form.dataUnit" autocomplete="off"></el-input>
+          <el-input v-model="form.dataUnit" autocomplete="off" style="width: 500px;"></el-input>
         </el-form-item>
         <el-form-item label="项目类型" :label-width="formLabelWidth">
           <el-select v-model="form.itemType" placeholder="请选择">
-            <el-option
-              v-for="item in options1"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+            <el-option v-for="item in options1" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="数据类型" :label-width="formLabelWidth">
           <el-select v-model="form.dataType" placeholder="请选择">
-            <el-option
-              v-for="item in options2"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+            <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="合格率阈值" :label-width="formLabelWidth">
-          <el-input v-model="form.passThresh" 
-             type="number"
-             :min="0"
-             :max="1"
-             :step="0.01"
-             autocomplete="off"
-             @blur="handlePassThreshBlur"
-          ></el-input>
+          <el-input v-model="form.passThresh" type="number" :min="0" :max="1" :step="0.01" autocomplete="off" style="width: 500px;"
+            @blur="handlePassThreshBlur"></el-input>
         </el-form-item>
         <el-form-item label="样本总数为空" :label-width="formLabelWidth">
-           <el-radio v-model="form.totalSampleEmpty" :label="1" @change="handleTotalSampleEmptyChange">是</el-radio>
-           <el-radio v-model="form.totalSampleEmpty" :label="0" @change="handleTotalSampleEmptyChange">否</el-radio>
+          <el-radio v-model="form.totalSampleEmpty" :label="1" @change="handleTotalSampleEmptyChange">是</el-radio>
+          <el-radio v-model="form.totalSampleEmpty" :label="0" @change="handleTotalSampleEmptyChange">否</el-radio>
         </el-form-item>
         <el-form-item label="样本总数来源" :label-width="formLabelWidth">
-          <el-checkbox-group 
-              v-model="form.totalText"
-             :disabled="isCheckboxGroupDisabled">
+          <el-checkbox-group v-model="form.totalText" :disabled="isCheckboxGroupDisabled">
             <el-checkbox label="墙"></el-checkbox>
             <el-checkbox label="板"></el-checkbox>
             <el-checkbox label="梁"></el-checkbox>
@@ -221,15 +143,13 @@
             <el-checkbox label="楼梯"></el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-          <el-form-item label="最小抽样数是否为空" :label-width="formLabelWidth">
-           <el-radio v-model="form.minSampleEmpty" :label="1" @change="handleMinSampleEmptyChange">是</el-radio>
-           <el-radio v-model="form.minSampleEmpty" :label="0" @change="handleMinSampleEmptyChange">否</el-radio>
+        <el-form-item label="最小抽样数是否为空" :label-width="formLabelWidth">
+          <el-radio v-model="form.minSampleEmpty" :label="1" @change="handleMinSampleEmptyChange">是</el-radio>
+          <el-radio v-model="form.minSampleEmpty" :label="0" @change="handleMinSampleEmptyChange">否</el-radio>
         </el-form-item>
-        <el-form-item label="最小抽样规则" :label-width="formLabelWidth" >
-          <el-select v-model="form.minSampleRule" 
-           placeholder="请选择抽样规则" 
-           :disabled="isCheckboxGroupDisabled1" 
-           style="width: 100%;">
+        <el-form-item label="最小抽样规则" :label-width="formLabelWidth">
+          <el-select v-model="form.minSampleRule" placeholder="请选择抽样规则" :disabled="isCheckboxGroupDisabled1"
+            style="width: 500px;">
             <el-option label="全数检查" :value="1"></el-option>
             <el-option label="按批次抽样" :value="2"></el-option>
             <el-option label="按比例抽样" :value="3"></el-option>
@@ -237,24 +157,28 @@
             <el-option label="总工设置" :value="5"></el-option>
           </el-select>
         </el-form-item>
-         <!-- 动态表单内容 -->
+        <!-- 动态表单内容 -->
         <template v-if="form.minSampleRule === 2">
           <el-form-item label="每批抽" :label-width="formLabelWidth">
-            <el-input v-model="form.minSample" placeholder="请输入每批抽取个数" suffix="个" :disabled="isCheckboxGroupDisabled1"></el-input>
+            <el-input v-model="form.minSample" placeholder="请输入每批抽取个数" suffix="个" style="width: 500px;"
+              :disabled="isCheckboxGroupDisabled1"></el-input>
           </el-form-item>
         </template>
-        <template v-else-if="form.minSampleRule === 3" >
+        <template v-else-if="form.minSampleRule === 3">
           <el-form-item label="抽取比例" :label-width="formLabelWidth">
-            <el-input v-model="form.partMinPercentage" placeholder="请输入百分比" suffix="%" :disabled="isCheckboxGroupDisabled1"></el-input>
+            <el-input v-model="form.partMinPercentage" type="number" :min="0" :max="1" :step="0.01" autocomplete="off" style="width: 500px;"
+              @blur="handlePassThreshBlur"></el-input>
           </el-form-item>
           <el-form-item label="不少于" :label-width="formLabelWidth">
-            <el-input v-model="form.minSample" placeholder="请输入最少抽取数量" suffix="处" :disabled="isCheckboxGroupDisabled1"></el-input>
+            <el-input v-model="form.minSample" placeholder="请输入最少抽取数量" suffix="处" style="width: 500px;"
+              :disabled="isCheckboxGroupDisabled1"></el-input>
           </el-form-item>
         </template>
 
-        <template v-else-if="form.minSampleRule === 4" >
+        <template v-else-if="form.minSampleRule === 4">
           <el-form-item label="满X抽1" :label-width="formLabelWidth">
-            <el-input v-model="form.checkPer" placeholder="请输入X值" suffix="抽1" :disabled="isCheckboxGroupDisabled1"></el-input>
+            <el-input v-model="form.checkPer" placeholder="请输入X值" suffix="抽1" style="width: 500px;"
+              :disabled="isCheckboxGroupDisabled1"></el-input>
           </el-form-item>
         </template>
       </el-form>
@@ -435,7 +359,7 @@ export default {
       dialogFormVisible: false,
       dialogFormTitle: "",
       form: this.getDefaultFormData(), //对话框数据  表单数据
-      formLabelWidth: "120px",
+      formLabelWidth: "150px",
       curIndex: 0, //表示当前所选的行号
       indices: [], //多条细则信息
       inspectTypeId: null, //类别对应的Id
@@ -474,7 +398,7 @@ export default {
   created() {
     this.getInspectType();
   },
-  mounted() {},
+  mounted() { },
 
   methods: {
     // 提取默认表单数据为独立方法

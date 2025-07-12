@@ -17,63 +17,31 @@
       </el-row>
     </el-card>
     <el-card style="margin-top: 5px">
-      <el-table
-        :data="tableData"
-        stripe
-        style="width: 100%"
-        :row-class-name="rowClassName"
-      >
-        <el-table-column
-          prop="project"
-          label="验收项目"
-          width="150"
-          align="center"
-        >
+      <el-table :data="tableData" stripe style="width: 100%" :row-class-name="rowClassName">
+        <el-table-column prop="inspectItem.itemName" label="验收项目" align="center">
         </el-table-column>
-        <el-table-column
-          prop="require"
-          label="设计要求及规范规定"
-          width="150"
-          align="center"
-        >
+        <el-table-column prop="inspectItem.ruleStandard" label="设计要求及规范规定"  align="center">
         </el-table-column>
-        <el-table-column prop="sum" label="样本总数" width="120" align="center">
+        <el-table-column prop="taskItem.sampleAmount" label="样本总数" width="120" align="center">
         </el-table-column>
-        <el-table-column
-          prop="min"
-          label="最小抽样批量"
-          width="120"
-          align="center"
-        >
+        <el-table-column prop="taskItem.minSample" label="最小抽样批量" width="120" align="center">
         </el-table-column>
-        <el-table-column
-          prop="reality"
-          label="实际抽样批量"
-          width="120"
-          align="center"
-        >
+        <el-table-column prop="taskItem.collectedAmount" label="实际抽样批量" width="120" align="center">
         </el-table-column>
-        <el-table-column
-          prop="record"
-          label="验收记录"
-          width="150"
-          align="center"
-        >
+        <el-table-column prop="taskItem.checkRecord" label="验收记录" width="200" align="center">
         </el-table-column>
-        <el-table-column prop="value" label="合格率" width="120" align="center">
+        <el-table-column prop="taskItem.passRate" label="合格率" width="120" align="center">
         </el-table-column>
-        <el-table-column
-          prop="master"
-          label="是否为主控项"
-          width="120"
-          align="center"
-        >
+        <el-table-column prop="inspectItem.itemType" label="项目类型" align="center" width="100">
+          <template v-slot="scope">
+            <span v-if="scope.row.inspectItem.itemType === 1">主控项目</span>
+            <span v-else-if="scope.row.inspectItem.itemType === 2">一般项目</span>
+            <span v-else>未知项目类型</span>
+          </template>
         </el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" align="center" width="150">
           <template slot-scope="scope">
-            <el-button type="primary" @click="dialogTableVisible = true"
-              >查看数据</el-button
-            >
+            <el-button type="primary" @click="viewData(scope)">查看数据</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -82,36 +50,25 @@
       <el-button type="primary" @click="turnBack()">返回</el-button>
     </div>
     <!-- 弹窗 -->
-    <el-dialog title="原始数据展示" :visible.sync="dialogTableVisible"  :show-close="false">
-      <el-table :data="gridData">
-        <el-table-column
-          property="position"
-          label="采集部位"
-          width="220"
-          align="center"
-        >
-        </el-table-column>
-        <el-table-column
-          property="data"
-          label="原始数据"
-          width="220"
-          align="center"
-        >
-        </el-table-column>
-        <el-table-column property="regular" label="是否合格" align="center">
-        </el-table-column>
-      </el-table>
+    <el-dialog title="原始数据展示" :visible.sync="dialogTableVisible" :show-close="false">
+      <div v-if="dataType===1">
+        目测类型测数据
+      </div>
+      <div v-else-if="dataType===2">
+        尺量数据
+      </div>
+      <div v-else-if="dataType===3">
+        试验报告数据
+      </div>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogTableVisible = false"
-          >关闭</el-button
-        >
+        <el-button type="primary" @click="dialogTableVisible = false">关闭</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getTaskDetailData } from "@/api/collection";
+import { getAllList, getCollectData } from "@/api/collection";
 export default {
   data() {
     return {
@@ -136,94 +93,87 @@ export default {
       dialogTableVisible: false,
       tableData: [
         {
-          isChecked: false,
-          project: "钢筋力学性能和重量偏差检验",
-          require: "第5.2.1条",
-          sum: "6",
-          min: "全",
-          reality: "6",
-          record: "/",
-          value: "100%",
-          master: "是",
-        },
-        {
-          isChecked: false,
-          project: "钢筋力学性能和重量偏差检验",
-          require: "第5.2.1条",
-          sum: "6",
-          min: "全",
-          reality: "6",
-          record: "/",
-          value: "100%",
-          master: "是",
-        },
-        {
-          isChecked: false,
-          project: "钢筋力学性能和重量偏差检验",
-          require: "第5.2.1条",
-          sum: "6",
-          min: "全",
-          reality: "6",
-          record: "/",
-          value: "100%",
-          master: "是",
-        },
-        {
-          isChecked: false,
-          project: "钢筋力学性能和重量偏差检验",
-          require: "第5.2.1条",
-          sum: "6",
-          min: "全",
-          reality: "6",
-          record: "/",
-          value: "100%",
-          master: "是",
-        },
+          inspectItem:{
+            itemType:null
+          },
+          taskItem:{
+
+          }
+        }
       ],
+      dataType: null,//1-目测 2-尺量 3-试验报告
+
     };
   },
   computed: {
+    rowData() {
+      return this.$store.state.collection.currentRowData;
+    },
     taskId() {
       return this.$route.query.taskId;
     },
-    // rowData() {
-    //   return this.$route.params.row;
-    // },
-    // subprojectName() {
-    //   return this.$route.params.row.subprojectName;
-    // },
-    // inspectPart() {
-    //   return this.$route.params.row.inspectPart;
-    // },
-    // inspectName() {
-    //   return this.$route.params.row.inspectType;
-    // },
+    subprojectName() {
+      return this.rowData.subprojectName;
+    },
+    inspectPart() {
+      return this.rowData.inspectPart;
+    },
+    inspectName() {
+      return this.rowData.inspectType;
+    },
   },
   mounted() {
-    console.log("当前任务ID:", this.taskId);
-    this.getData();
+    console.log("row", this.rowData);
+    this.getDetailData()
+    // console.log(this.subprojectName);
   },
   methods: {
-    async getData() {
-      try {
-        const response = await getTaskDetailData(this.taskId);
-        if (response && response.data) {
-         console.log("获取到的任务详情数据:", response);
-        } else {
-          console.error("获取数据失败，响应数据格式不正确");
-        }
-      } catch (error) {
-        console.error("获取数据失败:", error);
-      }
-    },
     rowClassName({ row }) {
       return row.isChecked ? "checked-row" : "unchecked-row";
     },
+    async getDetailData() {
+      console.log("详情页面", this.taskId)
+      try {
+        let res = await getAllList(this.taskId)
+        if (res.code == 200) {
+          console.log("数据", res)
+          this.tableData = res.result.taskItemList
+        } else {
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
+        this.$message.error("获取详情数据失败！");
+
+      }
+    },
+    //查看数据
+    async viewData(value) {
+      this.dialogTableVisible = true
+      const data = {
+        taskId: value.row.taskItem.taskId,
+        inspectItemId: value.row.inspectItem.inspectItemId
+      }
+      this.dataType=value.row.inspectItem.dataType
+      console.log("查看数据", data)
+      try {
+        let res = await getCollectData(data)
+        if (res.code === 200) {
+          console.log("查看采集数据", res)
+        } else {
+          throw new Error(res.message)
+        }
+      } catch (error) {
+
+        console.error("操作失败", error);
+        this.$message.error("获取详情数据失败！");
+      }
+    },
     //返回
-    turnBack(){
-       this.$router.push({
-          name: "CollectionManage",
-        });
+    turnBack() {
+      this.$router.push({
+        name: "CollectionManage",
+      });
     }
   },
 };

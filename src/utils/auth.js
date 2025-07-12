@@ -13,3 +13,18 @@ export function setToken(token) {
 export function removeToken() {
   return Cookies.remove(TokenKey)
 }
+
+//物资平台的token
+const MaterialPlatformTokenKey = 'material_platform_token'
+
+export function getMaterialPlatformToken() {
+  return Cookies.get(MaterialPlatformTokenKey)
+}
+
+export function setMaterialPlatformToken(token) {
+  return Cookies.set(MaterialPlatformTokenKey, token)
+}
+
+export function removeMaterialPlatformToken() {
+  return Cookies.remove(MaterialPlatformTokenKey)
+}
