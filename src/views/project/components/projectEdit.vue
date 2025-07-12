@@ -3,7 +3,7 @@
     <el-row :gutter="10" class="full-height-row">
       <el-col :span="6" class="full-height-col">
         <el-card shadow="hover" class="full-height-card">
-          <div class="button-group">
+          <div v-if="!chakan" class="button-group">
             <el-button
               class="add-button"
               type="primary"
@@ -112,6 +112,9 @@ export default {
   computed: {
     projectId() {
       return this.$route.query.projectId
+    },
+    chakan() {
+      return this.$route.query.chakan === 'true'
     }
   },
   created() {
@@ -206,7 +209,9 @@ export default {
       this.isAbled = data.isAbled
 
       this.projectExcel = null
-      this.$refs.upload.clearFiles()// 清空上传文件
+      if (this.$refs.upload) {
+        this.$refs.upload.clearFiles()// 清空上传文件
+      }
       await this.getProjectsById()
       await this.getAllSubprojectsById()
     },
@@ -249,8 +254,9 @@ export default {
         }
         this.lastAddedNode = null // 清空最新添加的节点
       }
-      // 清空上传文件
-      this.$refs.upload.clearFiles()
+      if (this.$refs.upload) {
+        this.$refs.upload.clearFiles()// 清空上传文件
+      }
     },
     // 点击树的节点
     hangleNodeClick(node) {

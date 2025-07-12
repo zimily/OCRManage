@@ -3,57 +3,57 @@
     <div class="title">项目信息</div>
     <el-row>
       <el-col :span="24">
-        <el-form ref="info" :model="info" label-width="30%">
+        <el-form ref="info" :disabled="chakan" :model="info" label-width="30%">
           <el-row>
             <el-col :span="12">
-              <el-form-item label="项目号">
-                <el-input v-model="info.projectInnerCode" />
+              <el-form-item :required="true" label="项目号">
+                <el-input v-model.trim="info.projectInnerCode" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="项目类别">
-                <el-input v-model="info.projectType" />
+              <el-form-item :required="true" label="项目类别">
+                <el-input v-model.trim="info.projectType" />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="项目名称">
-                <el-input v-model="info.projectName" />
+              <el-form-item :required="true" label="项目名称">
+                <el-input v-model.trim="info.projectName" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="结构类型">
-                <el-input v-model="info.structureType" />
+              <el-form-item :required="true" label="结构类型">
+                <el-input v-model.trim="info.structureType" />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="所在区域">
+              <el-form-item :required="true" label="所在区域">
                 <el-cascader
-                  v-model="pcData"
+                  v-model="pcaData"
                   size="large"
-                  :options="pcTextArr"
-                  placeholder="请选择省市"
+                  :options="pcaTextArr"
+                  placeholder="请选择省市区"
                   @change="handleChange"
                 />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="总建筑面积">
-                <el-input v-model="info.totalArea" />
+              <el-form-item :required="true" label="总建筑面积">
+                <el-input v-model.trim="info.totalArea" />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="施工单位">
-                <el-input v-model="info.shigongCompanyName" />
+              <el-form-item :required="true" label="施工单位">
+                <el-input v-model.trim="info.shigongCompanyName" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="开工时间">
+              <el-form-item :required="true" label="开工时间">
                 <el-date-picker
                   v-model="info.startDate"
                   type="date"
@@ -66,12 +66,12 @@
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="建设单位">
-                <el-input v-model="info.jiansheCompanyName" />
+              <el-form-item :required="true" label="建设单位">
+                <el-input v-model.trim="info.jiansheCompanyName" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="合同竣工时间">
+              <el-form-item :required="true" label="合同竣工时间">
                 <el-date-picker
                   v-model="info.endDate"
                   type="date"
@@ -84,76 +84,76 @@
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="监理单位">
-                <el-input v-model="info.jianliCompanyName" />
+              <el-form-item :required="true" label="监理单位">
+                <el-input v-model.trim="info.jianliCompanyName" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="建设单位项目负责人">
-                <el-input v-model="info.jiansheDirector" />
+              <el-form-item :required="true" label="建设单位项目负责人">
+                <el-input v-model.trim="info.jiansheDirector" />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="设计单位">
-                <el-input v-model="info.shejiCompanyName" />
+              <el-form-item :required="true" label="设计单位">
+                <el-input v-model.trim="info.shejiCompanyName" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="施工单位项目负责人">
-                <el-input v-model="info.shigongDirector" />
+              <el-form-item :required="true" label="施工单位项目负责人">
+                <el-input v-model.trim="info.shigongDirector" />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="勘察单位">
-                <el-input v-model="info.kanchaCompanyName" />
+              <el-form-item :required="true" label="勘察单位">
+                <el-input v-model.trim="info.kanchaCompanyName" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="监理单位项目负责人">
-                <el-input v-model="info.jianliDirector" />
+              <el-form-item :required="true" label="监理单位项目负责人">
+                <el-input v-model.trim="info.jianliDirector" />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="监督单位">
-                <el-input v-model="info.jianduCompanyName" />
+              <el-form-item :required="true" label="监督单位">
+                <el-input v-model.trim="info.jianduCompanyName" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="设计单位项目负责人">
-                <el-input v-model="info.shejiDirector" />
+              <el-form-item :required="true" label="设计单位项目负责人">
+                <el-input v-model.trim="info.shejiDirector" />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="承包方式">
-                <el-input v-model="info.contractMethod" />
+              <el-form-item :required="true" label="承包方式">
+                <el-input v-model.trim="info.contractMethod" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="勘察单位项目负责人">
-                <el-input v-model="info.kanchaDirector" />
+              <el-form-item :required="true" label="勘察单位项目负责人">
+                <el-input v-model.trim="info.kanchaDirector" />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="项目用途">
-                <el-input v-model="info.projectUsage" />
+              <el-form-item :required="true" label="项目用途">
+                <el-input v-model.trim="info.projectUsage" />
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item label="">
-            <el-button type="primary" @click="preserve">保存</el-button>
-            <el-button type="info" @click="cancel">取消</el-button>
-          </el-form-item>
         </el-form>
+        <el-col :span="24">
+          <el-button style="margin-left: 7em" type="primary" @click="preserve">{{ chakan?'确认':'保存' }}</el-button>
+          <el-button type="info" @click="cancel">取消</el-button>
+        </el-col>
       </el-col>
     </el-row>
 
@@ -161,7 +161,7 @@
 </template>
 
 <script>
-import { pcTextArr } from 'element-china-area-data'
+import { pcaTextArr } from 'element-china-area-data'
 import { getProjectsById, putProjects } from '@/api/project' // 引入
 export default {
   name: 'ProjectInfo',
@@ -186,21 +186,24 @@ export default {
         // surveyUnit: '郑州中核岩土工程有限公司',
         // regulatoryUnit: '河南省XX有限公司'
       },
-      pcData: [],
-      pcTextArr// 选择格式
+      pcaData: [],
+      pcaTextArr// 选择格式
     }
   },
   computed: {
     projectId() {
       return this.$route.query.projectId
+    },
+    chakan() {
+      return this.$route.query.chakan === 'true'
     }
   },
   watch: {
     projectExcel(val) {
       if (val) {
         const temp = JSON.parse(JSON.stringify(val))
-        this.pcData = temp[2]['填写范例'].split('-')
-        this.info.projectCity = JSON.stringify(this.pcData)
+        this.pcaData = temp[2]['填写范例'].split('-')
+        this.info.projectCity = JSON.stringify(this.pcaData)
 
         this.info.projectName = temp[1]['填写范例']
         this.info.jiansheCompanyName = temp[3]['填写范例']
@@ -251,7 +254,7 @@ export default {
         const { result } = await getProjectsById(this.projectId)
         this.info = result
         this.info.isCreated = true
-        this.pcData = JSON.parse(this.info.projectCity)
+        this.pcaData = JSON.parse(this.info.projectCity)
         console.log('getProjectsById', result)
       } catch (error) {
         console.log(error)
@@ -267,15 +270,20 @@ export default {
     },
     preserve() {
       // 发请求保存项目信息
+      if (this.chakan) {
+        const isShow = false
+        const data = { isShow }
+        this.$emit('transmit', data)
+      } else if (this.checkProInfo() && !this.chakan) {
+        const isShow = 0 // 使得右侧组件显示空白，只有点击的新建节点才能显示信息
+        const isAbled = false
+        const data = { isShow, isAbled }
 
-      const isShow = 0 // 使得右侧组件显示空白，只有点击的新建节点才能显示信息
-      const isAbled = false
-      const data = { isShow, isAbled }
-
-      this.info.startDate = this.info.startDate + ' 00:00:00'
-      this.info.endDate = this.info.endDate + ' 00:00:00'
-      this.putSubprojects()
-      this.$emit('transmit', data)
+        this.info.startDate = this.info.startDate + ' 00:00:00'
+        this.info.endDate = this.info.endDate + ' 00:00:00'
+        this.putSubprojects()
+        this.$emit('transmit', data)
+      }
     },
     cancel() {
       //   const isShow = false;
@@ -288,6 +296,74 @@ export default {
       const jsonValue = JSON.stringify(e)
       console.log('省市区json字符串', jsonValue)
       this.info.projectCity = jsonValue
+    },
+    checkProInfo() {
+      let bol = true
+      if (this.info.projectInnerCode === null || this.info.projectInnerCode === '') {
+        this.$message.warning('请填写项目号')
+        bol = false
+      } else if (this.info.projectType === null || this.info.projectType === '') {
+        this.$message.warning('请填写项目类别')
+        bol = false
+      } else if (this.info.projectName === null || this.info.projectName === '') {
+        this.$message.warning('请填写项目名称')
+        bol = false
+      } else if (this.info.structureType === null || this.info.structureType === '') {
+        this.$message.warning('请填写结构类型')
+        bol = false
+      } else if (this.pcaData.length < 3) {
+        this.$message.warning('请选择项目所在省市区')
+        bol = false
+      } else if (this.info.totalArea === null || this.info.totalArea === '') {
+        this.$message.warning('请填写项目总面积')
+        bol = false
+      } else if (this.info.shigongCompanyName === null || this.info.shigongCompanyName === '') {
+        this.$message.warning('请填写施工单位')
+        bol = false
+      } else if (this.info.startDate === null || this.info.startDate === '') {
+        this.$message.warning('请填写项目开始时间')
+        bol = false
+      } else if (this.info.jiansheCompanyName === null || this.info.jiansheCompanyName === '') {
+        this.$message.warning('请填写建设公司名称')
+        bol = false
+      } else if (this.info.endDate === '' || this.info.endDate === null) {
+        this.$message.warning('请填写合同竣工时间')
+        bol = false
+      } else if (this.info.jianliCompanyName === null || this.info.jianliCompanyName === '') {
+        this.$message.warning('请填写监理单位')
+        bol = false
+      } else if (this.info.jiansheDirector === null || this.info.jiansheDirector === '') {
+        this.$message.warning('请填写建设单位负责人')
+        bol = false
+      } else if (this.info.shejiCompanyName === null || this.info.shejiCompanyName === '') {
+        this.$message.warning('请填写设计单位')
+        bol = false
+      } else if (this.info.shigongDirector === null || this.info.shigongDirector === '') {
+        this.$message.warning('请填写施工单位负责人')
+        bol = false
+      } else if (this.info.kanchaCompanyName === null || this.info.kanchaCompanyName === '') {
+        this.$message.warning('请填写勘察单位')
+        bol = false
+      } else if (this.info.jianliDirector === null || this.info.jianliDirector === '') {
+        this.$message.warning('请填写监理单位负责人')
+        bol = false
+      } else if (this.info.jianduCompanyName === null || this.info.jianduCompanyName === '') {
+        this.$message.warning('请填写监督单位')
+        bol = false
+      } else if (this.info.shejiDirector === null || this.info.shejiDirector === '') {
+        this.$message.warning('请填写设计单位负责人')
+        bol = false
+      } else if (this.info.contractMethod === null || this.info.contractMethod === '') {
+        this.$message.warning('请填写承包方式')
+        bol = false
+      } else if (this.info.kanchaDirector === null || this.info.kanchaDirector === '') {
+        this.$message.warning('请填写勘察单位负责人')
+        bol = false
+      } else if (this.info.projectUsage === null || this.info.projectUsage === '') {
+        this.$message.warning('请填写项目用途')
+        bol = false
+      }
+      return bol
     }
   }
 }

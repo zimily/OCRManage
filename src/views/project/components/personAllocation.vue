@@ -225,7 +225,7 @@ export default {
         // console.log('分配好的人员的条件分页查询', result)
         this.personList = result.list
         this.isZongGong = !!result.list.find(item => item.roleName === '总工')
-        this.totalData = result.total
+        this.totalData = parseInt(result.total)
       } catch (error) {
         console.log(error)
       }

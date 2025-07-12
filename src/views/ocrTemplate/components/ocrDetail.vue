@@ -1,7 +1,7 @@
 <template xmlns:el-col="http://www.w3.org/1999/html">
-  <div>
+  <div style="display: flex">
     <!--左边-->
-    <div style="width: 800px;height: 800px">
+    <div style="width: 50%;height: 100%">
       <div>
         <el-row>
           <el-col :span="24">
@@ -9,41 +9,54 @@
               <el-row>
                 <el-col :span="12">
                   <el-form-item label="图片示例:">
-                    <input
-                      id="showimg"
-                      type="file"
-                      style="font-size: 20px;line-height: 40px"
-                      accept="image/*"
-                      class="inputDeep"
-                      @change="showImage"
-                    >
+                    <div style="display: flex">
+                      <div class="form-cell-ellipsis">{{ imgName }}</div>
+                      <el-upload
+                        class="imp-button"
+                        :action="aaa"
+                        name="excelFile"
+                        multiple
+                        :show-file-list="false"
+                        :auto-upload="false"
+                        :on-change="importImg"
+                      >
+                        <el-button
+                          type="primary"
+                        >选择
+                        </el-button>
+                      </el-upload>
+                    </div>
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
                   <el-form-item label="对应台账:">
-                    <el-select v-model="selectModel" :placeholder="ledgerData[0].label">
+                    <el-select
+                      v-model="form.reportType"
+                      :placeholder="reportTypes[0].label"
+                      @change="reportTypeChange"
+                    >
                       <el-option
-                        v-for="item in ledgerData"
+                        v-for="item in reportTypes"
                         :key="item.value"
                         :label="item.label"
-                        :value="item.label"
+                        :value="item.value"
                       />
                     </el-select>
                   </el-form-item>
                 </el-col>
               </el-row>
               <el-form-item label="模板名称:">
-                <el-input v-model="modelName" placeholder="请输入内容" />
+                <el-input v-model="form.templateName" placeholder="请输入内容" />
               </el-form-item>
               <el-row>
                 <el-col :span="12" style="padding-right: 10px">
                   <el-form-item label="公司名称:">
-                    <el-input v-model="companyName" placeholder="请输入内容" />
+                    <el-input v-model="form.companyName" placeholder="请输入内容" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
                   <el-form-item label="报告名称:">
-                    <el-input v-model="reportName" placeholder="请输入内容" />
+                    <el-input v-model="form.reportName" placeholder="请输入内容" />
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -54,51 +67,36 @@
       <div>
         <!-- 表格 -->
         <el-table
-          :data="currentPageData"
-          style="width: 100%"
+          :data="form.items"
+          height="30em"
+          style="width: 100%;"
           border
           :header-cell-style="{background:'#eef1f6',color:'#606266'}"
         >
-          <el-table-column
-            prop="x1"
-            label="x1"
-            align="center"
-          />
-          <el-table-column
-            prop="y1"
-            label="y1"
-            align="center"
-          />
-          <el-table-column
-            prop="x2"
-            label="x2"
-            align="center"
-          />
-          <el-table-column
-            prop="y2"
-            label="y2"
-            align="center"
-          />
-          <el-table-column prop="fenzu" label="分组" align="center">
+          <el-table-column prop="x1" label="x1" align="center" />
+          <el-table-column prop="y1" label="y1" align="center" />
+          <el-table-column prop="x2" label="x2" align="center" />
+          <el-table-column prop="y2" label="y2" align="center" />
+          <el-table-column prop="belongGroup" label="分组" align="center">
             <template v-slot="scope">
-              <el-select v-model="scope.row.fenzu" :placeholder="fenzu[0].label" @change="changeXiang(scope)">
+              <el-select v-model="scope.row.belongGroup" :placeholder="fenzu[0].label" @change="changeXiang(scope)">
                 <el-option
                   v-for="item in fenzu"
                   :key="item.value"
                   :label="item.label"
-                  :value="item.label"
+                  :value="item.value"
                 />
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column prop="xiang" label="项" align="center">
+          <el-table-column prop="fieldId" label="项" align="center">
             <template v-slot="scope">
-              <el-select v-model="scope.row.xiang" :placeholder="options[0].label" @change="changeXiang(scope)">
+              <el-select v-model="scope.row.fieldId" :placeholder="xiangList[0].label" @change="changeXiang(scope)">
                 <el-option
-                  v-for="item in options"
-                  :key="item.value"
+                  v-for="item in xiangList"
+                  :key="item.tfid"
                   :label="item.label"
-                  :value="item.label"
+                  :value="item.tfid"
                 />
               </el-select>
             </template>
@@ -114,27 +112,10 @@
             </template>
           </el-table-column>
         </el-table>
-        <!-- 分页器 -->
-        <el-pagination
-          style="margin-top:20px; text-align:center"
-          :current-page="currentPage"
-          :page-sizes="[10, 15, 20]"
-          layout="prev, pager, next,jumper,->,sizes,total"
-          :total="tableValue.length"
-          :page-size="limit"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
         <div style="margin-top: 10px">
           <span>{{ `表格坐标  （${graphXY.x1}, ${graphXY.y1}）至 （${graphXY.x2}, ${graphXY.y2}）` }}</span>
-          <el-button
-            type="primary"
-            style="margin-left: 250px"
-            @click="dialogVisible=true"
-          >添加项
-          </el-button>
-          <el-button v-if="op===1" type="primary" @click="makeGraphXY">表格坐标划定</el-button>
-          <el-button v-else type="primary" @click="makeGraphXY">确定</el-button>
+          <el-button v-if="op===1" style="margin-left: 25em" type="primary" @click="makeGraphXY">表格坐标划定</el-button>
+          <el-button v-else style="margin-left: 25em" type="primary" @click="makeGraphXY">确定</el-button>
         </div>
         <div style="margin-top: 50px">
           <el-button type="primary" @click="save">保存</el-button>
@@ -143,7 +124,7 @@
       </div>
     </div>
     <!--右边图片-->
-    <div style="width: 500px;height:800px;position: relative;left: 900px;top: -800px;">
+    <div style="width: 50%; height: 50em;position: relative;">
       <img
         ref="urlInfo"
         :src="imgUrl"
@@ -153,38 +134,36 @@
       <canvas ref="markCanvas" tabindex="0" />
       <canvas ref="markCanvas2" :class="op===1?'markCanvas1':'markCanvas2'" tabindex="0" />
     </div>
-
-    <!--添加项-->
-    <el-dialog title="添加项" :visible.sync="dialogVisible" width="30%">
-      <el-form ref="form" label-width="80px">
-        <el-form-item label="项名称">
-          <el-input v-model="xiangName" />
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addXiang">确 定</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 
 import { draw, reDraw } from '@/api/makeRectangle'
-import { mapMutations, mapState } from 'vuex'
+import { getTemplateById, postTemplates } from '@/api/ocrTest'
+import { getFields } from '@/api/ocrEntry'
 
 export default {
   data() {
     return {
-      index: -1,
+      imgName: '', // 导入的图片名字
+      aaa: '',
+      reportTypes: [{
+        value: 1,
+        label: '钢筋原材'
+      }, {
+        value: 2,
+        label: '钢筋机械连接'
+      }, {
+        value: 3,
+        label: '钢筋焊接'
+      }, {
+        value: 4,
+        label: '混凝土强度'
+      }],
       textarea: '',
-      selectModel: '', // 对应台账的初始值
-      modelName: '', // 模板名称的初始值
       selectXiang: '', // 对应项的初始值
-      companyName: '', // 公司名称的初始值
-      reportName: '', // 报告名称的初始值
-      form: {},
+      form: { items: [] },
       fenzu: [{
         value: 0,
         label: '公共'
@@ -207,59 +186,52 @@ export default {
         value: 6,
         label: '第6组'
       }],
-      options: [{
-        value: 1,
-        label: '黄金糕'
-      }, {
-        value: 2,
-        label: '双皮奶'
-      }, {
-        value: 3,
-        label: '蚵仔煎'
-      }],
+      xiangList: [[]],
       tableValue: [],
       tmpIndex: -1,
-      imgUrl: 'https://pica.zhimg.com/v2-7b9592a5ef7d7e5b2c71bfa3eb3d79c2_r.jpg?source=1940ef5c',
-      dialogVisible: false, // 添加项的dialog是否显示
-      xiangName: '', // 添加项的名称
+      imgUrl: 'https://ts2.tc.mm.bing.net/th/id/OIP-C.VzhOTC3SVqdVV48AhF5grwHaFS?rs=1&pid=ImgDetMain&o=7&rm=3',
       markList: [], // 标记矩形数组 x,y,w,h
       markList2: [], // 标记表格坐标数组 x,y,w,h
       graphXY: { x1: 0, y1: 0, x2: 0, y2: 0 }, // 表格坐标 x,y,w,h
       op: 1, // 选择当前是canvas1还是canvas2
       imgInfo: {},
-      w: 1, // 图片的真实宽度
-      h: 1, //  图片的真实高度
-      currentPage: 1, // 分页器当前页码
-      limit: 10 // 每页显示的数据
+      displayedWidth: 1, // 图片的展示宽度
+      displayedHeight: 1, //  图片的展示高度
+      naturalWidth: 1, // 实际宽度
+      naturalHeight: 1, // 实际高度
+      offsetX: 0, // 图片左上角坐标（相对于容器）
+      offsetY: 0,
+      scale: 1, // 缩放比例
+      containerWidth: 1, // 容器宽度
+      containerHeight: 1// 容器高度
     }
   },
   computed: {
-    ...mapState({
-      'tableData': state => state.ocr.tableData,
-      'ledgerData': state => state.ocr.ledgerData
-    }),
-    // 分页器当前页码对应的数据
-    currentPageData() {
-      return this.tableValue.slice(
-        (this.currentPage - 1) * this.limit,
-        this.currentPage * this.limit
-      )
+    templateId() {
+      return parseInt(this.$route.query.templateId)
     }
   },
   watch: {
     markList: {
       handler(newValue, oldValue) {
-        const temp = []
         for (let i = 0; i < newValue.length; i++) {
-          temp.push({
-            x1: Math.round(newValue[i].x * this.w / 500),
-            y1: Math.round(newValue[i].y * this.h / 800),
-            x2: Math.round((newValue[i].x + newValue[i].w) * this.w / 500),
-            y2: Math.round((newValue[i].y + newValue[i].h) * this.h / 800),
-            xiang: i >= this.tableValue.length ? '' : this.tableValue[i].xiang
-          })
+          if (i >= this.form.items.length) {
+            this.form.items.push({
+              belongGroup: 0,
+              fieldId: 0,
+              templateId: this.templateId,
+              templateItemId: 0, // 11111111111111111111111111111111111这个怎么传
+              x1: 0,
+              y1: 0,
+              x2: 0,
+              y2: 0
+            })
+          }
+          this.form.items[i].x1 = Math.round((newValue[i].x - this.offsetX) / this.scale)
+          this.form.items[i].y1 = Math.round((newValue[i].y - this.offsetY) / this.scale)
+          this.form.items[i].x2 = Math.round((newValue[i].x + newValue[i].w - this.offsetX) / this.scale)
+          this.form.items[i].y2 = Math.round((newValue[i].y + newValue[i].h - this.offsetY) / this.scale)
         }
-        this.tableValue = temp
       }
     },
     markList2: {
@@ -267,10 +239,10 @@ export default {
         const temp = []
         for (let i = 0; i < newValue.length; i++) {
           temp.push({
-            x1: Math.round(newValue[i].x * this.w / 500),
-            y1: Math.round(newValue[i].y * this.h / 800),
-            x2: Math.round((newValue[i].x + newValue[i].w) * this.w / 500),
-            y2: Math.round((newValue[i].y + newValue[i].h) * this.h / 800)
+            x1: Math.round((newValue[i].x - this.offsetX) / this.scale),
+            y1: Math.round((newValue[i].y - this.offsetY) / this.scale),
+            x2: Math.round((newValue[i].x + newValue[i].w - this.offsetX) / this.scale),
+            y2: Math.round((newValue[i].y + newValue[i].h - this.offsetY) / this.scale)
           })
         }
         this.graphXY = temp[0]
@@ -278,49 +250,96 @@ export default {
     },
     deep: true
   },
-  created() {
-    this.index = this.$route.query.index
-
-    if ((+this.index) !== -1) {
-      console.log(this.imgUrl)
-      this.imgUrl = this.tableData[this.index].imgUrl
-      this.selectModel = this.tableData[this.index].templateNum
-      this.modelName = this.tableData[this.index].name
-      this.companyName = this.modelName.substring(0, 3)
-      this.tableValue = this.tableData[this.index].detailData
-      this.reportName = this.tableData[this.index].reportName
-      this.graphXY = this.tableData[this.index].graphXY
+  async created() {
+    if (this.templateId !== 0) {
+      await this.getTemplateById()
     }
-    // console.log(this.value)
-    // console.log(this.index)
     this.getImgInfo()
   },
   methods: {
-    // 展示图片
-    showImage() {
-      const file = document.getElementById('showimg').files[0]
+    async getTemplateById() {
+      try {
+        const { result } = await getTemplateById(this.templateId)
+        console.log('获取模板详情(含所有项)', result)
+        this.form = result
+        // this.imgUrl = result.imageExample
+        const pos = result.tablePos.split(',')
+        this.graphXY = {
+          x1: parseInt(pos[0]),
+          y1: parseInt(pos[1]),
+          x2: parseInt(pos[2]),
+          y2: parseInt(pos[3])
+        }
+
+        if (result.reportType) {
+          await this.getFields(result.reportType)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getFields(report_type) {
+      try {
+        const res = await getFields(report_type)
+        console.log('根据台账类型获取需ocr的列名', res)
+        this.xiangList = res.data
+        console.log('xiangList', this.xiangList)
+      } catch (error) {
+        console.log(error)
+        this.$message.error('出错啦，请稍后重试！')
+      }
+    },
+    async postTemplates() {
+      try {
+        const { result } = await postTemplates(this.form)
+        console.log('创建模板(含初始项)', result)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    importImg(file) {
       console.log(file)
-      this.imgUrl = URL.createObjectURL(file)
-      // console.log(this.imgUrl)
+      this.imgName = file.name
+      this.imgUrl = URL.createObjectURL(file.raw)
+    },
+    reportTypeChange(report_type) {
+      // console.log('reportTypeChange', val)
+      this.getFields(report_type)
     },
     // 获取图片真实宽高
-    getImgSize(e) {
-      this.w = e.target.naturalWidth
-      this.h = e.target.naturalHeight
-      console.log(this.w, this.h)
+    getImgSize() {
+      const imgElement = this.$refs.urlInfo
+      if (imgElement) {
+        console.log('图片加载完成', imgElement)
+        this.naturalWidth = imgElement.naturalWidth // 实际宽度
+        this.naturalHeight = imgElement.naturalHeight // 实际高度
+        this.containerWidth = imgElement.clientWidth // 容器宽度
+        this.containerHeight = imgElement.clientHeight // 容器高度
+
+        // 计算缩放比例
+        this.scale = Math.min(this.containerWidth / this.naturalWidth, this.containerHeight / this.naturalHeight)
+
+        // 实际显示宽高
+        this.displayedWidth = this.naturalWidth * this.scale
+        this.displayedHeight = this.naturalHeight * this.scale
+
+        // 图片左上角坐标（相对于容器）
+        this.offsetX = (this.containerWidth - this.displayedWidth) / 2
+        this.offsetY = (this.containerHeight - this.displayedHeight) / 2
+
+        console.log(this.containerWidth, this.containerHeight, this.naturalWidth, this.naturalHeight, this.scale)
+        console.log('实际显示宽度:', this.displayedWidth)
+        console.log('实际显示高度:', this.displayedHeight)
+        console.log('图片左侧偏移:', this.offsetX)
+        console.log('图片顶部偏移:', this.offsetY)
+        this.initCanvas()
+      }
     },
     getImgInfo() {
-      console.log(this.imgUrl)
       if (this.imgUrl !== '') {
         const img = new Image()
         img.src = this.imgUrl
-        const vm = this
         img.onload = () => {
-          vm.$set(vm.imgInfo, 'width', img.width)
-          vm.$set(vm.imgInfo, 'height', img.height)
-          vm.w = vm.imgInfo.width
-          vm.h = vm.imgInfo.height
-
           // 图片加载完成后执行 initCanvas
           this.initCanvas()
         }
@@ -328,8 +347,9 @@ export default {
     },
     deleteData(scope) {
       const { $index } = scope
-      this.deleteDetail([this.index, $index])
+      // 删除
       this.markList.splice($index, 1)
+      this.form.items.splice($index, 1)
 
       const cav = this.$refs.markCanvas
       const ctx = cav.getContext('2d')
@@ -337,23 +357,7 @@ export default {
       reDraw(cav, ctx, this.markList)
     },
     changeXiang(scope) {
-      console.log(scope.row.xiang)
-      const { $index } = scope
-      this.tableValue[$index] = scope.row
-    },
-    // 分页器
-    handleSizeChange(val) {
-      this.limit = val
-      console.log(this.limit)
-    },
-    handleCurrentChange(val) {
-      this.currentPage = val
-    },
-    addXiang() {
-      const index = this.options.length
-      this.options.push({ value: index + 1, label: this.xiangName })
-      this.xiangName = ''
-      this.dialogVisible = false
+      console.log(scope.row)
     },
     // 表格坐标划定按钮
     makeGraphXY() {
@@ -375,16 +379,38 @@ export default {
       }
     },
     save() {
-      const obj = { imgUrl: '', name: '', templateNum: '', detailData: [], reportName: '', graphXY: {}, index: -1 }
-      obj.imgUrl = this.imgUrl
-      obj.name = this.modelName
-      obj.templateNum = this.selectModel
-      obj.detailData = this.tableValue
-      obj.reportName = this.reportName
-      obj.index = this.index
-      obj.graphXY = this.graphXY
-      this.saveDetail(obj)
-      this.$router.replace('/menus/ocrTemplate/ocrManage')
+      this.form.imageExample = this.imgUrl
+      if (this.graphXY.x1 !== 0 || this.graphXY.y1 !== 0 || this.graphXY.x2 !== 0 || this.graphXY.y2 !== 0) {
+        this.form.tablePos = this.graphXY.x1 + ',' + this.graphXY.y1 + ',' + this.graphXY.x2 + ',' + this.graphXY.y2
+      }
+      this.form.templateId = this.templateId
+      console.log('form', this.form)
+      console.log('form', JSON.stringify(this.form))
+      this.postTemplates()
+      // this.$router.replace('/menus/ocrTemplate/ocrManage')
+      // console.log({
+      //   "items":[{
+      //     "belongGroup":0,
+      //     "fieldId":0,
+      //     "templateId":0,
+      //     "templateItemId":0,
+      //     "x1":48,
+      //     "y1":45,
+      //     "x2":159,
+      //     "y2":66,
+      //     "xiang":1}],
+      //   "templateName":"aaa",
+      //   "reportType":1,
+      //   "imageExample":"https://ts2.tc.mm.bing.net/th/id/OIP-C.VzhOTC3SVqdVV48AhF5grwHaFS?rs=1&pid=ImgDetMain&o=7&rm=3","templateId":0,
+      //   "companyName":"aaa",
+      //   "reportName":"aa",
+      //   "tablePos":"9,8,456,324"})
+      // console.log(
+      //   {
+      //     'items': [],
+      //     'imageExample': 'https://ts2.tc.mm.bing.net/th/id/OIP-C.VzhOTC3SVqdVV48AhF5grwHaFS?rs=1&pid=ImgDetMain&o=7&rm=3',
+      //     'templateId': 0
+      //   })
     },
     cancel() {
       this.$router.replace('/menus/ocrTemplate/ocrManage')
@@ -393,33 +419,35 @@ export default {
       this.$nextTick(() => {
         // 初始化canvas宽高
         const cav = this.$refs.markCanvas
-        cav.width = 500
-        cav.height = 800
+        cav.width = this.containerWidth
+        cav.height = this.containerHeight
         const ctx = cav.getContext('2d')
         ctx.strokeStyle = 'red'
         cav.style.cursor = 'crosshair'
         // 计算使用变量
         // 按比例缩放
-        if ((+this.index) !== -1) {
-          const { x1, y1, x2, y2 } = this.tableData[this.index].graphXY
-          console.log(x1, y1, x2, y2)
+        const { x1, y1, x2, y2 } = this.graphXY
+        console.log(x1, y1, x2, y2)
+        if (x1 !== 0 || y1 !== 0 || x2 !== 0 || y2 !== 0) {
+          this.markList2 = []
           this.markList2.push({
-            x: x1 * 500 / this.w,
-            y: y1 * 800 / this.h,
-            w: (x2 - x1) * 500 / this.w,
-            h: (y2 - y1) * 800 / this.h
+            x: x1 * this.scale + this.offsetX,
+            y: y1 * this.scale + this.offsetY,
+            w: (x2 - x1) * this.scale,
+            h: (y2 - y1) * this.scale
           })
-          for (let i = 0; i < this.tableData[this.index].detailData.length; i++) {
-            // console.log(this.tableValue[i].x1, 500, this.w)
-            this.markList.push({
-              x: this.tableValue[i].x1 * 500 / this.w,
-              y: this.tableValue[i].y1 * 800 / this.h,
-              w: (this.tableValue[i].x2 - this.tableValue[i].x1) * 500 / this.w,
-              h: (this.tableValue[i].y2 - this.tableValue[i].y1) * 800 / this.h
-            })
-          }
         }
-
+        this.markList = []
+        this.form.items.forEach(item => {
+          this.markList.push({
+            x: item.x1 * this.scale + this.offsetX,
+            y: item.y1 * this.scale + this.offsetY,
+            w: (item.x2 - item.x1) * this.scale,
+            h: (item.y2 - item.y1) * this.scale
+          })
+        })
+        console.log('markList', this.markList)
+        console.log('markList2', this.markList2)
         const list = this.markList// 画框数据集合, 用于服务端返回的数据显示和绘制的矩形保存
         // 若服务端保存的为百分比则此处需计算实际座标, 直接使用实际座标可省略
         // list.forEach(function(value, index, array) {
@@ -445,8 +473,8 @@ export default {
         // 备注: js中对象操作指向的是对象的物理地址, 获取绘制完矩形的结果数组直接取用或处理this.markList即可
 
         const cav2 = this.$refs.markCanvas2
-        cav2.width = 500
-        cav2.height = 800
+        cav2.width = this.containerWidth
+        cav2.height = this.containerHeight
         const ctx2 = cav2.getContext('2d')
         ctx2.strokeStyle = 'red'
         cav2.style.cursor = 'crosshair'
@@ -462,16 +490,18 @@ export default {
         }
         draw(cav2, this.markList2)
       })
-    },
-    ...mapMutations({
-      'deleteDetail': 'ocr/deleteDetail',
-      'saveDetail': 'ocr/saveDetail'
-    })
+    }
   }
 }
 </script>
 
-<style>
+<style scoped>
+.form-cell-ellipsis {
+  width: 80%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 /* 利用穿透，设置input边框隐藏 */
 .inputDeep ::v-deep {
   .el-input__inner {
@@ -485,6 +515,7 @@ img {
   left: 0;
   width: 100%;
   height: 100%;
+  object-fit: contain;
   z-index: 9;
 }
 

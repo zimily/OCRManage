@@ -54,11 +54,11 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="userId" label="用户编号" width="180" />
+        <el-table-column prop="userId" label="用户编号" width="160" />
         <el-table-column prop="realname" label="姓名" width="100" />
         <el-table-column prop="roleName" label="角色" width="100" />
         <el-table-column prop="companyName" label="所属单位" width="180" />
-        <el-table-column prop="pkDeptdoc" label="部门" width="180" />
+        <el-table-column prop="pkDeptdoc" label="部门" width="200" />
         <el-table-column v-slot="scope" prop="option" label="操作" width="100">
           <el-button
             type="info"

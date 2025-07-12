@@ -162,13 +162,13 @@ export default {
       console.log(scope)
       this.$router.push({
         path: '/menus/project/projectEdit',
-        query: { projectId: scope.row.projectId, chakan: false }
+        query: { projectId: scope.row.projectId, chakan: 'false' }
       })
     },
     lookProject(scope) {
       this.$router.push({
         path: '/menus/project/projectEdit',
-        query: { projectId: scope.row.projectId, chakan: true }
+        query: { projectId: scope.row.projectId, chakan: 'true' }
       })
     },
     // 搜索事件

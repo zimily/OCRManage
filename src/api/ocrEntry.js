@@ -42,8 +42,7 @@ export function getTemplate(reportType) {
   })
 }
 // OCR分页查询
-export function getTaiZhang(report_type, pageNum, pageSize, userid) {
-  console.log('OCR分页查询参数', report_type, pageNum, pageSize, userid)
+export function getTaiZhang(report_type, pageNum, pageSize, projectId, subprojectId) {
   return request({
     url: '/ledger/query-empty-testno',
     method: 'get',
@@ -51,7 +50,8 @@ export function getTaiZhang(report_type, pageNum, pageSize, userid) {
       reportType: report_type,
       pageNum: pageNum,
       pageSize: pageSize,
-      userid: userid
+      projectId: projectId,
+      subprojectId: subprojectId
     }
   })
 }
@@ -82,7 +82,7 @@ export function specifieddetect(data) {
   })
 }
 // 新增：轮询获取 autodetect 结果
-export function pollAutodetect(taskId, callback, interval = 4000, timeout = 30000) {
+export function pollAutodetect(taskId, callback, interval = 4000, timeout = 50000) {
   let elapsed = 0
   const poll = setInterval(async() => {
     try {
@@ -117,6 +117,22 @@ export function getImageURL(filename) {
   return request({
     url: `http://172.31.0.191:8081/image/get/${encodedFilename}`,
     method: 'get'
+  })
+}
+
+// OCR批量保存台账
+export function postTemplate(data) {
+  return request({
+    url: '/ledger/batch-save',
+    method: 'post',
+    data: data
+  })
+}
+// 完成OCR删除临时文件
+export function postFinish() {
+  return request({
+    url: 'http://172.31.0.191:8081/ocr/finish',
+    method: 'post'
   })
 }
 // 测试图片url

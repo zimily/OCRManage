@@ -50,12 +50,12 @@
         <el-button type="primary" @click="changeIndex">关闭OCR面板</el-button>
         <el-table
           :data="tableData"
-          max-height="30em"
           height="30em"
-          style="width: 100%;overflow-y:scroll;overflow-x:auto;"
+          style="width: 100%;"
           border
           :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
           :row-style="rowStyle"
+          :cell-class-name="getCellClassName"
           @row-click="handleRowClick"
         >
           <el-table-column
@@ -63,15 +63,15 @@
             :key="index"
             :prop="`data.${item.field_name}`"
             :label="item.label"
+            :type="item.data_type"
             align="center"
             min-width="150"
-            :fixed="item.field_name==='report_number' ? 'left' : false"
+            :fixed="item.field_name==='reportNumber' ? 'left' : false"
           >
             <template v-slot="scope">
               <span
                 v-for="(item2,index2) in scope.row.data[item.field_name]"
                 :key="index2"
-                :class="{ 'highlight-cell': item.conf < 0.8 }"
               >
                 <el-input v-model="item2.result" />
               </span>
@@ -114,47 +114,46 @@
           <div v-if="showTaizhangBox" style="width: 20%">
             <div v-if="category==='钢筋原材'">
               <div>当前选择台账:</div>
-              <div>生产厂家:</div>
-              <div>炉批号:</div>
-              <div>钢筋种类:</div>
-              <div>直径:</div>
-              <div>使用部位:</div>
+              <div>生产厂家:{{ scopeRow.table_info ? scopeRow.table_info.producer : '' }}</div>
+              <div>炉批号:{{ scopeRow.table_info ? scopeRow.table_info.heatBatchNumber : '' }}</div>
+              <div>钢筋种类:{{ scopeRow.table_info ? scopeRow.table_info.steelType : '' }}</div>
+              <div>代表批量:{{ scopeRow.table_info ? scopeRow.table_info.representAmount : '' }}</div>
+              <div>工程部位:{{ scopeRow.table_info ? scopeRow.table_info.usePart : '' }}</div>
             </div>
             <div v-else-if="category==='钢筋机械连接'">
               <div>当前选择台账:</div>
-              <div>工程部位:</div>
-              <div>牌号:</div>
-              <div>直径:</div>
-              <div>等级和接头类型:</div>
-              <div>代表批量:</div>
+              <div>工程部位:{{ scopeRow.table_info ? scopeRow.table_info.usePart : '' }}</div>
+              <div>牌号:{{ scopeRow.table_info ? scopeRow.table_info.steelType : '' }}</div>
+              <div>直径:{{ scopeRow.table_info ? scopeRow.table_info.diameter : '' }}</div>
+              <div>等级和接头类型:{{ scopeRow.table_info ? scopeRow.table_info.connectorLevel : '' }}</div>
+              <div>代表批量:{{ scopeRow.table_info ? scopeRow.table_info.representAmount : '' }}</div>
             </div>
             <div v-else-if="category==='钢筋焊接'">
               <div>当前选择台账:</div>
-              <div>工程部位:</div>
-              <div>钢筋牌号:</div>
-              <div>直径:</div>
-              <div>生产厂商:</div>
-              <div>焊接类型:</div>
-              <div>代表批量:</div>
+              <div>工程部位:{{ scopeRow.table_info ? scopeRow.table_info.usePart : '' }}</div>
+              <div>钢筋牌号:{{ scopeRow.table_info ? scopeRow.table_info.steelType : '' }}</div>
+              <div>直径:{{ scopeRow.table_info ? scopeRow.table_info.diameter : '' }}</div>
+              <div>生产厂商:{{ scopeRow.table_info ? scopeRow.table_info.producer : '' }}</div>
+              <div>焊接类型:{{ scopeRow.table_info ? scopeRow.table_info.weldType : '' }}</div>
+              <div>代表批量:{{ scopeRow.table_info ? scopeRow.table_info.representAmount : '' }}</div>
             </div>
             <div v-else>
               <div>当前选择台账:</div>
-              <div>使用部位:{{ scopeRow.usePart }}</div>
-              <div>强度:{{ scopeRow.concreteStrength }}</div>
-              <div>养护类型:{{ scopeRow.maintCondition }}</div>
-              <div>代表批量:{{ scopeRow.representAmount }}</div>
+              <div>使用部位:{{ scopeRow.table_info ? scopeRow.table_info.usePart : '' }}</div>
+              <div>强度:{{ scopeRow.table_info ? scopeRow.table_info.concreteStrength : '' }}</div>
+              <div>养护类型:{{ scopeRow.table_info ? scopeRow.table_info.maintCondition : '' }}</div>
+              <div>代表批量:{{ scopeRow.table_info ? scopeRow.table_info.representAmount : '' }}</div>
             </div>
           </div>
         </div>
-        <el-button type="primary">完成</el-button>
+        <el-button type="primary" @click="saveTemplate">完成</el-button>
         <el-button type="info" @click="changeIndex">取消</el-button>
       </el-card>
     </div>
     <div style="width: 35%">
       <el-card shadow="hover">
         <el-form label-width="5em">
-          <el-form-item label="文件"> <!-- 加载动画 -->
-            <el-loading v-if="loading" :fullscreen="true" text="识别中..." />
+          <el-form-item label="文件">
             <div style="display: flex">
               <div class="form-cell-ellipsis">{{ fileName }}</div>
               <el-upload
@@ -168,7 +167,8 @@
               >
                 <el-button
                   type="primary"
-                >选择</el-button>
+                >选择
+                </el-button>
               </el-upload>
             </div>
           </el-form-item>
@@ -190,13 +190,14 @@
             <el-button type="primary" @click="recognizeTemplate">识别</el-button>
           </el-form-item>
         </el-form>
-        <div style="width: 100%; height: 800px;">
+        <div style="width: 100%; height: 800px;position: relative;">
           <img
             ref="ocrImage"
             :src="imgUrl"
-            style="width: 100%; height: 100%; object-fit: contain;"
+            alt=""
             @load="onImageLoad"
           >
+          <canvas ref="markCanvas" tabindex="0" />
         </div>
       </el-card>
     </div>
@@ -205,6 +206,8 @@
       :is-show="isShow"
       :category="category"
       :report_type="report_type"
+      :project-select="projectSelect"
+      :subproject-select="subprojectSelect"
       @save="taiZhangSave"
     />
   </div>
@@ -220,11 +223,13 @@ import {
   pollAutodetect,
   getProjectNameList,
   getSubNameList,
-  postProjectInfo, geTestURL, getImageURL, getFiles, getFields, getTemplate, specifieddetect
+  postProjectInfo, getImageURL, getFiles, getFields, getTemplate, specifieddetect, postTemplate, postFinish
 } from '@/api/ocrEntry'
+import { draw } from '@/api/makeRectangle'
+import router from '@/router'
 
 export default {
-  components: { TableItem, pdf, TaizhangDialog },
+  components: { pdf, TaizhangDialog },
   props: {
     index: Number,
     category: String
@@ -245,7 +250,6 @@ export default {
       scopeRow: {}, // 点击/鼠标移到 选择台账按钮后，该按钮所在的行
       failOCRImages: [], // ocr失败图片列表
       task_ids: [], // 每张图片对应的任务id列表
-      loading: false,
       modelList: [], // 模板选择数组
       templateName: '', // 模板选择的值
       template_id: '', // 模板选择的id
@@ -253,45 +257,37 @@ export default {
       imgUrl: '', // 图片地址
       showTaizhangBox: false,
       templateList: [], // 模板选择数组
-      tableData: [
-        [
-          { name: 'check_company', pos: [169, 954, 320, 1007], result: '负二层水泥混鬣土垫层', conf: 0.8504528999328613, file: '' },
-          { name: 'concrete_strength', pos: [169, 954, 320, 1007], result: '负二层水泥混鬣土垫层', conf: 0.8504528999328613, file: '' },
-          { name: '例子', pos: [169, 954, 320, 1007], result: ['例子1', '例子2'], conf: 0.8504528999328613, file: '' }
-        ],
-        [
-          { name: 'check_company', pos: [169, 954, 320, 1007], result: '负二层水泥混鬣土垫层', conf: 0.8504528999328613, file: '' },
-          { name: 'concrete_strength', pos: [169, 954, 320, 1007], result: '负二层水泥混鬣土垫层', conf: 0.8504528999328613, file: '' },
-          { name: '例子', pos: [169, 954, 320, 1007], result: ['例子1', '例子2'], conf: 0.8504528999328613, file: '' }
-        ],
-        [
-          { name: 'check_company', pos: [169, 954, 320, 1007], result: '负二层水泥混鬣土垫层', conf: 0.8504528999328613, file: '' },
-          { name: 'concrete_strength', pos: [169, 954, 320, 1007], result: '负二层水泥混鬣土垫层', conf: 0.8504528999328613, file: '' },
-          { name: '例子', pos: [169, 954, 320, 1007], result: ['例子1', '例子2'], conf: 0.8504528999328613, file: '' }
-        ]
-      ],
+      tableData: [],
       buttonIndex: -1, // 选中的按钮的下标
       fileName: '', // 导入的PDF文件名
-      url: '' // 文件路径地址
+      url: '', // 文件路径地址
+      markList: []// 矩形的数组
     }
   },
   watch: {
     imgName(val) {
-      this.getImageURL(val)
+      if (val) {
+        this.getImageURL(val)
+      }
     }
   },
   created() {
     console.log('OCREntry', this.category)
     if (this.category === '钢筋原材') {
       this.report_type = 1
-    } else if (this.category === '钢筋机械连接 ') {
+    } else if (this.category === '钢筋机械连接') {
       this.report_type = 2
     } else if (this.category === '钢筋焊接') {
       this.report_type = 3
     } else {
       this.report_type = 4
     }
-    console.log('给每张图片设置多少秒超时时间合适')
+    console.log('识别出的台账数据不全，传过去缺字段')
+    console.log('若台账选择不选，可以传吗')
+    console.log('台账选择')
+    console.log('人员编辑查看逻辑好了，检测不能为空好了')
+    console.log('人员分配分页器好了')
+    console.log('ocr模板报错好了')
     this.getProjectNameList()
   },
   mounted() {
@@ -301,7 +297,7 @@ export default {
   methods: {
     async getProjectNameList() {
       try {
-        console.log(getUser().userId)
+        // console.log(getUser().userId)
         const res = await getProjectNameList(getUser().userId)
         if (res.code === 200) {
           // console.log('获取该用户的项目名称的列表', res)
@@ -316,7 +312,6 @@ export default {
     },
     async getSubNameList(projectId) {
       try {
-        console.log()
         const res = await getSubNameList(projectId)
         if (res.code === 200) {
           // console.log('获取该用户的项目的单位工程的列表', res)
@@ -346,7 +341,7 @@ export default {
     async getTemplate() {
       try {
         const { result } = await getTemplate(this.report_type)
-        console.log('获取台账表单数据', result)
+        // console.log('获取台账表单数据', result)
         this.templateList = result
       } catch (error) {
         console.log(error)
@@ -364,7 +359,6 @@ export default {
       }
     },
     async autodetect(data) {
-      this.loading = true
       try {
         const res = await autodetect(data)
         if (res.code === 200) {
@@ -441,9 +435,27 @@ export default {
         this.$message.error('获取图片失败')
       }
     },
-
+    async postTemplate(data) {
+      try {
+        const res = await postTemplate(data)
+        console.log('OCR批量保存台账', res)
+      } catch (error) {
+        console.log(error)
+        this.$message.error('出错啦，请稍后重试！')
+      }
+    },
+    async postFinish() {
+      try {
+        const res = await postFinish()
+        console.log('完成OCR删除临时文件', res)
+      } catch (error) {
+        console.log(error)
+        this.$message.error('出错啦，请稍后重试！')
+      }
+    },
     projectChange(projectId) {
       this.projectId = projectId
+      this.subprojectSelect = ''
       this.getSubNameList(projectId)
       this.postProjectInfo(projectId)
     },
@@ -453,11 +465,12 @@ export default {
     handleRowClick(row, event, column) {
       // 重置 buttonIndex
       this.buttonIndex = -1
-      if (this.selectedRowIndex !== -1) {
+      const index = this.tableData.indexOf(row)
+      if (this.selectedRowIndex === index) {
         this.selectedRowIndex = -1
       } else {
         // 获取点击行的索引并更新 selectedRowIndex
-        this.selectedRowIndex = this.tableData.indexOf(row)
+        this.selectedRowIndex = index
       }
       console.log('row', row)
       this.imgName = row.file_name
@@ -468,6 +481,15 @@ export default {
         return { backgroundColor: '#f5f7fa' } // 改变行的颜色
       }
       return {}
+    },
+    getCellClassName({ row, column, rowIndex, columnIndex }) {
+      // console.log('改变el-table指定单元格的样式', row, column, rowIndex, columnIndex)
+      const val = column.property.split('.')[1]
+      // 置信度小于0.8变红
+      if (val && row.data[val][0].conf < 0.8) {
+        return 'highlight-cell'
+      }
+      return ''
     },
     TemplateChange(val) {
       this.template_id = val
@@ -492,16 +514,22 @@ export default {
       }
     },
     selectTaiZhang(scope) {
-      this.scopeRow = scope.row.data
-      this.isShow = true
+      if (this.projectSelect !== '' && this.subprojectSelect !== '') {
+        this.scopeRow = scope.row
+        this.isShow = true
+      } else {
+        this.$message.warning('请选择项目和单位工程！')
+      }
     },
     handleover(scope) {
-      console.log(scope.row)
-      this.scopeRow = scope.row.data
+      // console.log(scope.row)
+      this.scopeRow = scope.row
       this.showTaizhangBox = true
-      console.log('handleover', this.showTaizhangBox)
+      // console.log('handleover', this.showTaizhangBox)
     },
-    handleDelete(scope) {},
+    handleDelete(scope) {
+      this.tableData = this.tableData.filter(item => item !== scope.row)
+    },
     changeButton(index) {
       // 重置 selectedRowIndex
       this.selectedRowIndex = -1
@@ -517,8 +545,6 @@ export default {
     importPDF(file) {
       if (this.projectId !== 0) {
         this.fileName = file.name
-        // console.log('file', file)
-        // const tempURL = URL.createObjectURL(file.raw)
 
         const formData = new FormData()
         formData.append('files', file.raw)
@@ -532,39 +558,162 @@ export default {
       if (imgElement) {
         const naturalWidth = imgElement.naturalWidth // 实际宽度
         const naturalHeight = imgElement.naturalHeight // 实际高度
+        const containerWidth = imgElement.clientWidth // 容器宽度
+        const containerHeight = imgElement.clientHeight // 容器高度
 
-        const displayWidth = imgElement.clientWidth // 显示宽度（含 padding）
-        const displayHeight = imgElement.clientHeight // 显示高度（含 padding）
+        // 计算缩放比例
+        const scale = Math.min(containerWidth / naturalWidth, containerHeight / naturalHeight)
 
-        console.log('实际尺寸:', `${naturalWidth}x${naturalHeight}`)
-        console.log('显示尺寸:', `${displayWidth}x${displayHeight}`)
+        // 实际显示宽高
+        const displayedWidth = naturalWidth * scale
+        const displayedHeight = naturalHeight * scale
+
+        // 图片左上角坐标（相对于容器）
+        const offsetX = (containerWidth - displayedWidth) / 2
+        const offsetY = (containerHeight - displayedHeight) / 2
+
+        // console.log('实际显示宽度:', displayedWidth)
+        // console.log('实际显示高度:', displayedHeight)
+        // console.log('图片左侧偏移:', offsetX)
+        // console.log('图片顶部偏移:', offsetY)
+
+        this.initCanvas(
+          naturalWidth,
+          naturalHeight,
+          displayedWidth,
+          displayedHeight,
+          offsetX,
+          offsetY,
+          containerWidth,
+          containerHeight
+        )
       }
     },
     taiZhangSave(data) {
       if (data) {
-        console.log(data)
-        Object.assign(this.scopeRow, data)
+        console.log('taiZhangSave', data)
+        this.scopeRow.table_info = JSON.parse(JSON.stringify(data))
       }
       this.isShow = false
+    },
+    saveTemplate() {
+      this.tableData.forEach(item => {
+        if (!item.table_info) {
+          this.$message.warning('有报告未选择台账')
+          return
+        }
+      })
+      const data = []
+      this.tableData.forEach(item => {
+        const temp = JSON.parse(JSON.stringify(item.table_info))
+        Object.assign(temp, item.data)
+        // 处理数据，和后端格式相同
+        Object.keys(temp).forEach(key => {
+          if (Array.isArray(temp[key])) {
+            if (temp[key].length === 1) {
+              temp[key] = temp[key][0].result
+            } else {
+              temp[key] = JSON.stringify(temp[key].map(item => item.result))
+            }
+          }
+        })
+        Object.keys(temp).forEach(key => {
+          if (key.includes('Date')) {
+            const date = new Date(temp[key])
+            temp[key] = date.toISOString()
+          }
+        })
+        temp.projectId = this.projectId
+        temp.subprojectId = this.subprojectSelect
+        console.log('temp', temp)
+        data.push({
+          reportType: this.report_type,
+          ledger: temp
+        })
+      })
+      this.postTemplate(data)
+      this.postFinish()
+      this.$emit('update-index', 0)
     },
     // 取消按钮，同时向父组件传参，
     changeIndex() {
       this.$emit('update-index', 0)
     },
-    handleEdit(scope, item, val) {
-      console.log(scope, item, val)
+    handleEdit(item) {
+      console.log(item, item.conf < 0.8)
+    },
+    initCanvas(naturalWidth, naturalHeight, displayWidth, displayHeight, offsetX, offsetY, containerWidth, containerHeight) {
+      this.$nextTick(() => {
+        // 初始化canvas宽高
+        const cav = this.$refs.markCanvas
+        cav.width = containerWidth
+        cav.height = containerHeight
+        const ctx = cav.getContext('2d')
+        ctx.strokeStyle = 'red'
+        cav.style.cursor = 'crosshair'
+        // 计算使用变量
+        // 按比例缩放
+        if ((this.selectedRowIndex) !== -1) {
+          this.markList = []
+          const obj = this.tableData[this.selectedRowIndex].data
+          // console.log('obj', obj)
+          Object.values(obj).forEach(value => {
+            // console.log(value)
+            value.forEach(item => {
+              // console.log('item', value, item)
+              if (item.pos) {
+                const x1 = item.pos[0]
+                const y1 = item.pos[1]
+                const x2 = item.pos[2]
+                const y2 = item.pos[3]
+                this.markList.push({
+                  x: x1 * displayWidth / naturalWidth + offsetX,
+                  y: y1 * displayHeight / naturalHeight + offsetY,
+                  w: (x2 - x1) * displayWidth / naturalWidth,
+                  h: (y2 - y1) * displayHeight / naturalHeight
+                })
+              }
+            })
+          })
+        }
+
+        const list = this.markList// 画框数据集合, 用于服务端返回的数据显示和绘制的矩形保存
+        // 若服务端保存的为百分比则此处需计算实际座标, 直接使用实际座标可省略
+        // list.forEach(function(value, index, array) {
+        //   const newValue = {
+        //     x: value.x * cav.width,
+        //     y: value.y * cav.height,
+        //     w: value.w * cav.width,
+        //     h: value.h * cav.height
+        //   }
+        //   list.splice(index, 1, newValue)
+        // })
+        // console.log(list)
+        // 若list长度不为0, 则显示已标记框
+        if (list.length !== 0) {
+          list.forEach(function(value, index, array) {
+            // 遍历绘制所有标记框
+            ctx.rect(value.x, value.y, value.w, value.h)
+            ctx.stroke()
+          })
+        }
+        // 调用封装的绘制方法
+        // draw(cav, list)
+        // 备注: js中对象操作指向的是对象的物理地址, 获取绘制完矩形的结果数组直接取用或处理this.markList即可
+      })
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
 .form-cell-ellipsis {
-  width:80%;
+  width: 80%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .custom-button-group {
   width: 80%;
   display: flex;
@@ -572,22 +721,42 @@ export default {
   gap: 10px; /* 按钮之间的间距 */
   justify-content: flex-start;
 }
+
 .highlight-cell {
   background-color: red;
   color: white; /* 提高可读性 */
 }
+
 /*.custom-button {
   width: 3em;
   height: 3em;
   flex: 0 0 calc(20% - 2em); !* 每行显示5个按钮，减去gap影响 *!
   white-space: nowrap;
 }*/
-.el-button-group{
+.el-button-group {
   display: flex;
   justify-content: space-between;
   width: 100%;
 }
+
 .custom-button-group .custom-button:first-child {
   margin-left: 10px !important;
+}
+
+img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 9;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 11;
 }
 </style>

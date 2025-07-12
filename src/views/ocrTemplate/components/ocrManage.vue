@@ -28,6 +28,7 @@
             v-model="searchQuery"
             placeholder="请输入搜索内容"
             style="width: 300px; margin-right: 10px;margin-top: 10px"
+            @keyup.enter.native="handleSearch"
           />
           <el-button type="primary" @click="handleSearch">搜索</el-button>
         </span>
@@ -35,18 +36,18 @@
       <div>
         <!-- 表格 -->
         <el-table
-          :data="currentPageData"
+          :data="tableData"
           style="width: 100%"
           border
           :header-cell-style="{background:'#eef1f6',color:'#606266'}"
         >
           <el-table-column
-            prop="name"
+            prop="templateName"
             label="文档模版名称"
             align="center"
           />
           <el-table-column
-            prop="templateNum"
+            prop="reportName"
             label="台账类别"
             align="center"
           />
@@ -85,17 +86,19 @@
 
 <script>
 
-import { mapActions, mapMutations, mapState } from 'vuex'
+import { getTemplates, postTemplates } from '@/api/ocrTest'
 
 export default {
   name: 'Template',
   data() {
     return {
       searchQuery: '', // 用于存储输入框的内容
+      tableData: [],
       changeInformation: {
         name: '',
         templateNum: 0
       },
+      templateId: '0', // 模板id
       selectModel: '无',
       option: [],
       currentPage: 1, // 分页器当前页码
@@ -103,46 +106,42 @@ export default {
       limit: 10 // 每页显示的数据
     }
   },
-  computed: {
-    ...mapState({
-      'tableData': state => state.ocr.tableData,
-      'ledgerData': state => state.ocr.ledgerData
-    }),
-    currentPageData() {
-      let res = this.tableData
-      if (this.selectModel !== '无') {
-        res = this.tableData.filter(item => item.templateNum === this.selectModel)
-      }
-      this.totalData = res.length
-      return res.slice(
-        (this.currentPage - 1) * this.limit,
-        this.currentPage * this.limit
-      )
-    }
-  },
-  async created() {
-    await this.getNewData()
-    this.option.push({ value: '无', label: '无' })
-    for (let i = 0; i < this.ledgerData.length; i++) {
-      this.option.push({ value: this.ledgerData[i].value, label: this.ledgerData[i].label })
-    }
-    console.log(this.option)
+  created() {
+    this.getTemplates()
+    // this.postTemplates()
   },
   methods: {
+    async getTemplates() {
+      try {
+        const { result } = await getTemplates(this.currentPage, this.limit, this.searchQuery)
+        console.log('分页获取模板', result)
+        this.tableData = result.records
+        this.totalData = parseInt(result.total)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    // async postTemplates() {
+    //   try {
+    //     const res = await postTemplates()
+    //     console.log('创建模板(含初始项)', res)
+    //   } catch (error) {
+    //     console.log(error)
+    //   }
+    // },
     createNewModel() {
-      this.$router.push({ path: '/menus/ocrTemplate/ocrDetail', query: { index: -1 }})
+      this.$router.push({ path: '/menus/ocrTemplate/ocrDetail', query: { templateId: this.templateId }})
     },
     handleSearch() {
-
+      this.getTemplates()
     },
     updateBatch(scope) {
-      const { $index } = scope
+      this.templateId = scope.row.templateId
       // console.log(scope)
-      this.$router.push({ path: '/menus/ocrTemplate/ocrDetail', query: { index: $index }})
+      this.$router.push({ path: '/menus/ocrTemplate/ocrDetail', query: { templateId: this.templateId }})
     },
     deleteBatch(scope) {
-      const { $index } = scope
-      this.deleteModel($index)
+      this.templateId = scope.row.templateId
     },
     // 分页器
     handleSizeChange(val) {
@@ -151,9 +150,7 @@ export default {
     },
     handleCurrentChange(val) {
       this.currentPage = val
-    },
-    ...mapMutations({ 'deleteModel': 'ocr/deleteModel' }),
-    ...mapActions({ 'getNewData': 'ocr/getNewData' })
+    }
   }
 }
 </script>

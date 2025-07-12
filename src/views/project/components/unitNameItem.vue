@@ -3,10 +3,10 @@
     <div>
       <el-row>
         <el-col :span="24">
-          <el-form ref="form" :model="subProInfo" label-width="12em">
+          <el-form ref="form" :disabled="chakan" :model="subProInfo" label-width="12em">
             <el-row>
               <el-col :span="12">
-                <el-form-item label="单位工程名称">
+                <el-form-item :required="true" label="单位工程名称">
                   <el-input
                     v-model="subProInfo.subprojectName"
                     placeholder="请输入内容"
@@ -14,7 +14,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="勘察单位项目负责人">
+                <el-form-item :required="true" label="勘察单位项目负责人">
                   <el-input
                     v-model="subProInfo.kanchaDirector"
                     placeholder="请输入内容"
@@ -24,7 +24,7 @@
             </el-row>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="施工单位项目负责人">
+                <el-form-item :required="true" label="施工单位项目负责人">
                   <el-input
                     v-model="subProInfo.shigongDirector"
                     placeholder="请输入内容"
@@ -32,7 +32,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="监督单位项目负责人">
+                <el-form-item :required="true" label="监督单位项目负责人">
                   <el-input
                     v-model="subProInfo.jianduDirector"
                     placeholder="请输入内容"
@@ -42,7 +42,7 @@
             </el-row>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="建设单位项目负责人">
+                <el-form-item :required="true" label="建设单位项目负责人">
                   <el-input
                     v-model="subProInfo.jiansheDirector"
                     placeholder="请输入内容"
@@ -50,14 +50,14 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="施工面积（m²）">
+                <el-form-item :required="true" label="施工面积（m²）">
                   <el-input v-model="subProInfo.area" placeholder="请输入内容" />
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="监理单位项目负责人">
+                <el-form-item :required="true" label="监理单位项目负责人">
                   <el-input
                     v-model="subProInfo.jianliDirector"
                     placeholder="请输入内容"
@@ -65,7 +65,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="项目技术负责人">
+                <el-form-item :required="true" label="项目技术负责人">
                   <el-input
                     v-model="subProInfo.technicalDirector"
                     placeholder="请输入内容"
@@ -75,7 +75,7 @@
             </el-row>
             <el-row>
               <el-col :span="8">
-                <el-form-item label="设计单位项目负责人">
+                <el-form-item :required="true" label="设计单位项目负责人">
                   <el-input
                     v-model="subProInfo.shejiDirector"
                     placeholder="请输入内容"
@@ -83,7 +83,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8" label-width="5em">
-                <el-form-item label="层数" label-width="6em">
+                <el-form-item :required="true" label="层数" label-width="6em">
                   <span> 地下 </span>
                   <el-input v-model="subProInfo.floorUnderground" style="width: 4em;" />
                   <span> 层 ~ 地上</span>
@@ -92,7 +92,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8" label-width="3em">
-                <el-form-item label="开工时间">
+                <el-form-item :required="true" label="开工时间">
                   <el-date-picker
                     v-model="subProInfo.startDate"
                     style="width: 100%"
@@ -112,7 +112,7 @@
     <div>
       <el-row>
         <el-col :span="24">
-          <el-form ref="form" :model="form" label-width="170px">
+          <el-form ref="form" :disabled="chakan" :model="form" label-width="170px">
             <el-row>
               <el-col :span="12">
                 <el-form-item v-slot="scope" label="钢筋分项验收依据">
@@ -195,7 +195,7 @@
     </div>
     <hr>
     <!--   添加检验批部位   -->
-    <el-button type="primary" @click="addInspect">添加检验批部位</el-button>
+    <el-button :disabled="chakan" type="primary" @click="addInspect">添加检验批部位</el-button>
     <el-table
       :data="allInspect"
       max-height="30em"
@@ -219,6 +219,7 @@
           <el-button
             type="danger"
             size="mini"
+            :disabled="chakan"
             @click="deletejianyan(scope)"
           >删除
           </el-button>
@@ -226,7 +227,13 @@
       </el-table-column>
     </el-table>
     <!--弹窗-->
-    <el-dialog title="检验批部位添加" :visible.sync="dialogVisible" width="40%">
+    <el-dialog
+      title="检验批部位添加"
+      :visible.sync="dialogVisible"
+      :show-close="false"
+      width="40%"
+      @close="handleClose"
+    >
       <div>
         <el-row>
           <el-col :span="24">
@@ -264,11 +271,11 @@
         </el-row>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="saveInspect">确 定</el-button>
+        <el-button @click="dialogVisible = false">取 消</el-button>
       </span>
     </el-dialog>
-    <el-button v-if="!ischakan" type="primary" @click="preserve">保存</el-button>
+    <el-button v-if="!ischakan" type="primary" @click="preserve">{{ chakan?'确认':'保存' }}</el-button>
     <el-button type="info" @click="cancel">取消</el-button>
   </div>
 </template>
@@ -366,6 +373,9 @@ export default {
   computed: {
     projectId() {
       return this.$route.query.projectId
+    },
+    chakan() {
+      return this.$route.query.chakan === 'true'
     }
   },
   watch: {
@@ -544,7 +554,7 @@ export default {
     async getYanShouRules() {
       try {
         const { result } = await getYanShouRules()
-        // console.log('获取可以用的验收规范', result)
+        console.log('获取可以用的验收规范', result)
         this.options = result
       } catch (error) {
         console.log(error)
@@ -749,6 +759,12 @@ export default {
       })
       this.checkRule = JSON.parse(JSON.stringify(bol))
       console.log(this.checkRule)
+    },
+    handleClose() {
+      this.buildingFloor = ''
+      this.buildingTop = ''
+      this.inspectName = ''
+      this.checkList = []
     }
   }
 }

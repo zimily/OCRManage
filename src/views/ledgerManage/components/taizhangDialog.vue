@@ -5,23 +5,6 @@
     :show-close="false"
     @close="handleClose(2)"
   >
-    <el-form>
-      <el-form-item label="项目名称">
-        <el-select
-          v-model="projectSelect"
-          placeholder="请选择"
-          value=""
-          @change="changeXiang()"
-        >
-          <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.label"
-          />
-        </el-select>
-      </el-form-item>
-    </el-form>
     <el-table v-if="category==='钢筋原材'" :data="currentPageData" style="width: 100%">
       <el-table-column width="30%">
         <template v-slot="scope">
@@ -31,11 +14,11 @@
         </template>
       </el-table-column>
       <!-- 其他列 -->
-      <el-table-column prop="name" label="工程部位" />
-      <el-table-column prop="age" label="钢筋种类" />
-      <el-table-column prop="address" label="直径" />
-      <el-table-column prop="address" label="生产厂家" />
-      <el-table-column prop="address" label="炉批号" />
+      <el-table-column prop="usePart" label="工程部位" />
+      <el-table-column prop="steelType" label="钢筋种类" />
+      <el-table-column prop="representAmount" label="代表批量" />
+      <el-table-column prop="producer" label="生产厂家" />
+      <el-table-column prop="heatBatchNumber" label="炉批号" />
     </el-table>
     <el-table v-else-if="category==='钢筋机械连接'" :data="currentPageData" style="width: 100%">
       <el-table-column width="30%">
@@ -46,11 +29,11 @@
         </template>
       </el-table-column>
       <!-- 其他列 -->
-      <el-table-column prop="name" label="工程部位" />
-      <el-table-column prop="age" label="牌号" />
-      <el-table-column prop="address" label="直径" />
-      <el-table-column prop="address" label="等级和接头类型" />
-      <el-table-column prop="address" label="代表批量" />
+      <el-table-column prop="usePart" label="工程部位" />
+      <el-table-column prop="steelType" label="牌号" />
+      <el-table-column prop="diameter" label="直径" />
+      <el-table-column prop="connectorLevel" label="等级和接头类型" />
+      <el-table-column prop="representAmount" label="代表批量" />
     </el-table>
     <el-table v-else-if="category==='钢筋焊接'" :data="currentPageData" style="width: 100%">
       <el-table-column width="30%">
@@ -61,12 +44,12 @@
         </template>
       </el-table-column>
       <!-- 其他列 -->
-      <el-table-column prop="name" label="工程部位" />
-      <el-table-column prop="age" label="钢筋牌号" />
-      <el-table-column prop="address" label="直径" />
-      <el-table-column prop="address" label="生产厂商" />
-      <el-table-column prop="address" label="焊接类型" />
-      <el-table-column prop="address" label="代表批量" />
+      <el-table-column prop="usePart" label="工程部位" />
+      <el-table-column prop="steelType" label="钢筋牌号" />
+      <el-table-column prop="diameter" label="直径" />
+      <el-table-column prop="producer" label="生产厂商" />
+      <el-table-column prop="weldType" label="焊接类型" />
+      <el-table-column prop="representAmount" label="代表批量" />
     </el-table>
     <el-table v-else :data="currentPageData" style="width: 100%">
       <el-table-column width="30%">
@@ -100,7 +83,7 @@
   </el-dialog>
 </template>
 <script>
-import { getForm, getTaiZhang } from '@/api/ocrEntry'
+import { getForm, getProjectNameList, getTaiZhang } from '@/api/ocrEntry'
 import { getUser } from '@/utils/storage'
 
 export default {
@@ -116,30 +99,23 @@ export default {
     report_type: {
       type: Number,
       default: 0
+    },
+    projectSelect: {
+      type: String,
+      default: ''
+    },
+    subprojectSelect: {
+      type: String,
+      default: ''
     }
   },
   data() {
     return {
       selectedRow: null, // 当前选中行
-      projectSelect: '',
-      options: [
-        {
-          value: '1',
-          label: '1'
-        },
-        {
-          value: '2',
-          label: '2'
-        }
-      ],
       currentPage: 1, // 分页器数据
       currentPageData: [], // 分页器显示的数据
-      limit: 10 // 每页显示的数据
-    }
-  },
-  computed: {
-    totalData() {
-      return this.currentPageData.length
+      limit: 10, // 每页显示的数据
+      totalData: 0// 总条数
     }
   },
   created() {
@@ -148,16 +124,18 @@ export default {
   methods: {
     async getTaiZhang() {
       try {
-        const { result } = await getTaiZhang(this.report_type, this.currentPage, this.limit, getUser().userId)
+        console.log('OCR分页查询参数', this.report_type, this.currentPage, this.limit, this.projectSelect, this.subprojectSelect)
+        const { result } = await getTaiZhang(this.report_type, this.currentPage, this.limit, this.projectSelect, this.subprojectSelect)
         console.log('OCR分页查询', result)
+        this.totalData = parseInt(result.total)
         this.currentPageData = result.records
       } catch (error) {
         console.log(error)
         this.$message.error('出错啦，请稍后重试！')
       }
     },
-    changeXiang() {
-      // this.$emit('changeXiang', this.roleSelect)
+    changeProject(val) {
+      console.log(val)
     },
     handleClose(op) {
       let data = null
