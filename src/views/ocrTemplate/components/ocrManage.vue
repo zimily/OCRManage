@@ -13,12 +13,12 @@
         </el-button>
 
         <span>类别选择: </span>
-        <el-select v-model="selectModel" value="无">
+        <el-select v-model="reportType" @change="TemplateChange">
           <el-option
-            v-for="item in option"
+            v-for="item in reportTypes"
             :key="item.value"
             :label="item.label"
-            :value="item.label"
+            :value="item.value"
           />
         </el-select>
 
@@ -47,10 +47,14 @@
             align="center"
           />
           <el-table-column
-            prop="reportName"
+            prop="reportType"
             label="台账类别"
             align="center"
-          />
+          >
+            <template v-slot="scope">
+              {{ typeName(scope.row.reportType) }}
+            </template>
+          </el-table-column>
           <el-table-column prop="prop" label="操作" align="center">
             <template v-slot="scope">
               <el-button
@@ -86,20 +90,37 @@
 
 <script>
 
-import { getTemplates, postTemplates } from '@/api/ocrTest'
+import { deleteTemplateById, getTemplates, postTemplates } from '@/api/ocrTest'
 
 export default {
   name: 'Template',
   data() {
     return {
       searchQuery: '', // 用于存储输入框的内容
+      reportTypes: [{
+        value: 1,
+        label: '钢筋原材'
+      }, {
+        value: 2,
+        label: '钢筋机械连接'
+      }, {
+        value: 3,
+        label: '钢筋焊接'
+      }, {
+        value: 4,
+        label: '混凝土强度'
+      }, {
+        value: 0,
+        label: '无'
+      }
+      ],
       tableData: [],
       changeInformation: {
         name: '',
         templateNum: 0
       },
       templateId: '0', // 模板id
-      selectModel: '无',
+      reportType: 0,
       option: [],
       currentPage: 1, // 分页器当前页码
       totalData: 0, // 总共筛选出的数据条目
@@ -113,7 +134,7 @@ export default {
   methods: {
     async getTemplates() {
       try {
-        const { result } = await getTemplates(this.currentPage, this.limit, this.searchQuery)
+        const { result } = await getTemplates(this.currentPage, this.limit, this.searchQuery, this.reportType)
         console.log('分页获取模板', result)
         this.tableData = result.records
         this.totalData = parseInt(result.total)
@@ -121,18 +142,21 @@ export default {
         console.log(error)
       }
     },
-    // async postTemplates() {
-    //   try {
-    //     const res = await postTemplates()
-    //     console.log('创建模板(含初始项)', res)
-    //   } catch (error) {
-    //     console.log(error)
-    //   }
-    // },
+    async deleteTemplateById() {
+      try {
+        const res = await deleteTemplateById(this.templateId)
+        console.log('删除模板', res)
+      } catch (error) {
+        console.log(error)
+      }
+    },
     createNewModel() {
-      this.$router.push({ path: '/menus/ocrTemplate/ocrDetail', query: { templateId: this.templateId }})
+      this.$router.push({ path: '/menus/ocrTemplate/ocrDetail', query: { templateId: '0' }})
     },
     handleSearch() {
+      this.getTemplates()
+    },
+    TemplateChange() {
       this.getTemplates()
     },
     updateBatch(scope) {
@@ -142,6 +166,8 @@ export default {
     },
     deleteBatch(scope) {
       this.templateId = scope.row.templateId
+      this.tableData = this.tableData.filter(item => item.templateId !== scope.row.templateId)
+      this.deleteTemplateById()
     },
     // 分页器
     handleSizeChange(val) {
@@ -150,6 +176,17 @@ export default {
     },
     handleCurrentChange(val) {
       this.currentPage = val
+    },
+    typeName(typeId) {
+      if (typeId === 1) {
+        return '钢筋原材'
+      } else if (typeId === 2) {
+        return '钢筋机械连接'
+      } else if (typeId === 3) {
+        return '钢筋焊接'
+      } else {
+        return '混凝土强度'
+      }
     }
   }
 }

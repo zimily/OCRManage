@@ -46,17 +46,17 @@
                 </el-col>
               </el-row>
               <el-form-item label="模板名称:">
-                <el-input v-model="form.templateName" placeholder="请输入内容" />
+                <el-input v-model.trim="form.templateName" placeholder="请输入内容" />
               </el-form-item>
               <el-row>
                 <el-col :span="12" style="padding-right: 10px">
                   <el-form-item label="公司名称:">
-                    <el-input v-model="form.companyName" placeholder="请输入内容" />
+                    <el-input v-model.trim="form.companyName" placeholder="请输入内容" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
                   <el-form-item label="报告名称:">
-                    <el-input v-model="form.reportName" placeholder="请输入内容" />
+                    <el-input v-model.trim="form.reportName" placeholder="请输入内容" />
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -140,13 +140,13 @@
 <script>
 
 import { draw, reDraw } from '@/api/makeRectangle'
-import { getTemplateById, postTemplates } from '@/api/ocrTest'
+import { getTemplateById, putTemplateById } from '@/api/ocrTest'
 import { getFields } from '@/api/ocrEntry'
 
 export default {
   data() {
     return {
-      imgName: '', // 导入的图片名字
+      imgName: '未选择图片', // 导入的图片名字
       aaa: '',
       reportTypes: [{
         value: 1,
@@ -163,7 +163,16 @@ export default {
       }],
       textarea: '',
       selectXiang: '', // 对应项的初始值
-      form: { items: [] },
+      form: {
+        companyName: '',
+        items: [],
+        imageExample: '',
+        reportName: '',
+        reportType: '',
+        tablePos: '0,0,0,0',
+        templateId: 0,
+        templateName: ''
+      },
       fenzu: [{
         value: 0,
         label: '公共'
@@ -189,7 +198,8 @@ export default {
       xiangList: [[]],
       tableValue: [],
       tmpIndex: -1,
-      imgUrl: 'https://ts2.tc.mm.bing.net/th/id/OIP-C.VzhOTC3SVqdVV48AhF5grwHaFS?rs=1&pid=ImgDetMain&o=7&rm=3',
+      // imgUrl: 'https://ts2.tc.mm.bing.net/th/id/OIP-C.VzhOTC3SVqdVV48AhF5grwHaFS?rs=1&pid=ImgDetMain&o=7&rm=3',
+      imgUrl: '',
       markList: [], // 标记矩形数组 x,y,w,h
       markList2: [], // 标记表格坐标数组 x,y,w,h
       graphXY: { x1: 0, y1: 0, x2: 0, y2: 0 }, // 表格坐标 x,y,w,h
@@ -232,6 +242,10 @@ export default {
           this.form.items[i].x2 = Math.round((newValue[i].x + newValue[i].w - this.offsetX) / this.scale)
           this.form.items[i].y2 = Math.round((newValue[i].y + newValue[i].h - this.offsetY) / this.scale)
         }
+        // 删除多余的行
+        if (newValue.length < this.form.items.length) {
+          this.form.items.splice(newValue.length, this.form.items.length - newValue.length)
+        }
       }
     },
     markList2: {
@@ -262,7 +276,7 @@ export default {
         const { result } = await getTemplateById(this.templateId)
         console.log('获取模板详情(含所有项)', result)
         this.form = result
-        // this.imgUrl = result.imageExample
+        this.imgUrl = result.imageExample
         const pos = result.tablePos.split(',')
         this.graphXY = {
           x1: parseInt(pos[0]),
@@ -283,16 +297,16 @@ export default {
         const res = await getFields(report_type)
         console.log('根据台账类型获取需ocr的列名', res)
         this.xiangList = res.data
-        console.log('xiangList', this.xiangList)
+        // console.log('xiangList', this.xiangList)
       } catch (error) {
         console.log(error)
         this.$message.error('出错啦，请稍后重试！')
       }
     },
-    async postTemplates() {
+    async putTemplateById() {
       try {
-        const { result } = await postTemplates(this.form)
-        console.log('创建模板(含初始项)', result)
+        const result = await putTemplateById(this.templateId, this.form)
+        console.log('更新模板基本信息', result)
       } catch (error) {
         console.log(error)
       }
@@ -300,7 +314,17 @@ export default {
     importImg(file) {
       console.log(file)
       this.imgName = file.name
-      this.imgUrl = URL.createObjectURL(file.raw)
+      // 创建一个FileReader实例
+      const reader = new FileReader()
+
+      // 定义onload回调函数，当文件读取完成时触发
+      reader.onload = (e) => {
+        // e.target.result 包含了Base64格式的文件数据
+        this.imgUrl = e.target.result // 将Base64数据赋值给imgUrl
+        console.log('Base64 数据:', this.imgUrl) // 打印Base64数据，用于调试
+      }
+      // 以Data URL的形式读取文件（即Base64编码）
+      reader.readAsDataURL(file.raw)
     },
     reportTypeChange(report_type) {
       // console.log('reportTypeChange', val)
@@ -327,7 +351,7 @@ export default {
         this.offsetX = (this.containerWidth - this.displayedWidth) / 2
         this.offsetY = (this.containerHeight - this.displayedHeight) / 2
 
-        console.log(this.containerWidth, this.containerHeight, this.naturalWidth, this.naturalHeight, this.scale)
+        // console.log(this.containerWidth, this.containerHeight, this.naturalWidth, this.naturalHeight, this.scale)
         console.log('实际显示宽度:', this.displayedWidth)
         console.log('实际显示高度:', this.displayedHeight)
         console.log('图片左侧偏移:', this.offsetX)
@@ -379,41 +403,21 @@ export default {
       }
     },
     save() {
-      this.form.imageExample = this.imgUrl
-      if (this.graphXY.x1 !== 0 || this.graphXY.y1 !== 0 || this.graphXY.x2 !== 0 || this.graphXY.y2 !== 0) {
-        this.form.tablePos = this.graphXY.x1 + ',' + this.graphXY.y1 + ',' + this.graphXY.x2 + ',' + this.graphXY.y2
+      if (this.checkData()) {
+        this.form.imageExample = this.imgUrl
+        if (this.graphXY.x1 !== 0 || this.graphXY.y1 !== 0 || this.graphXY.x2 !== 0 || this.graphXY.y2 !== 0) {
+          this.form.tablePos = this.graphXY.x1 + ',' + this.graphXY.y1 + ',' + this.graphXY.x2 + ',' + this.graphXY.y2
+        }
+        this.form.templateId = this.templateId
+        console.log('form', this.form)
+        this.putTemplateById()
+        // this.$router.replace('/menus/ocrTemplate/ocrManage')
+        this.$router.back()
       }
-      this.form.templateId = this.templateId
-      console.log('form', this.form)
-      console.log('form', JSON.stringify(this.form))
-      this.postTemplates()
-      // this.$router.replace('/menus/ocrTemplate/ocrManage')
-      // console.log({
-      //   "items":[{
-      //     "belongGroup":0,
-      //     "fieldId":0,
-      //     "templateId":0,
-      //     "templateItemId":0,
-      //     "x1":48,
-      //     "y1":45,
-      //     "x2":159,
-      //     "y2":66,
-      //     "xiang":1}],
-      //   "templateName":"aaa",
-      //   "reportType":1,
-      //   "imageExample":"https://ts2.tc.mm.bing.net/th/id/OIP-C.VzhOTC3SVqdVV48AhF5grwHaFS?rs=1&pid=ImgDetMain&o=7&rm=3","templateId":0,
-      //   "companyName":"aaa",
-      //   "reportName":"aa",
-      //   "tablePos":"9,8,456,324"})
-      // console.log(
-      //   {
-      //     'items': [],
-      //     'imageExample': 'https://ts2.tc.mm.bing.net/th/id/OIP-C.VzhOTC3SVqdVV48AhF5grwHaFS?rs=1&pid=ImgDetMain&o=7&rm=3',
-      //     'templateId': 0
-      //   })
     },
     cancel() {
-      this.$router.replace('/menus/ocrTemplate/ocrManage')
+      // this.$router.replace('/menus/ocrTemplate/ocrManage')
+      this.$router.back()
     },
     initCanvas() {
       this.$nextTick(() => {
@@ -446,8 +450,8 @@ export default {
             h: (item.y2 - item.y1) * this.scale
           })
         })
-        console.log('markList', this.markList)
-        console.log('markList2', this.markList2)
+        // console.log('markList', this.markList)
+        // console.log('markList2', this.markList2)
         const list = this.markList// 画框数据集合, 用于服务端返回的数据显示和绘制的矩形保存
         // 若服务端保存的为百分比则此处需计算实际座标, 直接使用实际座标可省略
         // list.forEach(function(value, index, array) {
@@ -490,6 +494,20 @@ export default {
         }
         draw(cav2, this.markList2)
       })
+    },
+    checkData() {
+      let bol = true
+      if (this.form.templateName === '') {
+        bol = false
+        this.$message.warning('请填写模板名称！')
+      } else if (this.imgUrl === '') {
+        bol = false
+        this.$message.warning('请上传示例图片！')
+      } else if (this.form.reportType === '') {
+        bol = false
+        this.$message.warning('请选择对应台账！')
+      }
+      return bol
     }
   }
 }

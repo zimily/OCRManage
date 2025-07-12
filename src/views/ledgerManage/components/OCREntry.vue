@@ -360,6 +360,8 @@ export default {
     },
     async autodetect(data) {
       try {
+        this.failOCRImages = []
+        this.tableData = []
         const res = await autodetect(data)
         if (res.code === 200) {
           console.log('自动匹配模板并识别所需信息', res)
@@ -425,7 +427,7 @@ export default {
       try {
         const res = await getImageURL(imgName)
         if (res.code === 200) {
-          // console.log('获取提取的图片', res)
+          console.log('获取提取的图片', res)
           this.imgUrl = res.data
         } else {
           throw new Error(res.message || '获取图片失败')
@@ -487,6 +489,7 @@ export default {
       const val = column.property.split('.')[1]
       // 置信度小于0.8变红
       if (val && row.data[val][0].conf < 0.8) {
+        console.log(val && row.data[val][0].conf < 0.8)
         return 'highlight-cell'
       }
       return ''
@@ -722,7 +725,7 @@ export default {
   justify-content: flex-start;
 }
 
-.highlight-cell {
+::v-deep .highlight-cell {
   background-color: red;
   color: white; /* 提高可读性 */
 }

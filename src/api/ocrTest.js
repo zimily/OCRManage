@@ -5,24 +5,27 @@ export function getOcrData() {
 }
 
 // 分页+模糊查询模板
-export function getTemplates(pageNum, pageSize, keyword) {
+export function getTemplates(pageNum, pageSize, keyword, reportType) {
+  if (reportType === 0) {
+    reportType = null
+  }
   return request({
     url: '/templates/page/search',
     method: 'get',
     params: {
       pageNum: pageNum,
       pageSize: pageSize,
-      keyword: keyword
+      keyword: keyword,
+      reportType: reportType
     }
   })
 }
 
 // 删除模板(级联删除所有项)
-export function deleteTemplateById(templateId, data) {
+export function deleteTemplateById(templateId) {
   return request({
     url: `/templates/${templateId}`,
-    method: 'put',
-    data: data
+    method: 'delete'
   })
 }
 
