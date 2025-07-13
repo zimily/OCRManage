@@ -6,12 +6,15 @@
 
 <script>
 import { refreshToken } from '@/api/user'
-import { getToken, setToken } from '@/utils/auth'
+import { getAccessToken } from './api/materialPlatform';
+import { getToken, setToken, setMaterialPlatformToken } from '@/utils/auth'
+import request from "@/utils/request"; // 引入自定义的 request 模块
 export default {
   name: 'App',
   data() {
     return {
-      refreshTimer: null // 存储定时器ID
+      refreshTimer: null, // 存储定时器ID
+      refreshTimer2: null // 存储定时器ID
     }
   },
   mounted() {
@@ -28,18 +31,28 @@ export default {
     startTokenRefresh() {
       // 先立即检查一次Token是否需要刷新
       this.checkAndRefreshToken()
+      this.getMaterialPlatformToken() // 获取物资平台token
 
       // 设置定时器，每7分钟执行一次
       this.refreshTimer = setInterval(() => {
         this.checkAndRefreshToken()
       }, 7 * 60 * 1000) // 7分钟
-      // console.log("refreshTimer", this.refreshTimer);
+      console.log("refreshTimer", this.refreshTimer);
+      //第二个定时器每1分钟执行一次
+      this.refreshTimer2 = setInterval(() => {
+        this.getMaterialPlatformToken()
+      }, 1 * 60 * 1000) // 1分钟
+      console.log("refreshTimer2", this.refreshTimer2);
     },
     // 停止定时刷新
     stopTokenRefresh() {
       if (this.refreshTimer) {
         clearInterval(this.refreshTimer)
         this.refreshTimer = null
+      }
+      if (this.refreshTimer2) {
+        clearInterval(this.refreshTimer2)
+        this.refreshTimer2 = null
       }
     },
     // 检查并刷新Token
@@ -59,10 +72,30 @@ export default {
         // 可选：跳转到登录页
         this.$router.push('/login')
       }
+    },
+    //获取物资平台所需要的token，并定时刷新令牌
+    async getMaterialPlatformToken() {
+      try {
+        const response= await getAccessToken();
+        // const response = await request.get(
+        //   "http://wei.cscec5b.com.cn:9080/ejc-idm-web/auth/getAccessToken?appId=1836595908945981442&secret=MTgzNjU5NTkwODk0NTk4MTQ0Mg=="
+        // );
+        // 请求成功，获取到 token
+        const token = response.data.access_token;
+        setMaterialPlatformToken(token); // 存储到COOKIES中
+        console.log("物资平台Token获取成功", token);
+
+        // 打开物资平台数据对话框
+        this.dialogTableVisible = true;
+      } catch (error) {
+        // 打印详细错误信息
+        console.error("完整错误信息:", error);
+        this.$message.error("无法连接到物资平台，请稍后重试！");
+      }
+
     }
+
   }
 }
 </script>
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -23,7 +23,8 @@
       <el-col :xs="24" :md="16">
         <DashboardCard title="应用中心">
           <el-card shadow="hover">
-            <app-list :apps="allApps" @click-app="handleAppClick" />
+            <app-list :apps="allApps1" @click-app="handleAppClick" />
+            <app-list :apps="allApps2" @click-app="handleAppClick" />
           </el-card>
         </DashboardCard>
       </el-col>
@@ -69,12 +70,14 @@ export default {
         },
         { id: 3, name: "台账管理", icon: "ledger", usedAt: "2023-05-15" },
       ],
-      allApps: [
+      allApps1: [
         { id: 1, name: "项目管理", icon: "program" },
         { id: 2, name: "验收规范管理", icon: "specification" },
         { id: 3, name: "台账管理", icon: "ledger" },
         { id: 4, name: "报表管理", icon: "statement" },
         { id: 5, name: "数据采集情况", icon: "dataCollection" },
+      ],
+      allApps2: [
         { id: 6, name: "数据采集任务", icon: "task" },
         { id: 7, name: "OCR模版库", icon: "ocr" },
         { id: 8, name: "角色管理", icon: "role1" },
@@ -189,12 +192,12 @@ export default {
 
 .row-recent .el-card {
   height: 150px;
-  overflow: auto;
+  /* overflow: auto; */
 }
 
 .row-app-center .el-card {
   height: 480px; /* 主功能最大 */
-  overflow: auto;
+  /* overflow: auto; */
 }
 
 .mt-20 {

@@ -104,3 +104,11 @@ export function saveLedgerData(data) {
     data: data
   })
 }
+//上传二维码
+export function uploadQrCode(data) {
+  return request({
+    url: '/steelMaterialLedger/readQrJson',
+    method: 'post',
+    data: data
+  })
+}

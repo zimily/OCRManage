@@ -3,7 +3,7 @@
     <!-- 项目信息 -->
     <el-row :gutter="2" class="equal-height-row">
       <el-col :span="6">
-        <el-card class="pro-card card-box" :body-style="{ padding: '10px' }" >
+        <el-card class="pro-card card-box" :body-style="{ padding: '10px' }">
           <el-row :gutter="2" class="spaced-row">
             <el-col :span="8">
               <div class="card-item">单位工程:</div>
@@ -12,7 +12,7 @@
               <div class="card-item-name">{{ rowData.subprojectName }}</div>
             </el-col>
           </el-row>
-          <el-row :gutter="2" class="spaced-row" >
+          <el-row :gutter="2" class="spaced-row">
             <el-col :span="8">
               <div class="card-item">检验批部位:</div>
             </el-col>
@@ -31,18 +31,13 @@
         </el-card>
       </el-col>
       <el-col :span="8">
-        <el-card class="sub-card card-box" :body-style="{ padding: '10px' }" >
+        <el-card class="sub-card card-box" :body-style="{ padding: '10px' }">
           <el-row :gutter="3" class="spaced-row">
             <el-col :span="9">
               <div class="card-item">分包单位:</div>
             </el-col>
             <el-col :span="15">
-              <el-input
-                v-model="fenbaoCompany"
-                placeholder="请输入分包单位"
-                class="card-item-name"
-                size="small"
-              ></el-input>
+              <el-input v-model="fenbaoCompany" placeholder="请输入分包单位" class="card-item-name" size="small"></el-input>
             </el-col>
           </el-row>
           <el-row :gutter="3" class="spaced-row">
@@ -50,12 +45,7 @@
               <div class="card-item">分包单位项目负责人:</div>
             </el-col>
             <el-col :span="15">
-              <el-input
-                v-model="fenbaoDirector"
-                placeholder="请输入项目负责人"
-                class="card-item-name"
-                size="small"
-              ></el-input>
+              <el-input v-model="fenbaoDirector" placeholder="请输入项目负责人" class="card-item-name" size="small"></el-input>
             </el-col>
           </el-row>
           <el-row :gutter="3" class="spaced-row">
@@ -63,28 +53,19 @@
               <div class="card-item">分包单位技术负责人:</div>
             </el-col>
             <el-col :span="15">
-              <el-input
-                v-model="fenbaoTechnical"
-                placeholder="请输入技术负责人"
-                class="card-item-name"
-                size="small"
-              ></el-input>
+              <el-input v-model="fenbaoTechnical" placeholder="请输入技术负责人" class="card-item-name" size="small"></el-input>
             </el-col>
           </el-row>
         </el-card>
       </el-col>
       <el-col :span="10">
-        <el-card class="build-card card-box" :body-style="{ padding: '10px' }" >
+        <el-card class="build-card card-box" :body-style="{ padding: '10px' }">
           <el-row :gutter="2" class="spaced-row">
             <el-col :span="4">
               <div class="card-item">施工规范:</div>
             </el-col>
             <el-col :span="20">
-              <el-input
-                v-model="shigongRule"
-                size="small"
-                placeholder="请输入施工规范"
-              ></el-input>
+              <el-input v-model="shigongRule" size="small" placeholder="请输入施工规范" style="width: 400px;"></el-input>
             </el-col>
           </el-row>
           <el-row :gutter="2" class="spaced-row">
@@ -94,20 +75,8 @@
             <el-col :span="20">
               <div class="card-item-name">
                 <span class="capacity-text">{{ capactity }}</span>
-                <el-button
-                  type="primary"
-                  @click="editCapactity"
-                  size="small"
-                  style="margin-left: 10px"
-                  >编辑</el-button
-                >
-                <el-button
-                  type="primary"
-                  @click="importLedger"
-                  size="small"
-                  style="margin-left: 10px"
-                  >选择台账</el-button
-                >
+                <el-button type="primary" @click="editCapactity" size="small" style="margin-left: 10px">编辑</el-button>
+                <el-button type="primary" @click="importLedger" size="small" style="margin-left: 10px">选择台账</el-button>
               </div>
             </el-col>
           </el-row>
@@ -124,45 +93,28 @@
               <div class="card-item">设计值:</div>
             </el-col>
             <el-col :span="20">
-               <div class="card-item-name">
-                  <span class="capacity-text">{{shejizhi}}</span>
-                  <el-button type="primary" @click="editDesignValue" size="small"  style="margin-left: 10px"
-                    >编辑</el-button>
-                </div>
+              <div class="card-item-name">
+                <span class="capacity-text">{{ shejizhi }}</span>
+                <el-button type="primary" @click="editDesignValue" size="small" style="margin-left: 10px">编辑</el-button>
+              </div>
             </el-col>
           </el-row>
         </el-card>
       </el-col>
     </el-row>
     <!-- 项目验收项信息 -->
-    <el-table
-      :data="tableData"
-      stripe
-      style="width: 100%; margin-top: 20px; margin-bottom: 20px"
-      :row-class-name="rowClassName"
-    >
+    <el-table :data="tableData" stripe style="width: 100%; margin-top: 20px; margin-bottom: 20px"
+      :row-class-name="rowClassName">
       <el-table-column prop="isEmpty" label="是否采集" width="80" align="center">
         <template slot-scope="scope">
-          <el-checkbox 
-           :value="scope.row.isEmpty === 1" 
-            @change="val => { scope.row.isEmpty = val ? 1 : 0 }"
-          ></el-checkbox>
+          <el-checkbox :value="scope.row.isEmpty === 1"
+            @change="val => { scope.row.isEmpty = val ? 1 : 0 }"></el-checkbox>
         </template>
       </el-table-column>
 
-      <el-table-column
-        prop="itemName"
-        label="验收项目"
-        align="center"
-        show-overflow-tooltip
-      />
+      <el-table-column prop="itemName" label="验收项目" align="center" show-overflow-tooltip />
 
-      <el-table-column
-        prop="ruleStandard"
-        label="设计要求及规范规定"
-        align="center"
-        show-overflow-tooltip
-      />
+      <el-table-column prop="ruleStandard" label="设计要求及规范规定" align="center" show-overflow-tooltip />
 
       <el-table-column prop="variableMeaning" label="变量的值" align="center">
         <template #default="{ row }">
@@ -172,47 +124,19 @@
 
       <el-table-column prop="totalSampleNumber" label="样本总数" align="center">
         <template #default="{ row }">
-          <el-input
-            style="width: 8em"
-            v-model="row.totalSampleNumber"
-            type="number"
-            min="0"
-          />
+          <el-input style="width: 8em" v-model="row.totalSampleNumber" type="number" min="0" />
         </template>
       </el-table-column>
 
-      <el-table-column
-        prop="minSampleNumber"
-        label="最小抽样批量"
-        align="center"
-      >
+      <el-table-column prop="minSampleNumber" label="最小抽样批量" align="center">
         <template #default="{ row }">
-          <el-input
-            style="width: 8em"
-            v-model="row.minSampleNumber"
-            type="number"
-            min="0"
-          />
+          <el-input style="width: 8em" v-model="row.minSampleNumber" type="number" min="0" />
         </template>
       </el-table-column>
-      <el-table-column
-        prop="positionId"
-        label="分发岗位"
-        align="center"
-        show-overflow-tooltip
-      >
+      <el-table-column prop="positionId" label="分发岗位" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
-          <el-select
-            v-model="scope.row.positionId"
-            placeholder=""
-            style="width: 100%"
-          >
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+          <el-select v-model="scope.row.positionId" placeholder="" style="width: 100%">
+            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </template>
       </el-table-column>
@@ -223,11 +147,7 @@
       <el-button @click="cancelDistributeTask()">取消</el-button>
     </div>
     <!-- 设计值编辑弹窗 -->
-    <el-dialog
-      title="设计值编辑"
-      :visible.sync="dialogTableVisible2"
-      :show-close="false"
-    >
+    <el-dialog title="设计值编辑" :visible.sync="dialogTableVisible2" :show-close="false">
       <!-- 添加按钮 -->
       <div style="margin-bottom: 10px; text-align: left">
         <el-button type="primary" icon="el-icon-plus" @click="addDesign">
@@ -235,60 +155,30 @@
         </el-button>
       </div>
       <el-table :data="gridData">
-        <el-table-column
-          label="内容"
-          property="position"
-          width="220"
-          align="center"
-        >
+        <el-table-column label="内容" property="position" width="220" align="center">
           <template slot-scope="scope">
-            <el-input
-              v-model="scope.row.position"
-              placeholder="请输入采样部位"
-              style="width: 200px"
-            ></el-input>
+            <el-input v-model="scope.row.position" placeholder="请输入采样部位" style="width: 200px"></el-input>
           </template>
         </el-table-column>
-        <el-table-column
-          property="value"
-          label="设计值"
-          width="220"
-          align="center"
-        >
+        <el-table-column property="value" label="设计值" width="220" align="center">
           <template slot-scope="scope">
-            <el-input
-              v-model="scope.row.value"
-              placeholder="请输入设计值"
-              style="width: 200px"
-            ></el-input>
+            <el-input v-model="scope.row.value" placeholder="请输入设计值" style="width: 200px"></el-input>
           </template>
-          <el-input
-            v-model="Subcontractor"
-            placeholder=""
-            style="width: 200px"
-          ></el-input>
+          <el-input v-model="Subcontractor" placeholder="" style="width: 200px"></el-input>
         </el-table-column>
         <el-table-column property="operation" label="操作" align="center">
           <template slot-scope="scope">
-            <el-button type="danger" @click="deleteDesignRow(scope.$index)"
-              >删除</el-button
-            >
+            <el-button type="danger" @click="deleteDesignRow(scope.$index)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="confirmDesignValue()"
-          >确 定</el-button
-        >
+        <el-button type="primary" @click="confirmDesignValue()">确 定</el-button>
         <el-button @click="cancelDssignValue()">取 消</el-button>
       </div>
     </el-dialog>
     <!-- 编辑检验批容量弹窗 -->
-    <el-dialog
-      title="检验批容量编辑"
-      :visible.sync="dialogTableVisible1"
-      :show-close="false"
-    >
+    <el-dialog title="检验批容量编辑" :visible.sync="dialogTableVisible1" :show-close="false">
       <!-- 添加按钮 -->
       <div style="margin-bottom: 10px; text-align: left">
         <el-button type="primary" icon="el-icon-plus" @click="addRow">
@@ -299,24 +189,14 @@
         <el-table-column property="itemName" label="来源" align="center">
           <template slot-scope="scope">
             <el-select v-model="scope.row.itemName" placeholder="请选择">
-              <el-option
-                v-for="item in optionsEdit"
-                :key="item.value"
-                :label="item.label"
-                :value="item.label"
-              />
+              <el-option v-for="item in optionsEdit" :key="item.value" :label="item.label" :value="item.label" />
             </el-select>
           </template>
         </el-table-column>
         <el-table-column property="number" label="数量" align="center">
           <template slot-scope="scope">
-            <el-input
-              v-model="scope.row.number"
-              @input="(val) => (scope.row.number = parseFloat(val))"
-              type="number"
-              placeholder="请输入数量"
-              min="0"
-            />
+            <el-input v-model="scope.row.number" @input="(val) => (scope.row.number = parseFloat(val))" type="number"
+              placeholder="请输入数量" min="0" />
           </template>
         </el-table-column>
         <el-table-column property="other" label="其他信息" align="center">
@@ -326,9 +206,7 @@
         </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-            <el-button type="danger" @click="deleteRow(scope.$index)"
-              >删除</el-button
-            >
+            <el-button type="danger" @click="deleteRow(scope.$index)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -341,7 +219,7 @@
 </template>
 
 <script>
-import { getAssignData, getAllCollector,distribution,updateStatus } from "@/api/collection";
+import { getAssignData, getAllCollector, distribution } from "@/api/collection";
 const statusMap = {
   sampleQiang: "墙",
   sampleBan: "板",
@@ -476,14 +354,14 @@ export default {
       options: [],
       distribute: "", // 状态选择器值
       dialogTableVisible2: false,
-      taskId:0,
+      taskId: 0,
     };
   },
   computed: {
     status() {
       return this.$route.query.status;
     },
-    curId(){
+    curId() {
       return this.$route.query.taskId
     },
     rowData() {
@@ -496,8 +374,8 @@ export default {
     this.getAllCollector();
     //将后端的数据 传递给data中
   },
-  mounted(){
-    console.log("row",this.row)
+  mounted() {
+    console.log("row", this.row)
   },
   methods: {
     async getData() {
@@ -506,16 +384,16 @@ export default {
         const res = await getAssignData(this.curId);
         if (res.code == "200") {
           console.log("待分发数据", res);
-          this.taskId=res.result.taskId;
-          this.yanshouRule=res.result.yanshouRule
+          this.taskId = res.result.taskId;
+          this.yanshouRule = res.result.yanshouRule
           const items = res.result.inspectItemModel;
           this.tableData = items.map((item) => ({
             ...item, // 保留原始属性
             totalText: getStatusText(item), // 新增状态文本
             totalSampleNumber: 0,
             minSampleNumber: 0,
-            isEmpty:0,//是否采样 0-不采样
-            positionId:null,//分发岗位Id
+            isEmpty: 0,//是否采样 0-不采样
+            positionId: null,//分发岗位Id
           }));
           console.log("this.tableData ", this.tableData);
         } else {
@@ -634,64 +512,66 @@ export default {
         .join("；");
       console.log(result);
       //页面中检验批容量 显示
-      this.shejizhi= result;
+      this.shejizhi = result;
       console.log("设计值", this.gridData);
     },
     cancelDssignValue() {
       this.dialogTableVisible2 = false;
     },
     //分发按钮
-    async distributeTask(){
+    async distributeTask() {
       //整理数据
-      const resultDate={}
-      resultDate.taskId=this.taskId
-      resultDate.fenbaoCompany=this.fenbaoCompany
-      resultDate.fenbaoDirector=this.fenbaoDirector
-      resultDate.fenbaoTechnical=this.fenbaoTechnical
-      resultDate.shigongRule=this.shigongRule
+      const resultDate = {}
+      resultDate.taskId = this.taskId
+      resultDate.fenbaoCompany = this.fenbaoCompany
+      resultDate.fenbaoDirector = this.fenbaoDirector
+      resultDate.fenbaoTechnical = this.fenbaoTechnical
+      resultDate.shigongRule = this.shigongRule
 
-      const taskInspectBatchVolumeList=this.inspectCapacity.map(({
-          itemName:sourceName,number:volume,other:info,
-        })=>({  
-          sourceName,volume,info,
-           // 添加固定值属性
-          batchId: null,
-          taskId: this.taskId,
-        }))
+      const taskInspectBatchVolumeList = this.inspectCapacity.map(({
+        itemName: sourceName, number: volume, other: info,
+      }) => ({
+        sourceName, volume, info,
+        // 添加固定值属性
+        batchId: null,
+        taskId: this.taskId,
+      }))
 
       const processData = (originalData) => {
         return originalData.map(item => {
-          // 通过解构赋值提取需要的属性，并用冒号(:)重命名
-          const {
-            totalSampleNumber: sampleAmount,        // 将原 totalSampleNumber属性重命名为sampleAmount
-            variableMeaning: variableValue,    // 将原name属性重命名为userName
-            passThresh:passRate,
-            isEmpty,
-            positionId,
-            inspectItemId,
-            minSampleNumber:minSample,
-          } = item;
-          const taskId=this.taskId
-          const taskItemId=null
-          const checkRecord=null
-          const isFinished=0
-          const minSampleInfo=null
-          const collectedAmount=0 
-          return { taskItemId,taskId,inspectItemId,isEmpty,positionId,sampleAmount, variableValue, minSample,minSampleInfo,collectedAmount,isFinished, passRate,checkRecord};
+          if (item.isEmpty) {  //只要采集的数据项
+            // 通过解构赋值提取需要的属性，并用冒号(:)重命名
+            const {
+              totalSampleNumber: sampleAmount,        // 将原 totalSampleNumber属性重命名为sampleAmount
+              variableMeaning: variableValue,    // 将原name属性重命名为userName
+              passThresh: passRate,
+              isEmpty,
+              positionId,
+              inspectItemId,
+              minSampleNumber: minSample,
+            } = item;
+            const taskId = this.taskId
+            const taskItemId = null
+            const checkRecord = null
+            const isFinished = 0
+            const minSampleInfo = null
+            const collectedAmount = 0
+            return { taskItemId, taskId, inspectItemId, isEmpty, positionId, sampleAmount, variableValue, minSample, minSampleInfo, collectedAmount, isFinished, passRate, checkRecord };
+          }
         });
       };
-      const taskItemList=processData(this.tableData);
+      const taskItemList = processData(this.tableData);
       const designValue = JSON.stringify(this.gridData);
       resultDate.taskInspectBatchVolumeList = taskInspectBatchVolumeList;
       resultDate.taskItemList = taskItemList;
       resultDate.designValue = designValue;
       console.log('最终resultDate：', resultDate);
       try {
-        let res= await distribution(resultDate)
-        if (res.code==200){
-           this.$message.success("任务发送成功！");
-           //分发成功更改任务状态
-        }else {
+        let res = await distribution(resultDate)
+        if (res.code == 200) {
+          this.$message.success("任务发送成功！");
+          //分发成功更改任务状态
+        } else {
           this.$message.error("任务发送失败！");
           throw new Error(res.message);
         }
@@ -700,13 +580,13 @@ export default {
       }
     },
     //取消分发
-    cancelDistributeTask(){
-         this.$router.push({
-          name: "CollectionManage",
-        });
+    cancelDistributeTask() {
+      this.$router.push({
+        name: "CollectionManage",
+      });
     },
     //选择台账
-    importLedger(){
+    importLedger() {
       console.log("选择台账")
     }
   },
@@ -715,16 +595,18 @@ export default {
 <style scoped>
 .equal-height-row {
   display: flex;
-  align-items: stretch; /* 让每个列的高度一致 */
+  align-items: stretch;
+  /* 让每个列的高度一致 */
 }
 
-.equal-height-row >>> .el-col {
+.equal-height-row>>>.el-col {
   display: flex;
   flex-direction: column;
 }
 
 .card-box {
-  flex: 1; /* 让 card 撑满列的高度 */
+  flex: 1;
+  /* 让 card 撑满列的高度 */
   display: flex;
   flex-direction: column;
 }
@@ -739,9 +621,11 @@ export default {
 .unchecked-row {
   color: #a9a9a9;
 }
+
 .spaced-row {
   display: flex;
-  margin-top: 1em; /* 调整行距，例如 20px */
+  margin-top: 1em;
+  /* 调整行距，例如 20px */
 }
 
 .sub-card.card-item {
@@ -750,15 +634,23 @@ export default {
 }
 
 .sub-card.card-item-name .el-input__inner {
-  height: 1em; /* 输入框撑满高度 */
+  height: 1em;
+  /* 输入框撑满高度 */
 }
+
 /* 添加在组件的 <style> 部分或全局 CSS 中 */
 .capacity-text {
-  display: inline-block; /* 必须设置为块级元素 */
-  max-width: 10em; /* 根据实际布局调整最大宽度 */
-  overflow: hidden; /* 隐藏溢出内容 */
-  text-overflow: ellipsis; /* 显示省略号 */
-  white-space: nowrap; /* 禁止换行 */
-  vertical-align: middle; /* 垂直对齐 */
+  display: inline-block;
+  /* 必须设置为块级元素 */
+  max-width: 10em;
+  /* 根据实际布局调整最大宽度 */
+  overflow: hidden;
+  /* 隐藏溢出内容 */
+  text-overflow: ellipsis;
+  /* 显示省略号 */
+  white-space: nowrap;
+  /* 禁止换行 */
+  vertical-align: middle;
+  /* 垂直对齐 */
 }
 </style>

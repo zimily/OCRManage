@@ -4,9 +4,11 @@
     <router-view></router-view>
     <!-- 顶部操作栏 -->
     <el-row>
-      <el-button type="primary" @click="toLedgerEntry">+台账录入</el-button>
-      <el-button type="primary" @click="toOCREntry">OCR数据录入</el-button>
-      <el-col :offset="2">
+      <el-col :span="10">
+        <el-button type="primary" @click="toLedgerEntry">+台账录入</el-button>
+        <el-button type="primary" @click="toOCREntry">OCR数据录入</el-button>
+      </el-col>
+      <el-col :span="14">
         <div class="top_right">
           <span>项目名称</span>
           <el-input v-model="searchProjectName" placeholder="" style="width: 8em; margin-left: 1em; margin-right: 1em"
@@ -415,6 +417,7 @@ export default {
 
 .top_right {
   display: flex;
+  justify-content: flex-end;
   align-items: center;
 }
 

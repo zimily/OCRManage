@@ -64,17 +64,6 @@ export default {
 @import "~@/styles/mixin.scss";
 @import "~@/styles/variables.scss";
 
-//.app-wrapper {
-//  @include clearfix;
-//  position: relative;
-//  height: 100%;
-//  width: 100%;
-//   //overflow: hidden; /* 禁止全局滚动 */
-//  &.mobile.openSidebar {
-//    position: fixed;
-//    top: 0;
-//  }
-//}
 html, body {
   margin: 0;
   padding: 0;
@@ -88,10 +77,11 @@ html, body {
   flex-direction: column;
 }
 
-.main-content {
+.app-main-wrapper {
   flex: 1;
-  overflow-y: auto; /* 允许主要内容区域滚动 */
+  overflow-y: auto; /* 滚动条应用于 app-main 的外层容器 */
 }
+
 .drawer-bg {
   background: #000;
   opacity: 0.3;
@@ -125,11 +115,6 @@ html, body {
   &.hideSidebar {
     margin-left: 64px; /* 侧边栏折叠时的宽度 */
   }
-}
-.app-main-wrapper {
-  // height: calc(100vh-100px); //减去navbar
-  flex: 1; /* 自动填充剩余高度 */
-  overflow-y: auto; /* 允许滚动 */
 }
 
 .mobile .fixed-header {

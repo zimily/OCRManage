@@ -128,6 +128,12 @@ export const constantRoutes = [
             component: () => import('@/views/dataCollection/task/components/taskList.vue'),
             meta: { title: '任务列表' }
           },
+          {
+            path: 'taskDetail',
+            name: 'TaskDetail',
+            component: () => import('@/views/dataCollection/task/components/taskDetail.vue'),
+            meta: { title: '任务详情' }
+          },
         ]
       },
       {

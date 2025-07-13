@@ -42,6 +42,11 @@ module.exports = {
         target: 'http://172.31.0.191:8080',
         changeOrigin: true,
         pathRewrite: { '^/api': '' }
+      },
+      '/material-api': { // 新增的代理，用于物资平台
+        target: 'http://wei.cscec5b.com.cn:9080',
+        changeOrigin: true,
+        pathRewrite: { '^/material-api': '' }
       }
     }
   },
