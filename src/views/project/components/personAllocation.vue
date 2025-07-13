@@ -275,7 +275,7 @@ export default {
         isLook2: true,
         pre: 1
       }
-      this.lookId = scope.row.userId
+      this.lookId = parseInt(scope.row.userId)
     },
     async deleteBatch(scope) {
       if (scope.row.roleName === '总工') {

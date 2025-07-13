@@ -214,22 +214,18 @@
 </template>
 
 <script>
-import TableItem from '@/views/project/components/tableItem.vue'
 import TaizhangDialog from '@/views/ledgerManage/components/taizhangDialog.vue'
-import pdf from 'vue-pdf'
 import { getUser } from '@/utils/storage'
 import {
   autodetect,
   pollAutodetect,
   getProjectNameList,
   getSubNameList,
-  postProjectInfo, getImageURL, getFiles, getFields, getTemplate, specifieddetect, postTemplate, postFinish
+  postProjectInfo, getImageURL, getFields, getTemplate, specifieddetect, postTemplate, postFinish
 } from '@/api/ocrEntry'
-import { draw } from '@/api/makeRectangle'
-import router from '@/router'
 
 export default {
-  components: { pdf, TaizhangDialog },
+  components: { TaizhangDialog },
   props: {
     index: Number,
     category: String
@@ -297,10 +293,10 @@ export default {
   methods: {
     async getProjectNameList() {
       try {
-        // console.log(getUser().userId)
+        console.log(getUser().userId)
         const res = await getProjectNameList(getUser().userId)
         if (res.code === 200) {
-          // console.log('获取该用户的项目名称的列表', res)
+          console.log('获取该用户的项目名称的列表', res)
           this.projectList = res.result || []
         } else {
           throw new Error(res.message || '获取项目列表状态失败')
@@ -411,6 +407,7 @@ export default {
               if (taskStatus === 'FAILED') {
                 this.failOCRImages.push(result.results_fail[0].file_name)
               } else {
+                this.$message.success('识别成功')
                 result.results_success.forEach(item => {
                   this.tableData.push(item)
                 })
@@ -440,6 +437,11 @@ export default {
     async postTemplate(data) {
       try {
         const res = await postTemplate(data)
+        if (res.code === 200) {
+          this.$message.success('保存数据成功')
+        } else {
+          throw new Error(res.message || '批量保存台账表单数据失败')
+        }
         console.log('OCR批量保存台账', res)
       } catch (error) {
         console.log(error)
@@ -606,6 +608,7 @@ export default {
           return
         }
       })
+      // 处理数据，和后端格式相同
       const data = []
       this.tableData.forEach(item => {
         const temp = JSON.parse(JSON.stringify(item.table_info))

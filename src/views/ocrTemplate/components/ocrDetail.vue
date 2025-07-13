@@ -307,6 +307,9 @@ export default {
       try {
         const result = await putTemplateById(this.templateId, this.form)
         console.log('更新模板基本信息', result)
+        if (result.code === 200) {
+          this.$message.success('保存成功！')
+        }
       } catch (error) {
         console.log(error)
       }

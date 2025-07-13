@@ -81,8 +81,8 @@
       />
     </div>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="savePeople(0)">取 消</el-button>
       <el-button type="primary" @click="savePeople(-1)">确 定</el-button>
+      <el-button @click="savePeople(0)">取 消</el-button>
     </span>
   </el-dialog>
 
@@ -127,8 +127,8 @@
       </el-row>
     </div>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="savePeople(1)">取 消</el-button>
       <el-button type="primary" @click="savePeople(1)">确 定</el-button>
+      <el-button @click="savePeople(1)">取 消</el-button>
     </span>
   </el-dialog>
 </template>
@@ -219,7 +219,7 @@ export default {
     },
     lookId: {
       handler(newVal) {
-        this.lookDetailId = newVal
+        this.lookDetailId = parseInt(newVal)
       }
     },
     lookDetailId: {
@@ -282,7 +282,7 @@ export default {
     },
     async getAssignDetailById() {
       try {
-        console.log('lookDetailId', this.lookDetailId)
+        console.log('lookDetailId', this.lookDetailId, typeof this.lookDetailId)
         const { result } = await getAssignDetailById(this.lookDetailId)
         if (result && result.length) {
           this.userDetail = result[0]
