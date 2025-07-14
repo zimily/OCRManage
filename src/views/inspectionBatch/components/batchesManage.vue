@@ -119,10 +119,16 @@ export default {
     //搜索事件
     async handleSearch() {
       console.log('搜索参数',this.searchFenxiang,this.searchType,this.searchYanshou)
+      this.currentPage = 1;
+
       try {
-        let res=await searchSpecifications(this.searchFenxiang,this.searchType,this.searchYanshou)
+        let res=await searchSpecifications(this.searchFenxiang,this.searchType,this.searchYanshou,this.currentPage,this.limit)
         if (res.code==200){
           console.log('搜索结果',res)
+          this.specInfo = res.result.records;
+          this.total = Number(res.result.total);
+          this.limit = Number(res.result.size);
+          this.currentPage = Number(res.result.current);
         }else
           throw new Error(res.message || "搜索操作失败");
       } catch (error) {

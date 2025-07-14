@@ -37,3 +37,13 @@ export function getFinishedList(reportType,pageNum, pageSize,subprojectId) {
     method: 'get',
   })
 }
+
+
+//提交数据
+export function submitData(data) {
+  return request({
+    url: '/api/receive/receiveData  ',
+    method: 'post',
+    data
+  })
+}
