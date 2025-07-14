@@ -6,6 +6,7 @@
     :visible.sync="dialogVisible1"
     title="人员添加"
     width="60%"
+    @close="savePeople(0)"
   >
     <div>
       <el-row>
@@ -93,6 +94,7 @@
     :visible.sync="dialogVisible2"
     title="用户查看"
     width="40%"
+    @close="savePeople(1)"
   >
     <div>
       <el-row>
@@ -400,7 +402,7 @@ export default {
 </script>
 
 <style scoped>
-.el-table .info-row {
+::v-deep  .el-table .info-row {
   background-color: #c5c1c1;
 }
 </style>
