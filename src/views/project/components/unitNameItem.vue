@@ -195,7 +195,7 @@
     </div>
     <hr>
     <!--   添加检验批部位   -->
-    <el-button :disabled="chakan" type="primary" @click="addInspect">添加检验批部位</el-button>
+    <el-button v-if="!chakan" type="primary" @click="addInspect">添加检验批部位</el-button>
     <el-table
       :data="allInspect"
       max-height="30em"
@@ -214,7 +214,7 @@
       >
         <TableItem :value="scope.row.obj" :str="item.label" />
       </el-table-column>
-      <el-table-column v-slot="scope" prop="prop" label="操作" align="center">
+      <el-table-column v-if="!chakan" v-slot="scope" prop="prop" label="操作" align="center">
         <template>
           <el-button
             type="danger"
@@ -241,10 +241,7 @@
               <el-row>
                 <el-col :span="12">
                   <el-form-item label="楼层范围">
-                    <el-input
-                      v-model="buildingFloor"
-                      placeholder="请输入内容"
-                    />
+                    <el-input v-model="buildingFloor" placeholder="请输入内容" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
@@ -275,8 +272,8 @@
         <el-button @click="dialogVisible = false">取 消</el-button>
       </span>
     </el-dialog>
-    <el-button v-if="!ischakan" type="primary" @click="preserve">{{ chakan?'确认':'保存' }}</el-button>
-    <el-button type="info" @click="cancel">取消</el-button>
+    <el-button v-if="!chakan" type="primary" @click="preserve">保存</el-button>
+    <el-button v-if="!chakan" type="info" @click="cancel">取消</el-button>
   </div>
 </template>
 
@@ -285,6 +282,7 @@ import TableItem from '@/views/project/components/tableItem.vue'
 import {
   getSubprojects, getTasksBySubprojectId, getYanShouRules, getYanSouRulesById
 } from '@/api/project'
+import { int, integer } from 'mockjs/src/mock/random/basic'
 
 export default {
   components: { TableItem },
@@ -461,6 +459,8 @@ export default {
     }
   },
   methods: {
+    int,
+    integer,
     async getSubprojects() {
       if (this.subprojectId) {
         try {
@@ -562,6 +562,13 @@ export default {
     },
     saveInspect() {
       console.log(this.allInspect)
+      this.buildingFloor = parseInt(this.buildingFloor)
+      this.buildingTop = parseInt(this.buildingTop)
+      // console.log(this.buildingFloor, typeof this.buildingFloor, this.buildingTop, typeof this.buildingTop)
+      if (this.buildingFloor > this.buildingTop) {
+        this.$message.warning('楼层填写错误')
+        return
+      }
       for (let i = this.buildingFloor; i <= this.buildingTop; i++) {
         if (this.allInspect.findIndex(item => item.floor === i) !== -1) continue// 去重操作
         if (i === 0) {
@@ -761,8 +768,8 @@ export default {
       console.log(this.checkRule)
     },
     handleClose() {
-      this.buildingFloor = ''
-      this.buildingTop = ''
+      this.buildingFloor = 0
+      this.buildingTop = 0
       this.inspectName = ''
       this.checkList = []
     }

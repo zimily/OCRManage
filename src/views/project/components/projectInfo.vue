@@ -151,8 +151,8 @@
           </el-row>
         </el-form>
         <el-col :span="24">
-          <el-button style="margin-left: 7em" type="primary" @click="preserve">{{ chakan?'确认':'保存' }}</el-button>
-          <el-button type="info" @click="cancel">取消</el-button>
+          <el-button style="margin-left: 7em" type="primary" @click="preserve">{{ chakan?'查看分项目':'保存' }}</el-button>
+          <el-button type="info" @click="cancel">返回</el-button>
         </el-col>
       </el-col>
     </el-row>
@@ -268,7 +268,7 @@ export default {
         console.log(error)
       }
     },
-    preserve() {
+    async preserve() {
       // 发请求保存项目信息
       if (this.chakan) {
         const isShow = false
@@ -281,7 +281,7 @@ export default {
 
         this.info.startDate = this.info.startDate + ' 00:00:00'
         this.info.endDate = this.info.endDate + ' 00:00:00'
-        this.putSubprojects()
+        await this.putSubprojects()
         this.$emit('transmit', data)
       }
     },
