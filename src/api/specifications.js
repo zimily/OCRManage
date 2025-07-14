@@ -17,9 +17,9 @@ export function deleteSpecifications(inspectId) {
   }
 
 //搜索
-export function searchSpecifications(fenxiangName,typeName,yanshouRule) {
+export function searchSpecifications(fenxiangName,typeName,yanshouRule,current,size) {
     return request({
-      url: `api/inspect-rules/search?fenxiangName=${fenxiangName}&typeName=${typeName}&yanshouRule=${yanshouRule}`,
+      url: `api/inspect-rules/search/page?fenxiangName=${fenxiangName}&typeName=${typeName}&yanshouRule=${yanshouRule}&current=${current}&size=${size}`,
       method: 'get',
     })
   }
