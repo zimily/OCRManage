@@ -286,8 +286,10 @@ export default {
       try {
         console.log('lookDetailId', this.lookDetailId, typeof this.lookDetailId)
         const { result } = await getAssignDetailById(this.lookDetailId)
+        console.log('getAssignDetailById', this.lookDetailId, result)
         if (result && result.length) {
           this.userDetail = result[0]
+          // 在好几个项目下时进行字符串拼接
           if (result.length > 1) {
             for (let i = 1; i < result.length; i++) {
               this.userDetail.projectName += `, ${result[i].projectName}`
@@ -303,7 +305,6 @@ export default {
             deptName: ''
           }
         }
-        console.log('getAssignDetailById', this.lookDetailId, result)
       } catch (error) {
         console.log(error)
       }
@@ -339,7 +340,7 @@ export default {
       // 跟据分页器计算当前条的实际下标
       const index = scope.$index + this.limit * (this.currentPage - 1)
       const userId = scope.row.userId
-      // console.log(scope)
+      console.log(scope)
       if (this.personList.find(item => item.userId === userId)) {
         return
       }
@@ -393,6 +394,7 @@ export default {
     },
     // 改变行样式，如果人员在分项目里，就改变该行样式
     isEnableClass({ row, index }) {
+      // console.log('isEnableClass', this.personList)
       if (this.personList.find(item => item.userId === row.userId)) {
         return 'info-row'
       }

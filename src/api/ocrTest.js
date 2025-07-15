@@ -53,4 +53,20 @@ export function putTemplateById(templateId, data) {
     data: data
   })
 }
-
+// 批量保存图片,返回url集合
+export function postImage(data) {
+  return request({
+    url: `/imgSave/batchSave`,
+    method: 'post',
+    data: data
+  })
+}
+// 返回值为url与base64的键值对集合,一个url对应一个base64
+export function getImage(data) {
+  // console.log('getImgs的参数，', data, typeof data)
+  return request({
+    url: `/imgSave/getImgs`,
+    method: 'post',
+    data: data
+  })
+}
