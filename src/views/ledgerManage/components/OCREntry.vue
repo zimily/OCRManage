@@ -55,7 +55,6 @@
           border
           :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
           :row-style="rowStyle"
-          :cell-class-name="getCellClassName"
           @row-click="handleRowClick"
         >
           <el-table-column
@@ -73,7 +72,13 @@
                 v-for="(item2,index2) in scope.row.data[item.field_name]"
                 :key="index2"
               >
-                <el-input v-model="item2.result" />
+                <el-input
+                  v-model="item2.result"
+                  :class="{
+                    'highlight-cell-yellow': item2.conf===0,
+                    'highlight-cell-red': item2.conf<0.8
+                  }"
+                />
               </span>
             </template>
           </el-table-column>
@@ -164,9 +169,11 @@
                 :show-file-list="false"
                 :auto-upload="false"
                 :on-change="importPDF"
+                :disabled="projectId === 0 || subprojectSelect === ''"
               >
                 <el-button
                   type="primary"
+                  :disabled="projectId === 0 || subprojectSelect === ''"
                 >选择
                 </el-button>
               </el-upload>
@@ -487,7 +494,7 @@ export default {
       return {}
     },
     getCellClassName({ row, column, rowIndex, columnIndex }) {
-      // console.log('改变el-table指定单元格的样式', row, column, rowIndex, columnIndex)
+      console.log('改变el-table指定单元格的样式', row, column, rowIndex, columnIndex)
       // 数据不存在,置信度为0,变黄
       const val = column.property.split('.')[1]
       if (val && row.data[val][0].conf === 0) {
@@ -734,13 +741,13 @@ export default {
   justify-content: flex-start;
 }
 
-::v-deep .highlight-cell-red {
-  background-color: red;
-  color: white; /* 提高可读性 */
+::v-deep .highlight-cell-red input {
+  /*background-color: #b61313 !important;*/
+  border-color: red;
 }
-::v-deep .highlight-cell-yellow {
-  background-color: yellow;
-  color: white; /* 提高可读性 */
+::v-deep .highlight-cell-yellow input {
+ /* background-color: #f1f11f !important;*/
+  border-color: orange;
 }
 /*.custom-button {
   width: 3em;

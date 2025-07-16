@@ -23,9 +23,9 @@
                     >
                       <el-option
                         v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.label"
+                        :key="item.roleId"
+                        :label="item.roleName"
+                        :value="item.roleName"
                       />
                     </el-select>
                   </el-form-item>
@@ -115,7 +115,7 @@
 <script>
 
 import {
-  deleteAssignment, getPersonInProject,
+  deleteAssignment, getAl1RolesNoPage, getAllRolesNoPage, getPersonInProject,
   postSelectAssignment, putDistribute
 } from '@/api/personAllocation'
 import { getProjectsById } from '@/api/project'
@@ -147,24 +147,7 @@ export default {
       currentPage: 1, // 分页器当前页码
       limit: 10, // 每页显示的数据
       totalData: 0, // 总共筛选出的数据条目
-      options: [
-        {
-          value: 1,
-          label: '总工'
-        },
-        {
-          value: 2,
-          label: '资料员'
-        },
-        {
-          value: 3,
-          label: '台账采集员'
-        },
-        {
-          value: 4,
-          label: '空'
-        }
-      ],
+      options: [],
       looks: {
         isLook1: false,
         isLook2: false,
@@ -206,6 +189,7 @@ export default {
     this.searchData.projectId = this.projectId
 
     this.getProject()
+    this.getAllRolesNoPage()
     this.postSelectAssignment()
     this.getPersonInProject()
   },
@@ -216,6 +200,16 @@ export default {
         console.log('项目详情', result)
         this.companyId = result.companyId
         this.project = result
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getAllRolesNoPage() {
+      try {
+        const { result } = await getAllRolesNoPage()
+        console.log('获取所有角色列表', result)
+        this.options = result
+        this.options.push({ roleId: '空', roleName: '空' })
       } catch (error) {
         console.log(error)
       }
