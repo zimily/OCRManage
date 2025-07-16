@@ -9,7 +9,7 @@
           </el-card>
         </DashboardCard>
       </el-col>
-       <el-col :xs="24" :md="8">
+      <el-col :xs="24" :md="8">
         <DashboardCard title="消息中心">
           <el-card shadow="hover">
             <news-list :news="news" @click-item="handleNewsClick" />
@@ -60,16 +60,7 @@ export default {
   },
   data() {
     return {
-      recentApps: [
-        { id: 1, name: "项目管理", icon: "program", usedAt: "2023-05-15" },
-        {
-          id: 2,
-          name: "验收规范管理",
-          icon: "specification",
-          usedAt: "2023-05-15",
-        },
-        { id: 3, name: "台账管理", icon: "ledger", usedAt: "2023-05-15" },
-      ],
+      recentApps: [],
       allApps1: [
         { id: 1, name: "项目管理", icon: "program" },
         { id: 2, name: "验收规范管理", icon: "specification" },
@@ -125,12 +116,18 @@ export default {
       ],
     };
   },
+  created() {
+    const stored = localStorage.getItem("recentApps");
+    if (stored) {
+      this.recentApps = JSON.parse(stored);
+    }
+  },
   methods: {
     handleAction(action) {
       this.$message.success(`执行操作: ${action}`);
     },
     handleAppClick(app) {
-      console.log("打开应用:", app.name);
+      // console.log("打开应用:", app.name);
       // 实际项目中这里可以跳转到对应应用
 
       // 应用跳转路由映射
@@ -141,7 +138,7 @@ export default {
         报表管理: "/menus/statement",
         数据采集情况: "/menus/collection",
         数据采集任务: "/menus/task",
-        OCR模版库:"/menus/ocrTemplate",
+        OCR模版库: "/menus/ocrTemplate",
         角色管理: "/menus/roles",
         人员管理: "/menus/users", //要跳转的页面
       };
@@ -162,14 +159,18 @@ export default {
           ...app,
           usedAt: new Date().toISOString().split("T")[0],
         });
-        // 保持最近使用最多显示6个
-        if (this.recentApps.length > 6) {
+        // 保持最近使用最多显示4个
+        if (this.recentApps.length > 4) {
           this.recentApps.pop();
         }
       }
+      console.log("最近使用", this.recentApps);
 
       // 按使用时间排序
       this.recentApps.sort((a, b) => new Date(b.usedAt) - new Date(a.usedAt));
+      localStorage.setItem("recentApps", JSON.stringify(this.recentApps));
+
+
     },
     handleCompleteTodo(todo) {
       const index = this.todos.findIndex((item) => item.id === todo.id);
@@ -196,12 +197,12 @@ export default {
 }
 
 .row-app-center .el-card {
-  height: 480px; /* 主功能最大 */
+  height: 480px;
+  /* 主功能最大 */
   /* overflow: auto; */
 }
 
 .mt-20 {
   margin-top: 20px;
 }
-
 </style>

@@ -99,24 +99,32 @@
 
     <!-- 物资选择对话框 -->
     <el-dialog title="选择物资平台数据" :visible.sync="dialogTableVisible">
-      <el-table :data="gridData">
-        <el-table-column label="选择" width="60" fixed>
+      <el-table :data="mpData" v-loading="loading" element-loading-text="正在获取数据，请稍后..." @row-click="handleRowClick">
+        <el-table-column label="选择" width="100" fixed>
           <template slot-scope="scope">
-            <el-radio v-model="selectedMaterial" :label="scope.row.id"
-              @change="handleMaterialSelect(scope.row)"></el-radio>
+            <el-radio v-model="selectedRow" :label="scope.row">{{ '' }}</el-radio>
           </template>
         </el-table-column>
-        <el-table-column property="name" label="物资名称" width="150"></el-table-column>
-        <el-table-column property="provider" label="供应商" width="150"></el-table-column>
-        <el-table-column property="specification" label="规格" width="150"></el-table-column>
-        <el-table-column property="part" label="工程部位" width="150"></el-table-column>
-        <el-table-column property="num" label="入库数量" width="150"></el-table-column>
+        <el-table-column property="steelType" label="钢筋种类" width="150" align="center"></el-table-column>
+        <el-table-column property="producer" label="生产厂家" width="200" align="center"></el-table-column>
+        <el-table-column property="heatBatchNumber" label="炉批号" width="150" align="center"></el-table-column>
+        <el-table-column property="diameter" label="公称直径（mm）" width="150" align="center"></el-table-column>
+        <el-table-column property="antiQuakeLevel" label="抗震等级" width="150" align="center"></el-table-column>
+        <el-table-column property="getAmount" label="进场批量（吨）" width="150" align="center"></el-table-column>
       </el-table>
+
+      <!-- 分页器 -->
+      <el-pagination v-if="!loading" style="margin-top: 20px; text-align: center" @size-change="handleSizeChange"
+        @current-change="handleCurrentChange" :current-page="pageNum" :page-sizes="[10, 15, 20]" :page-size="pageSize"
+        layout="prev, pager, next, jumper,->,sizes,total" :total="total">
+      </el-pagination>
+
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogTableVisible = false">取 消</el-button>
         <el-button type="primary" @click="confirmMaterialSelection">确 定</el-button>
+        <el-button @click="dialogTableVisible = false">取 消</el-button>
       </div>
     </el-dialog>
+
   </div>
 </template>
 
@@ -130,47 +138,13 @@ import {
   saveLedgerData,
   uploadQrCode
 } from "@/api/ledger";
-import { getMaterialPlatformData } from "@/api/materialPlatform";
 import { getUser } from "@/utils/storage";
+import { getMaterialPlatformData } from "@/api/materialPlatform";
 export default {
   data() {
     return {
       selectedMaterial: null, // 当前选中的物资索引
       selectedMaterialData: null, // 当前选中的物资数据
-      gridData: [
-        {
-          id: 1,
-          name: "三级螺纹钢",
-          provider: "",
-          specification: "HRB400",
-          part: "",
-          num: 6.825,
-        },
-        {
-          id: 2,
-          name: "三级螺纹钢",
-          provider: "",
-          specification: "HRB400",
-          part: "",
-          num: 6.825,
-        },
-        {
-          id: 3,
-          name: "三级螺纹钢",
-          provider: "",
-          specification: "HRB400",
-          part: "",
-          num: 6.825,
-        },
-        {
-          id: 4,
-          name: "三级螺纹钢",
-          provider: "",
-          specification: "HRB400",
-          part: "",
-          num: 6.825,
-        },
-      ],
       dialogTableVisible: false,
       userId: null,
       options1: [],
@@ -190,8 +164,13 @@ export default {
       },
       rules: {},
       // 物资平台相关
-      pageNumber: 1, // 当前页码 必填
+      mpData: [],
+      selectedMaterialData: {},//选中的物资平台信息
+      selectedRow: null, // 单选
+      loading: false,    // 加载状态
+      pageNum: 1, // 当前页码 必填
       pageSize: 10, // 每页条数 必填
+      total: 0,
       projectName: "润雅苑", // 项目名称
       beginTime: "",  // 开始时间
       endTime: "",    // 结束时间 
@@ -262,7 +241,7 @@ export default {
 
     },
     changeProject(value) {
-      // console.log("选中的项目ID:", value);
+      console.log("选中的项目名称ID:", value);
       const projectId = String(value);
       // 处理项目选择变化
       this.getAllSubrojectName(projectId);
@@ -359,7 +338,12 @@ export default {
         if (res.code == 200) {
           console.log("获取物资数据成功", res);
           this.formData = res.result;
-          console.log("获取的物资数据", this.formData);
+          this.constructionUnit = res.result.shigongCompanyName || ""
+          this.developmentUnit = res.result.jiansheCompanyName || ""
+          this.projectNumber = res.result.projectInnerCode || ""
+          this.project = res.result.projectId || "",
+            await this.getAllSubrojectName(this.project)
+          this.subProject = res.result.subprojectId || ""
         } else {
           throw new Error(res.message || "获取物资数据失败");
         }
@@ -368,21 +352,6 @@ export default {
         this.$message.error("出错啦，请稍后重试！");
       }
 
-    },
-    handleMaterialSelect(row) {
-      // 处理物资选择
-      this.selectedMaterialData = row;
-      // 自动填充表单字段
-      this.steelType = row.name;
-      this.manufacturer = row.provider;
-      this.nominalDiameter = row.specification;
-    },
-    confirmMaterialSelection() {
-      // 确认选择并关闭对话框
-      if (this.selectedMaterialData) {
-        // 可以添加其他处理逻辑
-      }
-      this.dialogTableVisible = false;
     },
     //表单校验
     generateRules() {
@@ -462,41 +431,68 @@ export default {
     changeIndex() {
       this.$emit("update-index", 0);
     },
-    //物资平台数据选择对话框
     async openMaterialPlatformDialog() {
-      //发送数据
-      const pageNumber = 1;
-      const pageSize = 10;
-      const projectName = this.projectName;
-      const beginTime = this.beginTime;
-      const endTime = this.endTime;
-      const materialType = this.materialType;
-      const materialName = this.materialName;
-      const spec = this.spec;
-      //发送请求
+      this.loading = true
+      this.dialogTableVisible = true
+      await this.getMaterialPlatformData()
+    },
+    async getMaterialPlatformData() {
+      this.loading = true
+      this.mpData = []
+      this.selectedRow = null
       try {
         let res = await getMaterialPlatformData(
-          pageNumber,
-          pageSize,
-          projectName,
-          beginTime,
-          endTime,
-          materialType,
-          materialName,
-          spec
+          this.pageNum, this.pageSize,
+          this.projectName, this.beginTime, this.endTime,
+          this.materialType, this.materialName, this.spec
         )
-        if (res.code === 200) {
-          console.log("物资平台数据获取成功", res);
-        }
-        else {
-          throw new Error(res.message || "获取物资平台数据失败");
+        if (res.code === 0) {
+          console.log("物资平台数据获取成功", res)
+          this.mpData = res.data.records.map(item => ({
+            // id: Number(item.id),
+            steelType: "钢材",
+            producer: item.supplierName,
+            antiQuakeLevel: item.materialName,
+            getAmount: item.checkNumsSum,
+            heatBatchNumber: item.materialCode,
+            diameter: "10"
+          }))
+          this.total = Number(res.data.total)
+        } else {
+          throw new Error(res.message || "获取物资平台数据失败")
         }
       } catch (error) {
-        console.error("获取物资平台数据出错:", error);
-        this.$message.error(error.message || "获取物资平台数据失败");
+        console.error("获取物资平台数据出错:", error)
+        this.$message.error(error.message || "获取物资平台数据失败")
+      } finally {
+        this.loading = false
       }
-      this.dialogTableVisible = true;
     },
+    async handleCurrentChange(value) {
+      this.pageNum = value
+      await this.getMaterialPlatformData()
+    },
+    async handleSizeChange(value) {
+      this.pageSize = value
+      this.pageNum = 1
+      await this.getMaterialPlatformData()
+    },
+    handleRowClick(row) {
+      this.selectedRow = row
+    },
+    confirmMaterialSelection() {
+      if (this.selectedRow) {
+        console.log("已选择的物资平台数据:", this.selectedRow)
+        this.formData.diameter = this.selectedRow.diameter
+        this.formData.steelType = this.selectedRow.steelType
+        this.formData.heatBatchNumber = this.selectedRow.heatBatchNumber
+        this.formData.getAmount = this.selectedRow.getAmount
+        this.formData.antiQuakeLevel = this.selectedRow.antiQuakeLevel
+        this.formData.producer= this.selectedRow.getAmount
+      }
+      this.dialogTableVisible = false
+    },
+
     scanQRCode() {
       // 扫描二维码逻辑
       console.log("扫描二维码");

@@ -2,87 +2,44 @@
   <div>
     <div>
       <el-row :gutter="24">
-        <el-col :span="5" >
+        <el-col :span="5">
           <div>
             <span>状态：</span>
-            <el-select
-              v-model="searchStatus"
-              placeholder="请选择"
-            >
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
+            <el-select v-model="searchStatus" placeholder="请选择" @change="searchStatusChange">
+              <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </div>
         </el-col>
-        <el-col :span="6" >
+        <el-col :span="6">
           <div>
             <span>检验批部位：</span>
-            <el-input
-              v-model="searchPart"
-              placeholder="请输入搜索内容"
-              style="width: calc(100% - 100px)"
-            ></el-input>
+            <el-input v-model="searchPart" placeholder="请输入搜索内容" style="width: calc(100% - 100px)"></el-input>
           </div>
         </el-col>
 
-        <el-col :span="6" >
+        <el-col :span="6">
           <div>
             <span>单位工程：</span>
-            <el-input
-              v-model="searchUnit"
-              placeholder="请输入搜索内容"
-              style="width: calc(100% - 80px)"
-            ></el-input>
+            <el-input v-model="searchUnit" placeholder="请输入搜索内容" style="width: calc(100% - 80px)"></el-input>
           </div>
         </el-col>
 
-        <el-col :span="2" >
-          <el-button type="primary" @click="search"
-            >搜索</el-button
-          >
+        <el-col :span="2">
+          <el-button type="primary" @click="search">搜索</el-button>
         </el-col>
       </el-row>
     </div>
     <!--表格  -->
     <el-table :data="tableData" stripe style="width: 100%">
-      <el-table-column
-        prop="projectInnerCode"
-        label="项目号"
-        width="180"
-        align="center"
-      >
+      <el-table-column prop="projectInnerCode" label="项目号" width="180" align="center">
       </el-table-column>
-      <el-table-column
-        prop="projectName"
-        label="工程名称"
-        width="180"
-        align="center"
-      >
+      <el-table-column prop="projectName" label="工程名称" width="180" align="center">
       </el-table-column>
-      <el-table-column
-        prop="subprojectName"
-        label="单位工程"
-        width="180"
-        align="center"
-      >
+      <el-table-column prop="subprojectName" label="单位工程" width="180" align="center">
       </el-table-column>
-      <el-table-column
-        prop="inspectPart"
-        label="检验批部位"
-        width="180"
-        align="center"
-      >
+      <el-table-column prop="inspectPart" label="检验批部位" width="180" align="center">
       </el-table-column>
-      <el-table-column
-        prop="inspectType"
-        label="检验批名称"
-        width="180"
-        align="center"
-      >
+      <el-table-column prop="inspectType" label="检验批名称" width="180" align="center">
       </el-table-column>
       <el-table-column prop="status" label="状态" width="180" align="center">
         <template slot-scope="scope">
@@ -98,16 +55,9 @@
       </el-table-column>
     </el-table>
     <!-- 分页器 -->
-    <el-pagination
-      style="margin-top: 20px; text-align: center"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="curPage"
-      :page-sizes="[10, 15, 20]"
-      :page-size="curPageSize"
-      layout=" prev, pager, next, jumper,->,sizes,total"
-      :total="total"
-    >
+    <el-pagination style="margin-top: 20px; text-align: center" @size-change="handleSizeChange"
+      @current-change="handleCurrentChange" :current-page="curPage" :page-sizes="[10, 15, 20]" :page-size="curPageSize"
+      layout=" prev, pager, next, jumper,->,sizes,total" :total="total">
     </el-pagination>
   </div>
 </template>
@@ -140,6 +90,10 @@ export default {
           value: "5",
           label: "已完成",
         },
+        {
+          value: "6",
+          label: "全",
+        },
       ],
       searchStatus: "", // 状态选择器值
       searchUnit: "", // 单位工程搜索
@@ -170,7 +124,7 @@ export default {
       try {
         const res = await getAllAtatus(this.bodyData);
         if (res.code == "200") {
-          console.log("所有项目信息", res); 
+          console.log("所有项目信息", res);
           this.total = Number(res.result.total);
           this.tableData = res.result.list;
         } else {
@@ -205,8 +159,8 @@ export default {
         //待审核   跳转到详情页面
         this.$router.push({
           name: "CollectionDetailApproval",
-          params: {
-            row: value.row,
+          query: {
+            taskId: value.row.taskId,
           },
         });
       } else {
@@ -254,16 +208,16 @@ export default {
     },
     async search() {
       // 触发搜索，重新请求数据
-      this.curPage=1
-      console.log(this.searchStatus,this.searchUnit,this.searchPart)
+      this.curPage = 1
+      console.log(this.searchStatus, this.searchUnit, this.searchPart)
       const user = getUser();
       this.bodyData.userId = user.userId;
       this.bodyData.pageNum = this.curPage;
       this.bodyData.pageSize = this.curPageSize;
-      this.bodyData.status=this.searchStatus;
-      this.bodyData.floorWithInspectPart=this.searchPart;
-      this.bodyData.subprojectName=this.searchUnit;
-       try {
+      this.bodyData.status = this.searchStatus;
+      this.bodyData.floorWithInspectPart = this.searchPart;
+      this.bodyData.subprojectName = this.searchUnit;
+      try {
         const res = await getAllAtatus(this.bodyData);
         if (res.code == "200") {
           console.log("搜索", res);
@@ -279,6 +233,37 @@ export default {
       // this.curPage = 1;
       // this.fetchData();
     },
+    async searchStatusChange() {
+      // 触发搜索，重新请求数据
+      this.curPage = 1
+      console.log(this.searchStatus)
+      const user = getUser();
+      this.bodyData.userId = user.userId;
+      this.bodyData.pageNum = this.curPage;
+      this.bodyData.pageSize = this.curPageSize;
+      if (this.searchStatus === "6") {
+        this.bodyData.status = null;
+      } else {
+        this.bodyData.status = this.searchStatus;
+      }
+      this.bodyData.floorWithInspectPart = "";
+      this.bodyData.subprojectName = "";
+      console.log('搜索数据', this.bodyData);
+      try {
+        const res = await getAllAtatus(this.bodyData);
+        if (res.code == "200") {
+          console.log("搜索", res);
+          this.total = Number(res.result.total);
+          this.tableData = res.result.list;
+        } else {
+          this.$message.error("搜素失败！");
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
+      }
+
+    }
   },
 };
 </script>
@@ -288,14 +273,17 @@ export default {
   cursor: pointer;
   color: #409eff;
 }
+
 .el-icon-arrow-down {
   font-size: 12px;
 }
+
 .top_left {
   display: flex;
   align-items: center;
   padding: 0.5em;
 }
+
 .top_right {
   display: flex;
   align-items: center;

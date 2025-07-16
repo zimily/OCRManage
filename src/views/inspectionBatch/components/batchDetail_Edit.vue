@@ -73,18 +73,18 @@
     </el-card>
 
     <!-- 弹窗 -->
-    <el-dialog :title="dialogFormTitle" :visible.sync="dialogFormVisible">
+    <el-dialog :title="dialogFormTitle" :visible.sync="dialogFormVisible" :show-close="false" @change=" reSetForm()">
       <el-form :model="form">
-        <el-form-item label="验收项目" :label-width="formLabelWidth">
+        <el-form-item label="验收项目" :label-width="formLabelWidth" :required="true">
           <el-input v-model="form.itemName" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="规则" :label-width="formLabelWidth">
+        <el-form-item label="规则" :label-width="formLabelWidth" :required="true">
           <el-select v-model="form.ruleType" placeholder="请选择">
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="标准值或规范" :label-width="formLabelWidth">
+        <el-form-item label="标准值或规范" :label-width="formLabelWidth" :required="true">
           <el-input v-model="form.ruleStandard" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="参数含义" :label-width="formLabelWidth">
@@ -93,19 +93,19 @@
         <el-form-item label="单位" :label-width="formLabelWidth">
           <el-input v-model="form.dataUnit" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="项目类型" :label-width="formLabelWidth">
+        <el-form-item label="项目类型" :label-width="formLabelWidth" :required="true">
           <el-select v-model="form.itemType" placeholder="请选择">
             <el-option v-for="item in options1" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="数据类型" :label-width="formLabelWidth">
+        <el-form-item label="数据类型" :label-width="formLabelWidth" :required="true">
           <el-select v-model="form.dataType" placeholder="请选择">
             <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="合格率阈值" :label-width="formLabelWidth">
+        <el-form-item label="合格率阈值" :label-width="formLabelWidth" :required="true">
           <el-input v-model="form.passThresh" type="number" :min="0" :max="1" :step="0.01" autocomplete="off"
             @blur="handlePassThreshBlur"></el-input>
         </el-form-item>
@@ -345,7 +345,7 @@ export default {
       dialogFormTitle: "",
       // inspectId:3,//当前验收细则对应的验收项目的ID
       form: this.getDefaultFormData(), //对话框数据  表单数据
-      formLabelWidth: "120px",
+      formLabelWidth: "150px",
       curIndex: 0, //表示当前所选的行号
       indices: [], //多条细则信息
       inspectTypeId: null, //类别对应的Id
@@ -517,6 +517,10 @@ export default {
     //弹窗的确认按钮
     confirm() {
       // console.log("确认按钮", this.dialogFormTitle,this.form.totalText, this.form);//神经  this.form为什么为空
+      if (!this.form.itemName||!this.form.ruleType||!this.form.ruleStandard||!this.form.itemType||!this.form.dataType||!this.form.passThresh) {
+        this.$message.warning('请填写必填项');
+        return;
+      }
       this.dialogFormVisible = false;
       if (
         this.curIndex.totalSampleEmpty === 1 &&

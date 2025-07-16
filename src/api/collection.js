@@ -35,12 +35,12 @@ export function distribution(data) {
 }
 
 // 详情页面
-// 获取所有验收项目
-export function getAllList(taskId){
-    return request({
-      url: `/status/getTaskDetailWithBatchAndItems?taskId=${taskId}`,
-      method: 'get',
-    })
+// 获取所有验收项目  任务详情
+export function getTaskDetailData(taskId) {
+  return request({
+    url: `/status/getTaskDetailWithBatchAndItems?taskId=${taskId}`,
+    method: 'get',
+  })
 }
 
 //获取采集的数据
@@ -52,12 +52,11 @@ export function getCollectData(data){
     })
 }
 
-
-// 获取任务详情
-export function getTaskDetailData(taskId) {
-  return request({
-    url: `/status/getTaskDetailWithBatchAndItems?taskId=${taskId}`,
-    method: 'get',
-  })
+//项目审核
+export function verify(data){
+    return request({
+      url: '/status/checkTaskItemStatus',
+      method: 'post',
+      data
+    })
 }
-

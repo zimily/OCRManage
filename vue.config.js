@@ -30,6 +30,7 @@ module.exports = {
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
+
     port: port,
     open: true,
     overlay: {
@@ -43,10 +44,16 @@ module.exports = {
         changeOrigin: true,
         pathRewrite: { '^/api': '' }
       },
-      '/material-api': { // 新增的代理，用于物资平台
+      '/material-api': {
         target: 'http://wei.cscec5b.com.cn:9080',
         changeOrigin: true,
-        pathRewrite: { '^/material-api': '' }
+        pathRewrite: { '^/material-api': '' },
+        onProxyRes(proxyRes, req, res) {
+          const originHeaders = proxyRes.headers['access-control-allow-origin'];
+          if (Array.isArray(originHeaders)) {
+            proxyRes.headers['access-control-allow-origin'] = originHeaders[0];
+          }
+        }
       }
     }
   },
@@ -99,7 +106,7 @@ module.exports = {
             .plugin('ScriptExtHtmlWebpackPlugin')
             .after('html')
             .use('script-ext-html-webpack-plugin', [{
-            // `runtime` must same as runtimeChunk name. default is `runtime`
+              // `runtime` must same as runtimeChunk name. default is `runtime`
               inline: /runtime\..*\.js$/
             }])
             .end()

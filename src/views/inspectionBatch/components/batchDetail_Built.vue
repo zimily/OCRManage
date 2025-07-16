@@ -3,13 +3,13 @@
     <!-- 验收规范 -->
     <el-card :body-style="{ padding: '20px' }">
       <el-form :inline="true" class="demo-form-inline">
-        <el-form-item label="类别">
+        <el-form-item label="类别" :required="true">
           <el-select v-model="inspectTypeId" placeholder="请选择" @change="handleInspectTypeChange">
             <el-option v-for="item in options0" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="验收依据">
+        <el-form-item label="验收依据" :required="true">
           <el-input v-model="yanshouRule" placeholder="输入验收依据" style="width: 300px"></el-input>
         </el-form-item>
         <!-- 基于已有规范 -->
@@ -65,7 +65,6 @@
             <span v-else>未知数据类型</span>
           </template>
         </el-table-column>
-        </el-table-column>
         <el-table-column prop="passThresh" label="合格率阈值" align="center" width="100">
           <!-- :formatter="(row) => row.passThresh !== null ? (row.passThresh * 100) + '%' : 'N/A'" -->
 
@@ -89,18 +88,18 @@
       </div>
     </el-card>
     <!-- 弹窗 -->
-    <el-dialog :title="dialogFormTitle" :visible.sync="dialogFormVisible">
+    <el-dialog :title="dialogFormTitle" :visible.sync="dialogFormVisible" :show-close="false" @change=" reSetForm()">
       <el-form :model="form">
-        <el-form-item label="验收项目" :label-width="formLabelWidth">
+        <el-form-item label="验收项目" :label-width="formLabelWidth" :required="true">
           <el-input v-model="form.itemName" autocomplete="off" style="width: 500px;"></el-input>
         </el-form-item>
-        <el-form-item label="规则" :label-width="formLabelWidth">
+        <el-form-item label="规则" :label-width="formLabelWidth" :required="true">
           <el-select v-model="form.ruleType" placeholder="请选择">
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="标准值或规范" :label-width="formLabelWidth">
+        <el-form-item label="标准值或规范" :label-width="formLabelWidth" :required="true">
           <el-input v-model="form.ruleStandard" autocomplete="off" style="width: 500px;"></el-input>
         </el-form-item>
         <el-form-item label="参数含义" :label-width="formLabelWidth">
@@ -109,21 +108,21 @@
         <el-form-item label="单位" :label-width="formLabelWidth">
           <el-input v-model="form.dataUnit" autocomplete="off" style="width: 500px;"></el-input>
         </el-form-item>
-        <el-form-item label="项目类型" :label-width="formLabelWidth">
+        <el-form-item label="项目类型" :label-width="formLabelWidth" :required="true">
           <el-select v-model="form.itemType" placeholder="请选择">
             <el-option v-for="item in options1" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="数据类型" :label-width="formLabelWidth">
+        <el-form-item label="数据类型" :label-width="formLabelWidth" :required="true">
           <el-select v-model="form.dataType" placeholder="请选择">
             <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="合格率阈值" :label-width="formLabelWidth">
-          <el-input v-model="form.passThresh" type="number" :min="0" :max="1" :step="0.01" autocomplete="off" style="width: 500px;"
-            @blur="handlePassThreshBlur"></el-input>
+        <el-form-item label="合格率阈值" :label-width="formLabelWidth" :required="true">
+          <el-input v-model="form.passThresh" type="number" :min="0" :max="1" :step="0.01" autocomplete="off"
+            style="width: 500px;" @blur="handlePassThreshBlur"></el-input>
         </el-form-item>
         <el-form-item label="样本总数为空" :label-width="formLabelWidth">
           <el-radio v-model="form.totalSampleEmpty" :label="1" @change="handleTotalSampleEmptyChange">是</el-radio>
@@ -166,8 +165,8 @@
         </template>
         <template v-else-if="form.minSampleRule === 3">
           <el-form-item label="抽取比例" :label-width="formLabelWidth">
-            <el-input v-model="form.partMinPercentage" type="number" :min="0" :max="1" :step="0.01" autocomplete="off" style="width: 500px;"
-              @blur="handlePassThreshBlur"></el-input>
+            <el-input v-model="form.partMinPercentage" type="number" :min="0" :max="1" :step="0.01" autocomplete="off"
+              style="width: 500px;" @blur="handlePassThreshBlur"></el-input>
           </el-form-item>
           <el-form-item label="不少于" :label-width="formLabelWidth">
             <el-input v-model="form.minSample" placeholder="请输入最少抽取数量" suffix="处" style="width: 500px;"
@@ -526,43 +525,30 @@ export default {
     },
     //弹窗的确认按钮
     confirm() {
-      // console.log("确认按钮", this.dialogFormTitle,this.form.totalText, this.form);//神经  this.form为什么为空
-
-      this.dialogFormVisible = false;
-      if (this.dialogFormTitle == "添加规则") {
-        //添加一条数据
-        const formCopy = JSON.parse(JSON.stringify(this.form)); // 创建一个深拷贝，确保打印的是当前状态
-        console.log(
-          "确认按钮",
-          this.dialogFormTitle,
-          formCopy.ruleType,
-          formCopy
-        );
-        this.indices.push(formCopy);
-        // console.log(this.form.ruleType,typeof this.form.ruleType === 'number')
-        console.log("新建后的全部细则", this.indices);
-        this.reSetForm();
-      } else {
-        //编辑规则
-        if (
-          this.curIndex.totalSampleEmpty === 1 &&
-          this.curIndex.totalText.length > 0
-        ) {
-          this.$message.error("当样本总数为空时，不能选择样本来源");
-          return false;
-        }
-        //数组中数据替换
-        const formCopy = JSON.parse(JSON.stringify(this.form)); // 创建一个深拷贝，确保打印的是当前状态
-        //将样本来源文本转换成对应的字段
-        const data = setTextStatus(formCopy);
-        //最小抽样规则 文字修改
-        data.minSampleText = getMinSampleText(data);
-        // 替换索引为 index 的数据
-        // console.log(this.form.totalText,this.form.minSampleRule)
-        this.$set(this.indices, this.curIndex, _.cloneDeep(data));
-        console.log("编辑后this.indices", this.indices);
-        this.reSetForm();
+      //表单必填项验证
+      if (!this.form.itemName||!this.form.ruleType||!this.form.ruleStandard||!this.form.itemType||!this.form.dataType||!this.form.passThresh) {
+        this.$message.warning('请填写必填项');
+        return;
       }
+      this.dialogFormVisible = false;
+      if (
+        this.curIndex.totalSampleEmpty === 1 &&
+        this.curIndex.totalText.length > 0
+      ) {
+        this.$message.error("当样本总数为空时，不能选择样本来源");
+        return false;
+      }
+      //添加一条数据
+      const formCopy = JSON.parse(JSON.stringify(this.form)); // 创建一个深拷贝，确保打印的是当前状态
+      console.log(
+        "确认按钮",
+        this.dialogFormTitle,
+        formCopy.ruleType,
+        formCopy
+      );
+      this.indices.push(formCopy);
+      console.log("新建后的全部细则", this.indices);
+      this.reSetForm();
     },
     //弹窗取消按钮
     cancel() {
@@ -577,6 +563,19 @@ export default {
     //全部细则 保存按钮
     //全部细则 保存按钮
     async preserve() {
+      //验证 
+      // this.inspectTypeId,this.yanshouRule必须有值
+      //this.indices数组必须有值
+      console.log("保存按钮", this.inspectTypeId, this.yanshouRule);
+      if (!this.inspectTypeId || !this.yanshouRule) {
+        this.$message.warning("请输入类别和验收依据！")
+        return
+      }
+      if (!this.indices || this.indices.length === 0) {
+        this.$message.warning("请添加验收规则！")
+        return
+      }
+
       //整理需要保存的内容
       // console.log("保存按钮", this.indices);
       const data = this.indices.map(
