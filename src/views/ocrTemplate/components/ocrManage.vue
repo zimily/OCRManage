@@ -170,12 +170,14 @@ export default {
       this.deleteTemplateById()
     },
     // 分页器
-    handleSizeChange(val) {
+    async handleSizeChange(val) {
       this.limit = val
+      await this.getTemplates()
       console.log(this.limit)
     },
-    handleCurrentChange(val) {
+    async handleCurrentChange(val) {
       this.currentPage = val
+      await this.getTemplates()
     },
     typeName(typeId) {
       if (typeId === 1) {

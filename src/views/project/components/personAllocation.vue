@@ -49,7 +49,7 @@
       <div>
         <!-- 表格 -->
         <el-table
-          :data="personList"
+          :data="currentPageData"
           style="width: 100%"
           border
           :header-cell-style="{background:'#eef1f6',color:'#606266'}"
@@ -115,7 +115,7 @@
 <script>
 
 import {
-  deleteAssignment,
+  deleteAssignment, getPersonInProject,
   postSelectAssignment, putDistribute
 } from '@/api/personAllocation'
 import { getProjectsById } from '@/api/project'
@@ -139,6 +139,7 @@ export default {
       },
       roleSelect: '', // 存下拉框内容
       form: {},
+      currentPageData: [],
       personList: [],
       project: {},
       tempSearch: '', // 用于暂存搜索框的内容
@@ -206,6 +207,7 @@ export default {
 
     this.getProject()
     this.postSelectAssignment()
+    this.getPersonInProject()
   },
   methods: {
     async getProject() {
@@ -220,12 +222,20 @@ export default {
     },
     async postSelectAssignment() {
       try {
-        console.log('searchData', this.searchData)
         const { result } = await postSelectAssignment(this.searchData)
-        // console.log('分配好的人员的条件分页查询', result)
-        this.personList = result.list
+        console.log('分配好的人员的条件分页查询', result)
+        this.currentPageData = result.list
         this.isZongGong = !!result.list.find(item => item.roleName === '总工')
         this.totalData = parseInt(result.total)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getPersonInProject() {
+      try {
+        const { result } = await getPersonInProject(this.projectId)
+        console.log('获取某个项目下所有的人员', result)
+        this.personList = result
       } catch (error) {
         console.log(error)
       }
@@ -282,7 +292,12 @@ export default {
         this.isZongGong = false
       }
       await this.deleteAssignmentById(scope.row.assignmentId)
+      if ((this.totalData - 1) % this.limit === 0) {
+        this.currentPage--
+        this.searchData.page = Math.max(0, this.currentPage)
+      }
       await this.postSelectAssignment()
+      await this.getPersonInProject()
     },
     async savePeople(obj) {
       const { option, data, looks } = obj
@@ -315,6 +330,7 @@ export default {
         if (data.length > 0) {
           await this.putDistribute(data)
           await this.postSelectAssignment()
+          await this.getPersonInProject()
         }
       }
     }

@@ -82,7 +82,7 @@ export function specifieddetect(data) {
   })
 }
 // 新增：轮询获取 autodetect 结果
-export function pollAutodetect(taskId, callback, interval = 4000, timeout = 50000) {
+export function pollAutodetect(taskId, callback, interval = 5000, timeout = 30000) {
   let elapsed = 0
   const poll = setInterval(async() => {
     try {
@@ -135,6 +135,7 @@ export function postFinish() {
     method: 'post'
   })
 }
+
 // 测试图片url
 export function geTestURL() {
   return request({

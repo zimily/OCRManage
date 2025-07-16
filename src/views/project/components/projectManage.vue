@@ -36,12 +36,13 @@
           label="项目号"
           prop="projectInnerCode"
           align="center"
+          width="150"
         />
-        <el-table-column label="项目名称" prop="projectName" align="center" />
+        <el-table-column label="项目名称" prop="projectName" align="center" min-width="200" />
         <el-table-column
           label="所属单位"
           prop="shigongCompanyName"
-          width="200"
+          min-width="200"
           align="center"
         />
         <el-table-column label="状态" width="200" align="center">
@@ -63,6 +64,7 @@
               type="info"
               icon="el-icon-view"
               size="mini"
+              :disabled="!scope.row.isCreated"
               @click="lookProject(scope)"
             >查看
             </el-button>

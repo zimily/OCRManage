@@ -140,7 +140,7 @@
 <script>
 
 import { draw, reDraw } from '@/api/makeRectangle'
-import { getTemplateById, putTemplateById } from '@/api/ocrTest'
+import { getImage, getTemplateById, postImage, putTemplateById } from '@/api/ocrTest'
 import { getFields } from '@/api/ocrEntry'
 
 export default {
@@ -199,7 +199,8 @@ export default {
       tableValue: [],
       tmpIndex: -1,
       // imgUrl: 'https://ts2.tc.mm.bing.net/th/id/OIP-C.VzhOTC3SVqdVV48AhF5grwHaFS?rs=1&pid=ImgDetMain&o=7&rm=3',
-      imgUrl: '',
+      imgUrl: '', // img组件的url，base64形式
+      saveUrl: '', // 保存图片的url,图片的保存地址
       markList: [], // 标记矩形数组 x,y,w,h
       markList2: [], // 标记表格坐标数组 x,y,w,h
       graphXY: { x1: 0, y1: 0, x2: 0, y2: 0 }, // 表格坐标 x,y,w,h
@@ -276,7 +277,7 @@ export default {
         const { result } = await getTemplateById(this.templateId)
         console.log('获取模板详情(含所有项)', result)
         this.form = result
-        this.imgUrl = result.imageExample
+        await this.getImage(result.imageExample)
         const pos = result.tablePos.split(',')
         this.graphXY = {
           x1: parseInt(pos[0]),
@@ -284,12 +285,23 @@ export default {
           x2: parseInt(pos[2]),
           y2: parseInt(pos[3])
         }
-
+        // 如果有报告类型，则根据报告类型获取字段
         if (result.reportType) {
           await this.getFields(result.reportType)
         }
       } catch (error) {
         console.log(error)
+      }
+    },
+    async getImage(imageExample) {
+      try {
+        const arr = JSON.parse(imageExample)
+        const { result } = await getImage(arr)
+        console.log('返回值为url与base64的键值对集合', result)
+        this.imgUrl = 'data:image/png;base64,' + result[0][arr[0]]
+      } catch (error) {
+        console.log(error)
+        this.$message.error('出错啦，请稍后重试！')
       }
     },
     async getFields(report_type) {
@@ -314,6 +326,15 @@ export default {
         console.log(error)
       }
     },
+    async postImage(data) {
+      try {
+        const { result } = await postImage(data)
+        console.log('批量保存图片,返回url集合', result)
+        this.saveUrl = JSON.stringify(result)
+      } catch (error) {
+        console.log(error)
+      }
+    },
     importImg(file) {
       console.log(file)
       this.imgName = file.name
@@ -324,7 +345,7 @@ export default {
       reader.onload = (e) => {
         // e.target.result 包含了Base64格式的文件数据
         this.imgUrl = e.target.result // 将Base64数据赋值给imgUrl
-        console.log('Base64 数据:', this.imgUrl) // 打印Base64数据，用于调试
+        // console.log('Base64 数据:', this.imgUrl) // 打印Base64数据，用于调试
       }
       // 以Data URL的形式读取文件（即Base64编码）
       reader.readAsDataURL(file.raw)
@@ -337,7 +358,7 @@ export default {
     getImgSize() {
       const imgElement = this.$refs.urlInfo
       if (imgElement) {
-        console.log('图片加载完成', imgElement)
+        // console.log('图片加载完成', imgElement)
         this.naturalWidth = imgElement.naturalWidth // 实际宽度
         this.naturalHeight = imgElement.naturalHeight // 实际高度
         this.containerWidth = imgElement.clientWidth // 容器宽度
@@ -405,15 +426,18 @@ export default {
         })
       }
     },
-    save() {
+    async save() {
       if (this.checkData()) {
-        this.form.imageExample = this.imgUrl
+        const urlArr = []
+        urlArr.push(this.imgUrl)
+        await this.postImage(urlArr)
+        this.form.imageExample = this.saveUrl
         if (this.graphXY.x1 !== 0 || this.graphXY.y1 !== 0 || this.graphXY.x2 !== 0 || this.graphXY.y2 !== 0) {
           this.form.tablePos = this.graphXY.x1 + ',' + this.graphXY.y1 + ',' + this.graphXY.x2 + ',' + this.graphXY.y2
         }
         this.form.templateId = this.templateId
         console.log('form', this.form)
-        this.putTemplateById()
+        await this.putTemplateById()
         // this.$router.replace('/menus/ocrTemplate/ocrManage')
         this.$router.back()
       }

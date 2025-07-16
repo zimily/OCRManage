@@ -488,11 +488,15 @@ export default {
     },
     getCellClassName({ row, column, rowIndex, columnIndex }) {
       // console.log('改变el-table指定单元格的样式', row, column, rowIndex, columnIndex)
+      // 数据不存在,置信度为0,变黄
       const val = column.property.split('.')[1]
+      if (val && row.data[val][0].conf === 0) {
+        return 'highlight-cell-yellow'
+      }
       // 置信度小于0.8变红
       if (val && row.data[val][0].conf < 0.8) {
         console.log(val && row.data[val][0].conf < 0.8)
-        return 'highlight-cell'
+        return 'highlight-cell-red'
       }
       return ''
     },
@@ -548,7 +552,7 @@ export default {
       this.imgName = this.failOCRImages[index]
     },
     importPDF(file) {
-      if (this.projectId !== 0) {
+      if (this.projectId !== 0 && this.subprojectSelect !== '') {
         this.fileName = file.name
 
         const formData = new FormData()
@@ -556,6 +560,8 @@ export default {
         formData.append('project_id', this.projectId)
         formData.append('report_type', this.report_type)
         this.autodetect(formData)
+      } else {
+        this.$message.warning('请选择项目和单位工程！')
       }
     },
     onImageLoad() {
@@ -728,11 +734,14 @@ export default {
   justify-content: flex-start;
 }
 
-::v-deep .highlight-cell {
+::v-deep .highlight-cell-red {
   background-color: red;
   color: white; /* 提高可读性 */
 }
-
+::v-deep .highlight-cell-yellow {
+  background-color: yellow;
+  color: white; /* 提高可读性 */
+}
 /*.custom-button {
   width: 3em;
   height: 3em;

@@ -17,7 +17,7 @@ export function UpdateAssignment(data) {
 
 // 给人员分配项目
 export function putDistribute(data) {
-  console.log(data)
+  // console.log(data)
   return request(
     {
       url: '/assign/distribute',
@@ -35,7 +35,16 @@ export function postSelectAssignment(data) {
     data: data
   })
 }
-
+// 获取某个项目下所有的人员
+export function getPersonInProject(projectId) {
+  return request({
+    url: '/assign/getPersonInProject',
+    method: 'get',
+    params: {
+      projectId: projectId
+    }
+  })
+}
 // 获取项目列表
 export function getProject() {
   return request.get('/assign/getProject')

@@ -6,6 +6,7 @@
     :visible.sync="dialogVisible1"
     title="人员添加"
     width="60%"
+    @close="savePeople(0)"
   >
     <div>
       <el-row>
@@ -55,7 +56,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="userId" label="用户编号" width="160" />
-        <el-table-column prop="realname" label="姓名" width="100" />
+        <el-table-column prop="realname" label="姓名" min-width="100" />
         <el-table-column prop="roleName" label="角色" width="100" />
         <el-table-column prop="companyName" label="所属单位" width="180" />
         <el-table-column prop="pkDeptdoc" label="部门" width="200" />
@@ -93,6 +94,7 @@
     :visible.sync="dialogVisible2"
     title="用户查看"
     width="40%"
+    @close="savePeople(1)"
   >
     <div>
       <el-row>
@@ -284,8 +286,10 @@ export default {
       try {
         console.log('lookDetailId', this.lookDetailId, typeof this.lookDetailId)
         const { result } = await getAssignDetailById(this.lookDetailId)
+        console.log('getAssignDetailById', this.lookDetailId, result)
         if (result && result.length) {
           this.userDetail = result[0]
+          // 在好几个项目下时进行字符串拼接
           if (result.length > 1) {
             for (let i = 1; i < result.length; i++) {
               this.userDetail.projectName += `, ${result[i].projectName}`
@@ -301,7 +305,6 @@ export default {
             deptName: ''
           }
         }
-        console.log('getAssignDetailById', this.lookDetailId, result)
       } catch (error) {
         console.log(error)
       }
@@ -337,7 +340,7 @@ export default {
       // 跟据分页器计算当前条的实际下标
       const index = scope.$index + this.limit * (this.currentPage - 1)
       const userId = scope.row.userId
-      // console.log(scope)
+      console.log(scope)
       if (this.personList.find(item => item.userId === userId)) {
         return
       }
@@ -391,6 +394,7 @@ export default {
     },
     // 改变行样式，如果人员在分项目里，就改变该行样式
     isEnableClass({ row, index }) {
+      // console.log('isEnableClass', this.personList)
       if (this.personList.find(item => item.userId === row.userId)) {
         return 'info-row'
       }
@@ -400,7 +404,7 @@ export default {
 </script>
 
 <style scoped>
-.el-table .info-row {
+::v-deep  .el-table .info-row {
   background-color: #c5c1c1;
 }
 </style>
