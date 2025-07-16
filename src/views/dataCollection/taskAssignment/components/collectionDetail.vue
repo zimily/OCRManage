@@ -17,10 +17,10 @@
       </el-row>
     </el-card>
     <el-card style="margin-top: 5px">
-      <el-table :data="tableData" stripe style="width: 100%" :row-class-name="rowClassName">
+      <el-table :data="tableData" stripe style="width: 100%">
         <el-table-column prop="inspectItem.itemName" label="验收项目" align="center">
         </el-table-column>
-        <el-table-column prop="inspectItem.ruleStandard" label="设计要求及规范规定"  align="center">
+        <el-table-column prop="inspectItem.ruleStandard" label="设计要求及规范规定" align="center">
         </el-table-column>
         <el-table-column prop="taskItem.sampleAmount" label="样本总数" width="120" align="center">
         </el-table-column>
@@ -51,13 +51,13 @@
     </div>
     <!-- 弹窗 -->
     <el-dialog title="原始数据展示" :visible.sync="dialogTableVisible" :show-close="false">
-      <div v-if="dataType===1">
+      <div v-if="dataType === 1">
         目测类型测数据
       </div>
-      <div v-else-if="dataType===2">
+      <div v-else-if="dataType === 2">
         尺量数据
       </div>
-      <div v-else-if="dataType===3">
+      <div v-else-if="dataType === 3">
         试验报告数据
       </div>
       <div slot="footer" class="dialog-footer">
@@ -68,35 +68,18 @@
 </template>
 
 <script>
-import { getAllList, getCollectData } from "@/api/collection";
+import { getTaskDetailData, getCollectData } from "@/api/collection";
 export default {
   data() {
     return {
-      inspectVolume: "钢筋6批",
-      gridData: [
-        {
-          position: "1施工段墙",
-          data: "-3mm",
-          regular: "合格",
-        },
-        {
-          position: "1施工段墙",
-          data: "+1mm",
-          regular: "合格",
-        },
-        {
-          position: "1施工段柱",
-          data: "0mm",
-          regular: "合格",
-        },
-      ],
+      inspectVolume: "",
       dialogTableVisible: false,
       tableData: [
         {
-          inspectItem:{
-            itemType:null
+          inspectItem: {
+            itemType: null
           },
-          taskItem:{
+          taskItem: {
 
           }
         }
@@ -125,19 +108,17 @@ export default {
   mounted() {
     console.log("row", this.rowData);
     this.getDetailData()
-    // console.log(this.subprojectName);
   },
   methods: {
-    rowClassName({ row }) {
-      return row.isChecked ? "checked-row" : "unchecked-row";
-    },
     async getDetailData() {
       console.log("详情页面", this.taskId)
       try {
-        let res = await getAllList(this.taskId)
+        let res = await getTaskDetailData(this.taskId)
         if (res.code == 200) {
           console.log("数据", res)
           this.tableData = res.result.taskItemList
+          this.inspectVolume = res.result.taskInspectBatchVolumeList.map(item => `${item.sourceName}：${item.volume}`).join('；');
+
         } else {
           throw new Error(res.message);
         }
@@ -154,7 +135,7 @@ export default {
         taskId: value.row.taskItem.taskId,
         inspectItemId: value.row.inspectItem.inspectItemId
       }
-      this.dataType=value.row.inspectItem.dataType
+      this.dataType = value.row.inspectItem.dataType
       console.log("查看数据", data)
       try {
         let res = await getCollectData(data)

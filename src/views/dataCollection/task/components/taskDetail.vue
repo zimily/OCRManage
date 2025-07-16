@@ -22,11 +22,16 @@
             <el-table-column prop="ruleStandard" label="设计要求与规范规定" align="center"></el-table-column>
             <el-table-column prop="sampleAmount" label="样本总数" width="100" align="center"></el-table-column>
             <el-table-column prop="minSample" label="最小抽样批量" width="200" align="center"></el-table-column>
-            <el-table-column prop="reportName" label="报告编号">
+            <el-table-column prop="reportName" label="报告编号" align="center">
                 <template slot-scope="scope">
-                    {{scope.row.reportName.map(item => item.reportNumber).join('、')}}
+                    <span v-for="(item, index) in scope.row.reportName" :key="index" style="margin-right: 8px;">
+                        {{ item.reportNumber }}
+                        <el-button type="text" icon="el-icon-close" @click="removeReport(scope.row, index)"
+                            style="padding: 0; color: red; font-size: 12px;" title="删除"></el-button>
+                    </span>
                 </template>
             </el-table-column>
+
             <el-table-column label="操作" align="center" width="200">
                 <template slot-scope="scope">
                     <el-button type="warning" @click="editCapactity(scope)" size="small">编辑</el-button>
@@ -37,7 +42,7 @@
 
         <div class="footer-buttons">
             <el-button type="primary" @click="submitData()">提交</el-button>
-            <el-button @click="changeIndex()">取消</el-button>
+            <el-button @click="quxiao()">取消</el-button>
         </div>
         <!-- 对话框 -->
         <el-dialog title="选择试验报告编号" :visible.sync="dialogEdit" :show-close="false" @close="resetDialog()">
@@ -67,7 +72,7 @@
 
             <div slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="confirmCapactity">确 定</el-button>
-                <el-button @click="cancelEdite">取 消</el-button>
+                <el-button @click="cancelEdit">取 消</el-button>
             </div>
         </el-dialog>
 
@@ -98,7 +103,7 @@ function getStatusText(item) {
 export default {
     data() {
         return {
-            collectorId: '1917414493676593152',
+            collectorId: '1944049080280260612',
             collectorName: " collectorName",
             capacityName: "",
             capacityNum: "",
@@ -128,40 +133,6 @@ export default {
     },
     computed: {
         // 根据选择的报告类型动态生成表格列配置
-        dynamicColumns() {
-            const columns = [
-                [
-                    { prop: 'reportNumber', label: '报告编号', width: 150 },
-                    { prop: 'projectPart', label: '工程部位', width: 150 },
-                    { prop: 'steelType', label: '钢筋种类', width: 120 },
-                    { prop: 'diameter', label: '直径', width: 100 },
-                    { prop: 'manufacturer', label: '生产厂家', width: 150 }
-                ],
-                [
-                    { prop: 'reportNumber', label: '报告编号', width: 150 },
-                    { prop: 'projectPart', label: '工程部位', width: 150 },
-                    { prop: 'steelType', label: '牌号', width: 120 },
-                    { prop: 'connectionType', label: '连接类型', width: 120 },
-                    { prop: 'grade', label: '等级', width: 100 },
-                    { prop: 'jointType', label: '接头类型', width: 120 }
-                ],
-                [
-                    { prop: 'reportNumber', label: '报告编号', width: 150 },
-                    { prop: 'projectPart', label: '工程部位', width: 150 },
-                    { prop: 'steelType', label: '钢筋牌号', width: 120 },
-                    { prop: 'manufacturer', label: '生产厂商', width: 150 },
-                    { prop: 'weldingType', label: '焊接类型', width: 120 }
-                ],
-                [
-                    { prop: 'reportNumber', label: '报告编号', width: 150 },
-                    { prop: 'projectPart', label: '使用部位', width: 150 },
-                    { prop: 'mortarType', label: '砂浆种类', width: 120 },
-                    { prop: 'strength', label: '强度', width: 100 },
-                    { prop: 'maintenanceType', label: '养护类型', width: 120 }
-                ]
-            ];
-            return columns[this.selectType - 1] || [];
-        },
         rowData() {
             return this.$store.state.collection.dataEntryRow;
         },
@@ -173,10 +144,10 @@ export default {
         // },
     },
     created() {
-        
+
     },
     mounted() {
-        console.log("rowData",this.rowData);
+        console.log("rowData", this.rowData);
         this.getDetails();
         this.getCapacity();
     },
@@ -196,6 +167,7 @@ export default {
                             reportName: [],
                         };
                     });
+                    console.log("任务详情数据", this.tableData);
                 } else {
                     throw new Error(res.message || "获取数据状态失败");
                 }
@@ -247,6 +219,18 @@ export default {
                 this.$message.error("出错啦，请稍后重试！");
             }
         },
+        removeReport(row, index) {
+            this.$confirm('确定要删除这个报告编号吗？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                row.reportName.splice(index, 1);
+                this.$message.success('已删除');
+            }).catch(() => {
+                // 用户取消
+            });
+        },
         //重置按钮
         resetCapactity(value) {
             this.tableData[value.$index].reportName = []
@@ -279,11 +263,11 @@ export default {
                 this.reportData = [];
         },
         //对话框关闭按钮
-        cancelEdite() {
+        cancelEdit() {
             this.dialogEdit = false;
         },
         confirmCapactity() {
-            // console.log('已选择的报告:', this.selectedReportData, this.curReportType);
+            console.log('已选择的报告:', this.selectedReportData, this.curReportType);
             this.dialogEdit = false;
             if (Array.isArray(this.selectedReportData)) {
                 if (Array.isArray(this.selectedReportData)) {
@@ -305,15 +289,17 @@ export default {
             }
             // console.log("编辑后", this.tableData);
         },
-        changeIndex() {
-            this.$router.go(-1); // 返回上一页（page1）
+        quxiao() {
+            this.$router.push({
+                path: "taskList",
+            });
         },
         //提交数据
         async submitData() {
             console.log("提交数据被点击", this.tableData);
             //整理数据
             const data = {
-                taskId: this.taskId,//任务主键
+                task_id: String(this.taskId),//任务主键
                 task_item_id: "",//任务项主键
                 inspect_item_id: "",//验收项目id
                 data_type: "",//任务类型
@@ -337,15 +323,15 @@ export default {
 
             }
             let resultData = {
-                data:[]
+                data: []
             }
             this.tableData.forEach(item => {
-                console.log("item",item)
+                console.log("item", item)
                 let data1 = {
-                    taskId: this.taskId,
-                    task_item_id: item.taskItemId,
+                    task_id: String(this.taskId),
+                    task_item_id: Number(item.taskItemId),
                     inspect_item_id: item.inspectItemId,
-                    data_type: item.dataType,
+                    data_type: String(item.dataType),
                     fail_resample: 0,
                     data: [  //reportName
                         {
@@ -360,42 +346,44 @@ export default {
                                 weld_ids: [],//焊接表选中的主键列表
                                 concrete_ids: [],//混凝土表选中的主键列表
                             },
-                             extra_report_number: "",//额外的报告编号
+                            extra_report_number: "",//额外的报告编号
                         }
                     ]
                 }
                 let extraReportNumber = []
                 item.reportName.forEach(item => {
-                    if(item.reportType===1){
-                         console.log(item.reportType,item.dataId)
+                    if (item.reportType === 1) {
+                        console.log(item.reportType, item.dataId)
                         data1.data[0].table_ids.material_ids.push(item.dataId)
-                    }else if(item.reportType===2){ 
+                    } else if (item.reportType === 2) {
                         data1.data[0].table_ids.connection_ids.push(item.dataId)
-                    }else if(item.reportType===3){ 
+                    } else if (item.reportType === 3) {
                         data1.data[0].table_ids.weld_ids.push(item.dataId)
-                    }else if(item.reportType===4){ 
+                    } else if (item.reportType === 4) {
                         data1.data[0].table_ids.concrete_ids.push(item.dataId)
-                    }else{
+                    } else {
                         extraReportNumber.push(item.reportNumber)
                     }
                 })
-                data1.data[0].extra_report_number=extraReportNumber.join(',')
+                data1.data[0].extra_report_number = extraReportNumber.join(',')
                 resultData.data.push(data1);
             });
-            console.log("最终数据",resultData)
+            console.log("最终数据", resultData)//JSON.stringify(resultData)
             try {
-                let res=await submitData(resultData)
-                if (res.code==200) { 
+                let res = await submitData(resultData)
+                if (res.code == 200) {
                     this.$message.success("保存成功")
-                    this.$router.go(-1); // 返回上一页（page1）
+                    this.$router.push({
+                        path: "taskList",
+                    });
 
-                }else{
-                    throw new Error(res.message||"保存操作失败");
+                } else {
+                    throw new Error(res.message || "保存操作失败");
                 }
             } catch (error) {
                 console.log(error);
                 this.$message.error("出错啦，请稍后重试！");
-                
+
             }
 
         }

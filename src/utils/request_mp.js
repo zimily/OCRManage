@@ -6,7 +6,7 @@ import { getMaterialPlatformToken } from '@/utils/auth'
 // create an axios instance  创建axios实例、
 const service = axios.create({
     //物资平台接口
-    baseURL: 'http://wei.cscec5b.com.cn:9080',
+    // baseURL: '',
     timeout: 5000 // request timeout
 })
 

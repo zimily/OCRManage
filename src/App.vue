@@ -41,7 +41,7 @@ export default {
       //第二个定时器每1分钟执行一次
       this.refreshTimer2 = setInterval(() => {
         this.getMaterialPlatformToken()
-      }, 1 * 60 * 1000) // 1分钟
+      }, 60 * 60 * 1000) // 1分钟
       console.log("refreshTimer2", this.refreshTimer2);
     },
     // 停止定时刷新
@@ -83,7 +83,7 @@ export default {
         // 请求成功，获取到 token
         const token = response.data.access_token;
         setMaterialPlatformToken(token); // 存储到COOKIES中
-        console.log("物资平台Token获取成功", token);
+        // console.log("物资平台Token获取成功", token);
 
         // 打开物资平台数据对话框
         this.dialogTableVisible = true;
