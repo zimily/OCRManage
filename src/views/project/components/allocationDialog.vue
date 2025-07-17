@@ -23,9 +23,9 @@
                   >
                     <el-option
                       v-for="item in options"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.label"
+                      :key="item.roleId"
+                      :label="item.roleName"
+                      :value="item.roleName"
                     />
                   </el-select>
                 </el-form-item>
@@ -136,7 +136,13 @@
 </template>
 
 <script>
-import { getAssignDetailById, getPerson, putDistribute } from '@/api/personAllocation'
+import {
+  getAllRolesNoPage,
+  getAssignDetailById,
+  getPerson,
+  getPersonInProject,
+  putDistribute
+} from '@/api/personAllocation'
 import user from '../../../store/modules/user'
 import ca from 'element-ui/src/locale/lang/ca'
 import { getUser } from '@/utils/storage'
@@ -173,28 +179,12 @@ export default {
       roleSelect: '', // 存下拉框内容
       form: {},
       tempSearch: '',
-      options: [
-        {
-          value: 1,
-          label: '总工'
-        },
-        {
-          value: 2,
-          label: '资料员'
-        },
-        {
-          value: 3,
-          label: '台账采集员'
-        },
-        {
-          value: 4,
-          label: '空'
-        }
-      ],
+      options: [],
       tableData: [], // 全部用户数据
       ZGongId: -1, // 总工的ID
       selection: false,
       currentPage: 1, // 分页器数据
+      preCurrentPageData: [], // 分页器筛选后的数据
       currentPageData: [], // 分页器显示的数据
       limit: 10, // 每页显示的数据
       dialogVisible1: false, // 人员添加弹窗
@@ -208,7 +198,7 @@ export default {
       return user
     },
     totalData() { // 总共筛选出的数据条目
-      return this.tableData.length
+      return this.preCurrentPageData.length
     }
   },
   watch: {
@@ -237,6 +227,7 @@ export default {
   },
   created() {
     this.getPersons()
+    this.getAllRolesNoPage()
   },
   methods: {
     //  获取人员列表
@@ -278,6 +269,16 @@ export default {
         // this.changeCurrentPageData()
         console.log('getPerson', result)
         this.changeCurrentPageData()
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getAllRolesNoPage() {
+      try {
+        const { result } = await getAllRolesNoPage()
+        console.log('获取所有角色列表', result)
+        this.options = result
+        this.options.push({ roleId: '空', roleName: '空' })
       } catch (error) {
         console.log(error)
       }
@@ -334,12 +335,15 @@ export default {
           item.selection = false
         })
       }
+      this.roleSelect = ''
+      this.tempSearch = ''
     },
     // 点击table列表内的选择框
     handleListSelectedFn(selectionvalue, scope) {
       // 跟据分页器计算当前条的实际下标
-      const index = scope.$index + this.limit * (this.currentPage - 1)
+      // const index = scope.$index + this.limit * (this.currentPage - 1)
       const userId = scope.row.userId
+      const index = this.tableData.findIndex(item => item.userId === userId)
       console.log(scope)
       if (this.personList.find(item => item.userId === userId)) {
         return
@@ -379,17 +383,19 @@ export default {
     changeCurrentPageData() {
       let res = this.tableData
       if (this.tempSearch !== '') {
+        this.currentPage = 1
         res = this.tableData.filter(item => !!item.realname.includes(this.tempSearch))
       }
       if (this.roleSelect !== '' && this.roleSelect !== '空') {
+        this.currentPage = 1
         res = res.filter(item => item.roleName === this.roleSelect)
       }
+      this.preCurrentPageData = res
       // console.log('changeCurrentPageData', res)
       this.currentPageData = res.slice(
         (this.currentPage - 1) * this.limit,
         this.currentPage * this.limit
       )
-
       console.log('currentPageData', this.currentPageData)
     },
     // 改变行样式，如果人员在分项目里，就改变该行样式

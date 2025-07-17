@@ -424,7 +424,7 @@ export default {
 
         // const key2 = JSON.stringify({ name: arr[0]['施工部位'], obj: arr[0]['检验批名称'] })
         for (let i = 1; i < arr.length; i++) {
-          if (parseInt(arr[i]['施工部位'].substring(0, 4)) !== parseInt(arr[pre]['施工部位'].substring(0, 4))) {
+          if (arr[i]['施工部位'] !== arr[pre]['施工部位']) {
             this.allInspect.push({
               floor: parseInt(arr[pre]['施工部位'].substring(0, 4)),
               inspectName: arr[pre]['施工部位'],
@@ -506,7 +506,7 @@ export default {
           const key = JSON.stringify({ name: result[0].inspectPart, obj: result[0].inspectType })
           this.taskMap.set(key, result[0])
           for (let i = 1; i < result.length; i++) {
-            if (result[i].floor !== result[pre].floor) {
+            if (result[i].floor !== result[pre].floor || result[i].inspectPart !== result[pre].inspectPart) {
               this.allInspect.push({
                 floor: result[pre].floor,
                 inspectName: result[pre].inspectPart,
@@ -526,6 +526,7 @@ export default {
             inspectName: result[pre].inspectPart,
             obj: temp
           })
+          console.log('allInspect', this.allInspect)
         }
         this.checkRules()
       } catch (error) {
@@ -570,11 +571,11 @@ export default {
         return
       }
       for (let i = this.buildingFloor; i <= this.buildingTop; i++) {
-        if (this.allInspect.findIndex(item => item.floor === i) !== -1) continue// 去重操作
+        // if (this.allInspect.findIndex(item => item.floor === i) !== -1) continue// 去重操作
         if (i === 0) {
           this.allInspect.push({
             floor: i,
-            inspectName: '楼前地面',
+            inspectName: '楼前地面' + this.inspectName,
             obj: this.checkList
           })
         } else {

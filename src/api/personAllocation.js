@@ -14,7 +14,16 @@ export function UpdateAssignment(data) {
     }
   )
 }
-
+// 获取所有角色列表
+export function getAllRolesNoPage() {
+  // console.log(data)
+  return request(
+    {
+      url: '/role/getAllRolesNoPage',
+      method: 'get'
+    }
+  )
+}
 // 给人员分配项目
 export function putDistribute(data) {
   // console.log(data)
