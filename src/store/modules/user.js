@@ -1,6 +1,6 @@
 import { login, loginByPhone, logout, getInfo, getPermissionList } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { setUser, getUser, removeUser } from '@/utils/storage'
+import { setUser, setUserId,getUserId} from '@/utils/storage'
 import { asyncRoutes, resetRouter, constantRoutes, anyRoutes } from '@/router/index'
 import router from '@/router'
 // console.log('asyncRoutes imported:', asyncRoutes);
@@ -9,7 +9,7 @@ const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
-    userId:'',//用户的ID
+    userId: getUserId(),//用户的ID
     avatar: '',
     role: {}, // 从存储中读取角色  对象需要序列化
     flag: '',
@@ -53,10 +53,16 @@ const mutations = {
 }
 // 定义一个函数：两个数组进行对比，对比出当前用户到底显示哪些异步路由
 const computedAsyncRoutes = (asyncRoutes, routes) => {
-  return asyncRoutes.filter(item => {
-    return routes.indexOf(item.name) !== -1
-  })
-}
+  const matchedChildren = asyncRoutes[0].children.filter(item => {
+    return routes.includes(item.name)
+  });
+
+  // 返回一个新的对象，保留 asyncRoutes[0] 的其它属性，只更新 children
+  return [{
+    ...asyncRoutes[0],
+    children: matchedChildren
+  }];
+};
 
 const actions = {
   // user login
@@ -66,16 +72,19 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const data = response.result
-        console.log('登录请求11', response)
+        console.log('登录请求', response)
         // 1.获取并存储token
         const token = data.token
         commit('SET_TOKEN', token)
         commit('SET_USERID', data.userId)
         setToken(token)
+
+        // console.log('getInfo11', state.userId, state.token)
         // 获取用户信息
         const name = data.username
         setUser(username, password, data.userId)
         commit('SET_NAME', name)
+        setUserId(data.userId)
         resolve()// 表示 Promise 成功完成
       }).catch(error => {
         console.log('登录请求报错', error)
@@ -103,17 +112,22 @@ const actions = {
   },
   // get user info
   getInfo({ commit, state }) {
+    console.log('getInfo', state.userId, state.token)
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const data = response.result
+      getPermissionList(Number(state.userId), state.token).then(response => {
+        let data = response.result
         console.log('服务器返回的权限信息', response)
+        // console.log("权限",data)
         var act_routs = []
         data.forEach(item => {
           act_routs.push(item.page)
         })
+        data.push("Menus")
+        // console.log('act_routs', act_routs)
         // 计算异步路由并提交 mutation
-        const computedRoutes = computedAsyncRoutes(asyncRoutes, act_routs)
-        console.log('computedRoutes', computedRoutes)
+        // console.log('asyncRoutes', asyncRoutes)
+        const computedRoutes = computedAsyncRoutes(asyncRoutes,data)
+        // console.log('computedRoutes', computedRoutes)
         commit('SET_RESULTASYNCROUTES', computedRoutes)
         resolve()
       }).catch(error => {

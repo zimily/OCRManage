@@ -186,22 +186,22 @@
         </el-button>
       </div>
       <el-table :data="inspectCapacity">
-        <el-table-column property="itemName" label="来源" align="center">
+        <el-table-column property="sourceName" label="来源" align="center">
           <template slot-scope="scope">
-            <el-select v-model="scope.row.itemName" placeholder="请选择">
+            <el-select v-model="scope.row.sourceName" placeholder="请选择">
               <el-option v-for="item in optionsEdit" :key="item.value" :label="item.label" :value="item.label" />
             </el-select>
           </template>
         </el-table-column>
-        <el-table-column property="number" label="数量" align="center">
+        <el-table-column property="volume" label="数量" align="center">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.number" @input="(val) => (scope.row.number = parseFloat(val))" type="number"
+            <el-input v-model="scope.row.volume" @input="(val) => (scope.row.number = parseFloat(val))" type="number"
               placeholder="请输入数量" min="0" />
           </template>
         </el-table-column>
-        <el-table-column property="other" label="其他信息" align="center">
+        <el-table-column property="info" label="其他信息" align="center">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.other" placeholder="请输入其他信息" />
+            <el-input v-model="scope.row.info" placeholder="请输入其他信息" />
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center">
@@ -262,9 +262,9 @@ export default {
       Subcontractor: "",
       inspectCapacity: [
         {
-          itemName: "",
-          number: 0,
-          other: "",
+          sourceName: "",
+          volume: 0,
+          info: "",
         },
       ],
       // 默认行模板（用于重置）
@@ -317,40 +317,7 @@ export default {
         },
       ],
       dialogTableVisible1: false,
-      tableData: [
-        {
-          isChecked: false,
-          project: "钢筋力学性能和重量偏差检验",
-          require: "第5.2.1条",
-          value: "",
-          sum: "6",
-          min: "全",
-        },
-        {
-          isChecked: false,
-          project: "钢筋力学性能和重量偏差检验",
-          require: "第5.2.1条",
-          value: "",
-          sum: "6",
-          min: "全",
-        },
-        {
-          isChecked: false,
-          project: "钢筋力学性能和重量偏差检验",
-          require: "第5.2.1条",
-          value: "",
-          sum: "6",
-          min: "全",
-        },
-        {
-          isChecked: false,
-          project: "钢筋力学性能和重量偏差检验",
-          require: "第5.2.1条",
-          value: "",
-          sum: "6",
-          min: "全",
-        },
-      ],
+      tableData: [],
       options: [],
       distribute: "", // 状态选择器值
       dialogTableVisible2: false,
@@ -375,18 +342,18 @@ export default {
     //将后端的数据 传递给data中
   },
   mounted() {
-    console.log("row", this.row)
+
   },
   methods: {
     async getData() {
+      console.log("taskId", this.curId)
       try {
-        // console.log("this.curId",this.curId)
         const res = await getAssignData(this.curId);
         if (res.code == "200") {
           console.log("待分发数据", res);
           this.taskId = res.result.taskId;
           this.yanshouRule = res.result.yanshouRule
-          const items = res.result.inspectItemModel;
+          const items = res.result.lastFloorInspectItem;
           this.tableData = items.map((item) => ({
             ...item, // 保留原始属性
             totalText: getStatusText(item), // 新增状态文本
@@ -395,6 +362,24 @@ export default {
             isEmpty: 0,//是否采样 0-不采样
             positionId: null,//分发岗位Id
           }));
+          this.fenbaoCompany = res.result.fenbaoCompany,
+            this.fenbaoDirector = res.result.fenbaoDirector,
+            this.fenbaoTechnical = res.result.fenbaoTechnical,
+            this.inspectCapacity = res.result.taskInspectBatchVolume,
+            this.shigongRule = res.result.shigongRule
+          const result = this.inspectCapacity
+            .filter((row) => row.sourceName && row.volume)
+            .map((row) => `${row.sourceName}${row.volume}批`)
+            .join("；");
+          //页面中检验批容量 显示
+          this.capactity = result;
+          try {
+            this.gridData = JSON.parse(res.result.designValue);
+            console.log('gridData', this.gridData)
+          } catch (e) {
+            console.error('解析 designValue 失败', e);
+            this.gridData = [];
+          }
           console.log("this.tableData ", this.tableData);
         } else {
           this.$message.error("获取待分发数据失败！");
@@ -428,9 +413,9 @@ export default {
     // 添加新行
     addRow() {
       this.inspectCapacity.push({
-        itemName: "", // 与下拉选择绑定
-        number: null, // 与数字输入绑定
-        other: "", // 与其他信息绑定
+        sourceName: "", // 与下拉选择绑定
+        volume: null, // 与数字输入绑定
+        info: "", // 与其他信息绑定
       });
     },
     // 删除行
@@ -440,8 +425,8 @@ export default {
     confirmCapactity() {
       this.dialogTableVisible1 = false;
       const result = this.inspectCapacity
-        .filter((row) => row.itemName && row.number)
-        .map((row) => `${row.itemName}${row.number}批`)
+        .filter((row) => row.sourceName && row.volume)
+        .map((row) => `${row.sourceName}${row.volume}批`)
         .join("；");
       console.log(result);
       //页面中检验批容量 显示
@@ -456,8 +441,8 @@ export default {
       });
 
       this.inspectCapacity.forEach((capacityItem) => {
-        const itemName = capacityItem.itemName;
-        const number = capacityItem.number;
+        const itemName = capacityItem.sourceName;
+        const number = capacityItem.volume;
         // 在tableDate数组中查找
         const exists = this.tableData.some((tableItem) => {
           // 确保totalText存在且是数组
@@ -529,7 +514,7 @@ export default {
       resultDate.shigongRule = this.shigongRule
 
       const taskInspectBatchVolumeList = this.inspectCapacity.map(({
-        itemName: sourceName, number: volume, other: info,
+        sourceName: sourceName, volume: volume, info: info,
       }) => ({
         sourceName, volume, info,
         // 添加固定值属性
@@ -570,6 +555,9 @@ export default {
         let res = await distribution(resultDate)
         if (res.code == 200) {
           this.$message.success("任务发送成功！");
+          this.$router.push({
+            name: "CollectionManage",
+          });
           //分发成功更改任务状态
         } else {
           this.$message.error("任务发送失败！");

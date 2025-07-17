@@ -164,10 +164,7 @@ export default {
       //数据整理
       const resultData = {
         taskId: '',
-        taskItemList: [{
-          teskItemId: 0,
-          isChecked: 0,
-        }]
+        taskItemList: [],
       }
       resultData.taskId = this.taskId;
       this.tableData.map(item => {

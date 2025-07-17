@@ -19,35 +19,37 @@ router.beforeEach(async (to, from, next) => {
   // determine whether the user has logged in
   const hasToken = getToken()
   if (hasToken) {
-    next()//有token，直接放行
-    // if (to.path === '/login') {
-    //   // if is logged in, redirect to the home page 如果已登录，重定向到主页
-    //   next({ path: '/' })
-    //   NProgress.done()
-    // } else {
-    //   const flag= store.state.user.resultAllRoutes;
-    //   console.log('resultAllRoutes的长度',flag,flag.length)
-    //   if (flag.length>0) {
-    //        console.log('有用户信息和动态路由',router)
-    //       next()
-    //   } else {
-    //     try {
-    //       console.log('添加动态路由前',router)
-    //       await store.dispatch('user/getInfo')
-    //       console.log('添加动态路由后',router)
-    //       next({...to, replace: true})//白屏问题，确保addRoutes()时动态添加的路由已经被完全加载上去
-    //     } catch (error) {
-    //       // remove token and go to login page to re-login  
-    //       await store.dispatch('user/resetToken')
-    //       Message.error(error || 'Has Error')
-    //       next(`/login?redirect=${to.path}`)
-    //       NProgress.done()
-    //     }
-    //   }
-    // }
+    // console.log('有token')
+    // next()//有token，直接放行
+    if (to.path === '/login') {
+      // if is logged in, redirect to the home page 如果已登录，重定向到主页
+      // console.log('to.path === /login且有token，直接放行')  
+      next({ path: '/' })
+      NProgress.done()
+    } else {
+      const flag= store.state.user.resultAllRoutes;
+      // console.log('resultAllRoutes的长度',flag,flag.length)
+      if (flag.length>0) {
+          //  console.log('有用户信息和动态路由',router)
+          next()
+      } else {
+        try {
+          // console.log('添加动态路由前',router)
+          await store.dispatch('user/getInfo')
+          // console.log('添加动态路由后',router)
+          next({...to, replace: true})//白屏问题，确保addRoutes()时动态添加的路由已经被完全加载上去
+        } catch (error) {
+          // remove token and go to login page to re-login  
+          await store.dispatch('user/resetToken')
+          Message.error(error || 'Has Error')
+          next(`/login?redirect=${to.path}`)
+          NProgress.done()
+        }
+      }
+    }
   } else {
     /* has no token*/
-
+    console.log('无token')
     if (whiteList.indexOf(to.path) !== -1) {
       // in the free login whitelist, go directly
       next()

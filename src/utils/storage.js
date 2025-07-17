@@ -21,3 +21,15 @@ export const removeUser = () => {
   localStorage.removeItem('user')
 }
 
+export const setUserId = (id) => {
+  localStorage.setItem('userId', id)
+}
+
+export const getUserId = () => {
+  const id = localStorage.getItem('userId')
+  return id ||null
+}
+
+export const removeUserId = () => {
+  localStorage.removeItem('userId')
+}

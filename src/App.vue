@@ -42,7 +42,7 @@ export default {
       this.refreshTimer2 = setInterval(() => {
         this.getMaterialPlatformToken()
       }, 60 * 60 * 1000) // 1分钟
-      console.log("refreshTimer2", this.refreshTimer2);
+      // console.log("refreshTimer2", this.refreshTimer2);
     },
     // 停止定时刷新
     stopTokenRefresh() {
@@ -77,10 +77,6 @@ export default {
     async getMaterialPlatformToken() {
       try {
         const response= await getAccessToken();
-        // const response = await request.get(
-        //   "http://wei.cscec5b.com.cn:9080/ejc-idm-web/auth/getAccessToken?appId=1836595908945981442&secret=MTgzNjU5NTkwODk0NTk4MTQ0Mg=="
-        // );
-        // 请求成功，获取到 token
         const token = response.data.access_token;
         setMaterialPlatformToken(token); // 存储到COOKIES中
         // console.log("物资平台Token获取成功", token);

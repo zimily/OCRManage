@@ -16,13 +16,12 @@ export function refreshToken() {
   })
 }
 
-// export function getPermissionList(role) {
-//   return request({
-//     url: '/vue-admin-template/user/permission',
-//     method: 'get',
-//     params: { role } // 将 role 作为查询参数
-//   })
-// }
+export function getPermissionList(userId,token) {
+  return request({
+    url: `/user/getRoleNameByUserId?userId=${userId}&token=${token}`,
+    method: 'get',
+  })
+}
 
 export function getInfo(token) {
   return request({

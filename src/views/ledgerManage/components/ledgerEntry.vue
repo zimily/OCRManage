@@ -380,7 +380,7 @@ export default {
             console.log("项目数据信息", this.project, this.subProject);
 
             let isPassed = 0
-            if (this.formData.reportNumber !== null) {
+            if (this.formData.reportNumber !== null&&this.formData.reportNumber !== ""&&this.formData.reportNumber !== undefined) {
               isPassed = 1
             }
             const formDataCopy = { ...this.formData };

@@ -10,7 +10,7 @@
     <div class="content-container">
       <div>
         <!-- 动态切换三个组件渲染  0710-->
-        <ledger-list v-if="index === 0" :index="index" :category="activeButton" @update-index="handleUpdateIndex" />
+        <ledger-list v-if="index === 0" :index="index" :category="activeButton"  @update-index="handleUpdateIndex" />
 
         <OCREntry v-else-if="index === 1" :index="index" :category="activeButton" @update-index="handleUpdateIndex" />
 

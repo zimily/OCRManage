@@ -125,8 +125,12 @@ export default {
     //父组件传递的参数
     index: Number,
     category: String,
+
   },
   created() { },
+  mounted() { 
+   
+  },
   computed: {
     tableColumns() {
       if (this.category === "钢筋原材") {
@@ -144,6 +148,9 @@ export default {
   },
   watch: {
     category(newVal, oldVal) {
+      console.log("category", newVal, oldVal)
+      this.curPage=1
+      this.limit=10
       this.handleCategoryChange(newVal);
     },
   },

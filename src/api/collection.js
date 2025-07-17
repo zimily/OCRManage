@@ -12,7 +12,7 @@ export function getAllAtatus(data) {
 // 获取所有项目的采集状态
 export function getAssignData(id) {
     return request({
-      url: `/status/getInspectItemBytaskId?taskId=${id}`,
+      url: `/status/getLastFloorTaskItemBytaskId?taskId=${id}`,
       method: 'get',
     })
   }
