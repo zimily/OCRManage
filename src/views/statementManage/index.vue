@@ -46,8 +46,8 @@
       </el-table-column>
 
       <!-- 固定列：项目名称、单位工程 -->
-      <el-table-column prop="projectName" label="项目名称" width="200" align="center" />
-      <el-table-column prop="unitProject" label="单位工程" width="200" align="center" />
+      <el-table-column prop="projectName" label="项目名称" align="center" />
+      <el-table-column prop="unitProject" label="单位工程" align="center" />
 
       <!-- 动态列（根据报表类型显示） -->
       <el-table-column
@@ -60,7 +60,7 @@
       />
 
       <!-- 最后一列：操作按钮 -->
-      <el-table-column label="操作" align="center">
+      <el-table-column label="操作" align="center" width="200">
         <template slot-scope="scope">
           <el-button type="warning" @click="handleExport(scope.row)">
             导出
@@ -95,7 +95,7 @@ export default {
         { value: 'temperature', label: '测温记录' },
         { value: 'concrete', label: '混凝土强度离散度' }
       ],
-      selectedReportType: '', // 当前选中的报表类型
+      selectedReportType: 'subitem', // 当前选中的报表类型
       searchFloorWithInspectPart: '', // 检验批部位搜索值
       curPage: 1, // 当前页码
       limit: 10, // 每页条数

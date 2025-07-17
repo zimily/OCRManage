@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import { getAllList, getCollectData } from '@/api/collection'
+import { getTaskDetailData, getCollectData  } from '@/api/collection'
 import item from '../../../../layout/components/Sidebar/Item.vue'
 import { getImage } from '@/api/ocrTest'
 
@@ -147,18 +147,20 @@ export default {
       return row.isChecked ? 'checked-row' : 'unchecked-row'
     },
     async getDetailData() {
-      console.log('详情页面', this.taskId)
+      console.log("详情页面", this.taskId)
       try {
-        const res = await getAllList(this.taskId)
-        if (res.code === 200) {
-          console.log('数据', res)
+        let res = await getTaskDetailData(this.taskId)
+        if (res.code == 200) {
+          console.log("数据", res)
           this.tableData = res.result.taskItemList
+          this.inspectVolume = res.result.taskInspectBatchVolumeList.map(item => `${item.sourceName}：${item.volume}`).join('；');
+
         } else {
-          throw new Error(res.message)
+          throw new Error(res.message);
         }
       } catch (error) {
-        console.error('操作失败', error)
-        this.$message.error('获取详情数据失败！')
+        console.error("操作失败", error);
+        this.$message.error("获取详情数据失败！");
       }
     },
     // 查看数据

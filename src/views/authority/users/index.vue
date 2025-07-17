@@ -2,33 +2,33 @@
   <div>
     <div>
       <!-- 按钮 -->
-      <el-button type="primary" icon="el-icon-plus" style="margin: 10px 10px" @click="addUsers">新建用户</el-button>
+      <!-- <el-button type="primary" icon="el-icon-plus" style="margin: 10px 10px" @click="addUsers">新建用户</el-button> -->
       <!--新建用户 对话框 -->
       <el-dialog :title="dialog_title" :visible.sync="dialogFormVisible" :show-close="false" @close="resetForm">
         <el-form :model="form">
-          <el-form-item label="用户名称" :label-width="formLabelWidth">
+          <el-form-item label="用户名称" :label-width="formLabelWidth" required>
             <el-input v-model="form.username" placeholder="请输入内容(必填)" autocomplete="off" style="width: 500px;" />
           </el-form-item>
-          <el-form-item label="密码" :label-width="formLabelWidth">
+          <!-- <el-form-item label="密码" :label-width="formLabelWidth">
             <el-input v-model="form.password" placeholder="请输入内容（必填）" autocomplete="off" style="width: 500px;"/>
-          </el-form-item>
-          <el-form-item label="用户真实姓名" :label-width="formLabelWidth">
+          </el-form-item> -->
+          <el-form-item label="用户真实姓名" :label-width="formLabelWidth" required>
             <el-input v-model="form.realname" placeholder="请输入内容（必填）" autocomplete="off" style="width: 500px;" />
           </el-form-item>
-          <el-form-item label="角色ID" :label-width="formLabelWidth">
-            <el-input v-model="form.userTypeId" placeholder="请输入内容（必填）" autocomplete="off" style="width: 500px;" />
+          <el-form-item label="角色名称" :label-width="formLabelWidth" required>
+            <el-input v-model="form.roleName" placeholder="请输入内容（必填）" autocomplete="off" style="width: 500px;" />
           </el-form-item>
           <el-form-item label="年龄" :label-width="formLabelWidth">
-            <el-input v-model="form.age" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
+            <el-input v-model="form.age" placeholder="请输入内容" autocomplete="off" style="width: 500px;" />
           </el-form-item>
           <el-form-item label="性别" :label-width="formLabelWidth">
-            <el-input v-model="form.userGender" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
+            <el-input v-model="form.userGender" placeholder="请输入内容" autocomplete="off" style="width: 500px;" />
           </el-form-item>
           <el-form-item label="电话号码" :label-width="formLabelWidth">
-            <el-input v-model="form.userPhone" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
+            <el-input v-model="form.userPhone" placeholder="请输入内容" autocomplete="off" style="width: 500px;" />
           </el-form-item>
           <el-form-item label="所属公司" :label-width="formLabelWidth">
-            <el-input v-model="form.userCompanyId" placeholder="请输入内容" autocomplete="off" style="width: 500px;"/>
+            <el-input v-model="form.userCompanyId" placeholder="请输入内容" autocomplete="off" style="width: 500px;" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -37,32 +37,31 @@
         </div>
       </el-dialog>
       <!--查看用户 对话框 -->
-      <el-dialog title="查看用户信息" :visible.sync="dialogCheckFormVisible" :show-close="false"
-        @close="resetForm">
+      <el-dialog title="查看用户信息" :visible.sync="dialogCheckFormVisible" :show-close="false" @close="resetForm">
         <el-form :model="form">
           <el-form-item label="用户名称" :label-width="formLabelWidth">
-            <el-input v-model="form.username" placeholder="请输入内容(必填)" autocomplete="off" />
+            <el-input v-model="form.username" placeholder="" autocomplete="off" disabled />
           </el-form-item>
-          <el-form-item label="密码" :label-width="formLabelWidth">
+          <!-- <el-form-item label="密码" :label-width="formLabelWidth">
             <el-input v-model="form.password" placeholder="请输入内容（必填）" autocomplete="off" />
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="用户真实姓名" :label-width="formLabelWidth">
-            <el-input v-model="form.realname" placeholder="请输入内容（必填）" autocomplete="off" />
+            <el-input v-model="form.realname" placeholder="" autocomplete="off" disabled />
           </el-form-item>
-          <el-form-item label="角色ID" :label-width="formLabelWidth">
-            <el-input v-model="form.userTypeId" placeholder="请输入内容（必填）" autocomplete="off"/>
+          <el-form-item label="角色名称" :label-width="formLabelWidth">
+            <el-input v-model="form.roleName" placeholder="" autocomplete="off" disabled />
           </el-form-item>
           <el-form-item label="年龄" :label-width="formLabelWidth">
-            <el-input v-model="form.age" placeholder="请输入内容" autocomplete="off" />
+            <el-input v-model="form.age" placeholder="" autocomplete="off" disabled />
           </el-form-item>
           <el-form-item label="性别" :label-width="formLabelWidth">
-            <el-input v-model="form.userGender" placeholder="请输入内容" autocomplete="off" />
+            <el-input v-model="form.userGender" placeholder="" autocomplete="off" disabled />
           </el-form-item>
           <el-form-item label="电话号码" :label-width="formLabelWidth">
-            <el-input v-model="form.userPhone" placeholder="请输入内容" autocomplete="off" />
+            <el-input v-model="form.userPhone" placeholder="" autocomplete="off" disabled />
           </el-form-item>
           <el-form-item label="所属公司" :label-width="formLabelWidth">
-            <el-input v-model="form.userCompanyId" placeholder="请输入内容" autocomplete="off" />
+            <el-input v-model="form.userCompanyId" placeholder="" autocomplete="off" disabled />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -86,10 +85,10 @@
               <el-button type="info" icon="el-icon-view" size="mini" @click="checkUser(row, $index)">
                 查看</el-button>
               <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateUser(row, $index)">编辑</el-button>
-              <el-popconfirm confirm-button-text="是" cancel-button-text="否" icon="el-icon-info" icon-color="red"
+              <!-- <el-popconfirm confirm-button-text="是" cancel-button-text="否" icon="el-icon-info" icon-color="red"
                 :title="'确认删除 ' + row.username + ' 用户信息吗？'" @onConfirm="deleteUser(row, $index)">
                 <el-button slot="reference" type="danger" icon="el-icon-delete" size="mini">删除</el-button>
-              </el-popconfirm>
+              </el-popconfirm> -->
             </template>
           </el-table-column>
         </el-table>
@@ -123,8 +122,9 @@ export default {
       form: {
         userId: '',
         username: '',
-        password: '',
+        // password: '',
         realname: '',
+        roleName: '',
         userTypeId: '',
         userPhone: '',
         userNumber: '',
@@ -139,7 +139,7 @@ export default {
       dialogCheckFormVisible: false
     }
   },
-    watch: {
+  watch: {
   },
   created() {
     this.getAllUser()
@@ -151,7 +151,7 @@ export default {
         if (res.code == 200) {
           console.log('全部用户列表', res)
           this.userInfo = res.result.records
-          this.total =Number(res.result.total)
+          this.total = Number(res.result.total)
         } else {
           throw new Error(res.message || '获取所有用户列表失败')
         }
@@ -284,6 +284,11 @@ export default {
         const res = await getUserById(id)
         if (res.code == 200) {
           console.log('id-uesr', res)
+          const userDetail = res.result[0];
+          this.form = {
+            ...userDetail,
+            roleName: userDetail.roleName // 关键：赋值角色名称
+          };
         } else {
           throw new Error(res.message || '失败')
         }
@@ -296,12 +301,21 @@ export default {
       this.dialogCheckFormVisible = false
       this.resetForm()
     },
-    updateUser(row, index) {
+    async updateUser(row, index) {
       this.dialog_title = '编辑用户信息'
       this.dialogFormVisible = true
       const id = row.userId
       // console.log("查看用户信息", row, id);
-      this.form = row
+      try {
+        const res = await getUserById(id);
+        if (res.code === 200) {
+          const userDetail = res.result[0];
+          this.form = { ...userDetail }; // 直接使用详情中的 roleName
+          console.log('编辑弹窗从详情接口获取的角色名称：', userDetail.roleName);
+        }
+      } catch (error) {
+        console.error('编辑时获取用户详情失败：', error);
+      }
     }
   }
 }
