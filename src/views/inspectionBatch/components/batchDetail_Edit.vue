@@ -115,16 +115,7 @@
         </el-form-item>
         <el-form-item label="样本总数来源" :label-width="formLabelWidth">
           <el-checkbox-group v-model="form.totalText" :disabled="isCheckboxGroupDisabled">
-            <el-checkbox label="墙"></el-checkbox>
-            <el-checkbox label="板"></el-checkbox>
-            <el-checkbox label="梁"></el-checkbox>
-            <el-checkbox label="柱"></el-checkbox>
-            <el-checkbox label="电梯间"></el-checkbox>
-            <el-checkbox label="钢筋"></el-checkbox>
-            <el-checkbox label="混凝土"></el-checkbox>
-            <el-checkbox label="机械连接"></el-checkbox>
-            <el-checkbox label="独立基础"></el-checkbox>
-            <el-checkbox label="楼梯"></el-checkbox>
+            <el-checkbox v-for="item in checkList" :key="item" :label="item"></el-checkbox>
           </el-checkbox-group>
         </el-form-item>
         <el-form-item label="最小抽样数是否为空" :label-width="formLabelWidth">
@@ -181,8 +172,6 @@ import {
   getAllInspectType,
   updateInspectDetil,
 } from "@/api/specifications";
-import { mapState, mapGetters } from "vuex";
-import { cloneDeep } from "lodash";
 const statusMap = {
   sampleQiang: "墙",
   sampleBan: "板",
@@ -369,26 +358,6 @@ export default {
       );
       return inspectTypeName ? inspectTypeName.label : "未选择";
     }
-    //访问vuex中的数据，
-    //方式一
-    // indices(){
-    //   return this.$store.state.inspectionDetail.indices
-    // }
-    //方式二 mapState
-    // 数组形式
-    // ...mapState("inspectionDetail", ["subItem"]),
-    // //方式三 getter
-    // ...mapGetters(["indices"]),
-    // 处理后的 indices 文本
-    // formattedIndices() {
-    //   console.log("原始 indices:", this.indices); // 先打印原始数据
-    //   const result = this.indices.map((item) => ({
-    //     ...item, // 保留原始属性
-    //     statusText: getStatusText(item), // 新增状态文本
-    //   }));
-    //   console.log("计算后:", result);
-    //   return result;
-    // },
   },
   watch: {
     // 监听样本总数为空的变化
@@ -413,9 +382,9 @@ export default {
       }
     },
   },
-  created() {
-    this.getInpecInfo();
-    this.getInspectType();
+  async created() {
+    await this.getInpecInfo();
+    await this.getInspectType();
   },
   mounted() { },
   methods: {
@@ -490,12 +459,19 @@ export default {
       try {
         let res = await getAllInspectType();
         if (res.code == 200) {
-          console.log("所有验收类别", res);
+          console.log("所有验收类别", res, this.inspectTypeId);
           // console.log(res.result)
-          this.options0 = res.result.map((item, index) => ({
-            value: item.inspectType,
-            label: item.typeName,
-          }));
+          // ... existing code ...
+          this.options0 = res.result.map((item, index) => {
+            if (item.inspectType === this.inspectTypeId) {
+              this.checkList = JSON.parse(item.availableSources);
+            }
+            return {
+              value: item.inspectType,
+              label: item.typeName
+            };
+          });
+          // ... existing code ...
           console.log(this.options0);
         } else {
           throw new Error(res.message || "获取所有验收类别信息失败");
@@ -517,7 +493,7 @@ export default {
     //弹窗的确认按钮
     confirm() {
       // console.log("确认按钮", this.dialogFormTitle,this.form.totalText, this.form);//神经  this.form为什么为空
-      if (!this.form.itemName||!this.form.ruleType||!this.form.ruleStandard||!this.form.itemType||!this.form.dataType||!this.form.passThresh) {
+      if (!this.form.itemName || !this.form.ruleType || !this.form.ruleStandard || !this.form.itemType || !this.form.dataType || !this.form.passThresh) {
         this.$message.warning('请填写必填项');
         return;
       }

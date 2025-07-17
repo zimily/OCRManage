@@ -112,7 +112,7 @@ const actions = {
   },
   // get user info
   getInfo({ commit, state }) {
-    console.log('getInfo', state.userId, state.token)
+    // console.log('getInfo', state.userId, state.token)
     return new Promise((resolve, reject) => {
       getPermissionList(Number(state.userId), state.token).then(response => {
         let data = response.result

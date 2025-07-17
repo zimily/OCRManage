@@ -219,7 +219,7 @@
 </template>
 
 <script>
-import { getAssignData, getAllCollector, distribution } from "@/api/collection";
+import { getAssignData, getAllCollector, distribution,getAvailableSources } from "@/api/collection";
 const statusMap = {
   sampleQiang: "墙",
   sampleBan: "板",
@@ -271,7 +271,7 @@ export default {
       defaultRow: { itemName: "", number: 0, other: "" },
       capactity: "请编辑检验批容量",
       shejizhi: "请编辑设计值",
-      optionsEdit: [
+      allSources: [
         {
           value: "选项1",
           label: "墙",
@@ -309,6 +309,8 @@ export default {
           label: "独立基础",
         },
       ],
+      optionsEdit: [],
+
       // distribute: "", // 状态选择器值
       gridData: [
         {
@@ -334,12 +336,15 @@ export default {
     rowData() {
       return this.$store.state.collection.currentRowData;
     },
+   inspectType(){
+      return this.rowData.inspectId
+    }
   },
   created() {
-    //根据id号,发送请求，从后端获取数据。(待写)
+    console.log("this.rowData", this.rowData)
     this.getData();
     this.getAllCollector();
-    //将后端的数据 传递给data中
+    this.getSources()
   },
   mounted() {
 
@@ -404,6 +409,30 @@ export default {
         }
       } catch (error) {
         console.error("操作失败", error);
+      }
+    },
+    async getSources() { 
+      try {
+        let res=await getAvailableSources(Number(this.inspectType))
+        if(res.code=="200"){
+          // console.log("可用数据源",res)
+          //将JSON数据转换成数组  
+          const resultArray = JSON.parse(res.result); // 将 JSON 字符串转换为数组
+          console.log("可用数据源",resultArray)
+          //遍历数组
+          for (let i = 0; i < resultArray.length; i++) {
+            const item = resultArray[i];
+            //将item与allSources中label属性进行匹配
+            const matchingItem = this.allSources.find(source => source.label === item);
+            this.optionsEdit.push(matchingItem);
+          }
+          // console.log("已选数据源",this.optionsEdit)
+        }else{
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
+        this.$message.error("获取可用数据源失败！");
       }
     },
     //编辑检验批容量

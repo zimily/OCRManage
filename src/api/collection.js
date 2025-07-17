@@ -52,6 +52,14 @@ export function getCollectData(data){
     })
 }
 
+//根据类别ID获取可选的检验批容量来源
+export function getAvailableSources(inspectType) {
+  return request({
+    url: `/inspection-lot-template-item/available-sources/${inspectType}`,
+    method: 'get',
+  })
+}
+
 //项目审核
 export function verify(data){
     return request({

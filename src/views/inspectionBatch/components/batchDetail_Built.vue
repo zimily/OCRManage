@@ -91,7 +91,7 @@
     <el-dialog :title="dialogFormTitle" :visible.sync="dialogFormVisible" :show-close="false" @change=" reSetForm()">
       <el-form :model="form">
         <el-form-item label="验收项目" :label-width="formLabelWidth" :required="true">
-          <el-input v-model="form.itemName" autocomplete="off" style="width: 500px;"></el-input>
+          <el-input v-model="form.itemName" autocomplete="off" ></el-input>
         </el-form-item>
         <el-form-item label="规则" :label-width="formLabelWidth" :required="true">
           <el-select v-model="form.ruleType" placeholder="请选择">
@@ -100,13 +100,13 @@
           </el-select>
         </el-form-item>
         <el-form-item label="标准值或规范" :label-width="formLabelWidth" :required="true">
-          <el-input v-model="form.ruleStandard" autocomplete="off" style="width: 500px;"></el-input>
+          <el-input v-model="form.ruleStandard" autocomplete="off" ></el-input>
         </el-form-item>
         <el-form-item label="参数含义" :label-width="formLabelWidth">
-          <el-input v-model="form.variableMeaning" autocomplete="off" style="width: 500px;"></el-input>
+          <el-input v-model="form.variableMeaning" autocomplete="off" ></el-input>
         </el-form-item>
         <el-form-item label="单位" :label-width="formLabelWidth">
-          <el-input v-model="form.dataUnit" autocomplete="off" style="width: 500px;"></el-input>
+          <el-input v-model="form.dataUnit" autocomplete="off" ></el-input>
         </el-form-item>
         <el-form-item label="项目类型" :label-width="formLabelWidth" :required="true">
           <el-select v-model="form.itemType" placeholder="请选择">
@@ -122,7 +122,7 @@
         </el-form-item>
         <el-form-item label="合格率阈值" :label-width="formLabelWidth" :required="true">
           <el-input v-model="form.passThresh" type="number" :min="0" :max="1" :step="0.01" autocomplete="off"
-            style="width: 500px;" @blur="handlePassThreshBlur"></el-input>
+            @blur="handlePassThreshBlur"></el-input>
         </el-form-item>
         <el-form-item label="样本总数为空" :label-width="formLabelWidth">
           <el-radio v-model="form.totalSampleEmpty" :label="1" @change="handleTotalSampleEmptyChange">是</el-radio>
@@ -130,16 +130,7 @@
         </el-form-item>
         <el-form-item label="样本总数来源" :label-width="formLabelWidth">
           <el-checkbox-group v-model="form.totalText" :disabled="isCheckboxGroupDisabled">
-            <el-checkbox label="墙"></el-checkbox>
-            <el-checkbox label="板"></el-checkbox>
-            <el-checkbox label="梁"></el-checkbox>
-            <el-checkbox label="柱"></el-checkbox>
-            <el-checkbox label="电梯间"></el-checkbox>
-            <el-checkbox label="钢筋"></el-checkbox>
-            <el-checkbox label="混凝土"></el-checkbox>
-            <el-checkbox label="机械连接"></el-checkbox>
-            <el-checkbox label="独立基础"></el-checkbox>
-            <el-checkbox label="楼梯"></el-checkbox>
+            <el-checkbox v-for="item in checkList" :key="item" :label="item"></el-checkbox>
           </el-checkbox-group>
         </el-form-item>
         <el-form-item label="最小抽样数是否为空" :label-width="formLabelWidth">
@@ -147,8 +138,7 @@
           <el-radio v-model="form.minSampleEmpty" :label="0" @change="handleMinSampleEmptyChange">否</el-radio>
         </el-form-item>
         <el-form-item label="最小抽样规则" :label-width="formLabelWidth">
-          <el-select v-model="form.minSampleRule" placeholder="请选择抽样规则" :disabled="isCheckboxGroupDisabled1"
-            style="width: 500px;">
+          <el-select v-model="form.minSampleRule" placeholder="请选择抽样规则" :disabled="isCheckboxGroupDisabled1">
             <el-option label="全数检查" :value="1"></el-option>
             <el-option label="按批次抽样" :value="2"></el-option>
             <el-option label="按比例抽样" :value="3"></el-option>
@@ -159,24 +149,24 @@
         <!-- 动态表单内容 -->
         <template v-if="form.minSampleRule === 2">
           <el-form-item label="每批抽" :label-width="formLabelWidth">
-            <el-input v-model="form.minSample" placeholder="请输入每批抽取个数" suffix="个" style="width: 500px;"
+            <el-input v-model="form.minSample" placeholder="请输入每批抽取个数" suffix="个" 
               :disabled="isCheckboxGroupDisabled1"></el-input>
           </el-form-item>
         </template>
         <template v-else-if="form.minSampleRule === 3">
           <el-form-item label="抽取比例" :label-width="formLabelWidth">
             <el-input v-model="form.partMinPercentage" type="number" :min="0" :max="1" :step="0.01" autocomplete="off"
-              style="width: 500px;" @blur="handlePassThreshBlur"></el-input>
+               @blur="handlePassThreshBlur"></el-input>
           </el-form-item>
           <el-form-item label="不少于" :label-width="formLabelWidth">
-            <el-input v-model="form.minSample" placeholder="请输入最少抽取数量" suffix="处" style="width: 500px;"
+            <el-input v-model="form.minSample" placeholder="请输入最少抽取数量" suffix="处"
               :disabled="isCheckboxGroupDisabled1"></el-input>
           </el-form-item>
         </template>
 
         <template v-else-if="form.minSampleRule === 4">
           <el-form-item label="满X抽1" :label-width="formLabelWidth">
-            <el-input v-model="form.checkPer" placeholder="请输入X值" suffix="抽1" style="width: 500px;"
+            <el-input v-model="form.checkPer" placeholder="请输入X值" suffix="抽1" 
               :disabled="isCheckboxGroupDisabled1"></el-input>
           </el-form-item>
         </template>
@@ -196,8 +186,6 @@ import {
   newInspectDetil,
   newInspectDetil1,
 } from "@/api/specifications";
-import { mapState, mapGetters } from "vuex";
-import { cloneDeep } from "lodash";
 const statusMap = {
   sampleQiang: "墙",
   sampleBan: "板",
@@ -368,6 +356,7 @@ export default {
       isCheckboxGroupDisabled1: false, //最小抽样规则是否可用
       existingRulesOptions: [], // 已有规范选项
       selectedExistingRules: [], // 已选择的已有规范id数组
+      allInspectType: [],
     };
   },
   computed: {},
@@ -447,7 +436,8 @@ export default {
       try {
         let res = await getAllInspectType();
         if (res.code == 200) {
-          // console.log('所有验收类别',res)
+          console.log('所有验收类别', res)
+          this.allInspectType = res.result;
           this.options0 = res.result.map((item, index) => ({
             value: item.inspectType,
             label: item.typeName,
@@ -463,13 +453,17 @@ export default {
     },
     //选中类别  获取已有验收规范
     async handleInspectTypeChange(value) {
-      // console.log("选择的类别id:", value);
+      console.log("选择的类别id:", value);
       try {
         let res = await getBaseRule(value);
         if (res.code == 200) {
-          // console.log("已有验收规范", res);
+          console.log("已有验收规范", res);
           this.existingRulesOptions = res.result || [];
-          // console.log("已有验收规范选项", this.existingRulesOptions); 
+          const inspectItem = this.allInspectType.find((item) => {
+            return item.inspectType == value;
+          });
+          this.checkList = JSON.parse(inspectItem.availableSources);
+          console.log("当前来源", inspectItem, this.checkList);
         } else {
           throw new Error(res.message || "获取已有验收规范信息失败");
         }
@@ -526,7 +520,7 @@ export default {
     //弹窗的确认按钮
     confirm() {
       //表单必填项验证
-      if (!this.form.itemName||!this.form.ruleType||!this.form.ruleStandard||!this.form.itemType||!this.form.dataType||!this.form.passThresh) {
+      if (!this.form.itemName || !this.form.ruleType || !this.form.ruleStandard || !this.form.itemType || !this.form.dataType || !this.form.passThresh) {
         this.$message.warning('请填写必填项');
         return;
       }
