@@ -123,7 +123,11 @@ export function draw(cav, list, i) {
 
 /* 编辑矩形四个角 */
 function changeDraw(cav, ctx, list, i, site) {
-  cav.style.cursor = 'pointer'
+  if (site === 1 || site === 4) {
+    cav.style.cursor = 'nwse-resize'
+  } else {
+    cav.style.cursor = 'nesw-resize'
+  }
 
   // site: 操作矩形角的位置, 1-起点 2-起点横向 3-起点纵向 4-终点
   const mark = list[i]
@@ -226,9 +230,17 @@ export function newDraw(cav, ctx, list) {
     cav.onmouseup = function(eu) {
       if (start && Math.abs(eu.offsetX - sX) > 10 && Math.abs(eu.offsetY - sY) > 10) {
         // 改变矩形数组
-        const frame = {
-          x: sX, y: sY, w: eu.offsetX - sX, h: eu.offsetY - sY
+        let frame = {}
+        if (eu.offsetX - sX > 0 && eu.offsetY - sY > 0) { // 左上开始画
+          frame = { x: sX, y: sY, w: eu.offsetX - sX, h: eu.offsetY - sY }
+        } else if (eu.offsetX - sX < 0 && eu.offsetY - sY > 0) { // 右上开始画
+          frame = { x: eu.offsetX, y: sY, w: sX - eu.offsetX, h: eu.offsetY - sY }
+        } else if (eu.offsetX - sX > 0 && eu.offsetY - sY < 0) { // 左下开始画
+          frame = { x: sX, y: eu.offsetY, w: eu.offsetX - sX, h: sY - eu.offsetY }
+        } else if (eu.offsetX - sX < 0 && eu.offsetY - sY < 0) {
+          frame = { x: eu.offsetX, y: eu.offsetY, w: sX - eu.offsetX, h: sY - eu.offsetY }
         }
+
         res = frame
         list.push(frame)
         // 重新绘制
@@ -251,8 +263,15 @@ export function newDraw(cav, ctx, list) {
     cav.onmouseout = function(eo) {
       if (start && Math.abs(eo.offsetX - sX) > 10 && Math.abs(eo.offsetY - sY) > 10) {
         // 改变矩形数组
-        const frame = {
-          x: sX, y: sY, w: eo.offsetX - sX, h: eo.offsetY - sY
+        let frame = {}
+        if (eo.offsetX - sX > 0 && eo.offsetY - sY > 0) { // 左上开始画
+          frame = { x: sX, y: sY, w: eo.offsetX - sX, h: eo.offsetY - sY }
+        } else if (eo.offsetX - sX < 0 && eo.offsetY - sY > 0) { // 右上开始画
+          frame = { x: eo.offsetX, y: sY, w: sX - eo.offsetX, h: eo.offsetY - sY }
+        } else if (eo.offsetX - sX > 0 && eo.offsetY - sY < 0) { // 左下开始画
+          frame = { x: sX, y: eo.offsetY, w: eo.offsetX - sX, h: sY - eo.offsetY }
+        } else if (eo.offsetX - sX < 0 && eo.offsetY - sY < 0) {
+          frame = { x: eo.offsetX, y: eo.offsetY, w: sX - eo.offsetX, h: eo.offsetY - sY }
         }
         res = frame
         list.push(frame)
@@ -278,7 +297,7 @@ export function newDraw(cav, ctx, list) {
 
 /* 选中矩形, 重绘矩形, 并分发后续事件 */
 function judgeDraw(cav, ctx, list, iem) {
-  cav.style.cursor = 'default'
+  cav.style.cursor = 'pointer'
   // 初始化变量
   let sX = 0 // 起点X坐标
   let sY = 0 // 起点Y坐标

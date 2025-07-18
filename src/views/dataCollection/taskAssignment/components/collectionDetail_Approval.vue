@@ -99,6 +99,7 @@
       title="原始数据展示"
       :visible.sync="dialogTableVisible"
       :show-close="false"
+      @close="closeDialog"
     >
       <div v-if="dataType===1">
         <el-row style="font-size: 1.5em">
@@ -110,8 +111,13 @@
           <el-col :span="20">
             <div class="scrollable-container">
               <!-- 横向排列的内容 -->
-              <div class="photo-list">
-                <img v-for="photo in photos" :key="photo.id" :src="photo.url">
+              <div class="photo-navigation">
+                <el-button class="left-button" @click="prePage">上一页</el-button>
+                <img :src="imgUrl">
+                <el-button class="right-button" style="right: 1.5em" @click="nextPage">下一页</el-button>
+                <div class="divs">
+                  <div v-for="(item,index) in photos" :key="index" :class="{active:index===pageNum-1}" />
+                </div>
               </div>
             </div>
           </el-col>
@@ -140,7 +146,7 @@
         试验报告数据
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogTableVisible = false">关闭</el-button>
+        <el-button type="primary" @click="closeDialog">关闭</el-button>
       </div>
     </el-dialog>
   </div>
@@ -205,7 +211,10 @@ export default {
       ],
       multipleSelection: [],
       dataType: null, // 1-观察 2-采集数据 3-报告
-      photos: []
+      photos: [],
+      pageNum: 1,
+      imgUrl: '', // 图片地址
+      intervalId: null // 用于保存定时器 ID
     }
   },
   computed: {
@@ -227,9 +236,29 @@ export default {
     console.log(this.subprojectName)
   },
   methods: {
+    startAutoPlay() {
+      if (this.photos.length) {
+        this.intervalId = setInterval(() => {
+          this.pageNum = this.pageNum % this.photos.length + 1
+          this.imgUrl = this.photos[this.pageNum - 1].url
+        }, 3000)
+        console.log('开始自动播放', this.pageNum)
+      }
+    },
+    stopAutoPlay() {
+      if (this.intervalId) {
+        clearInterval(this.intervalId) // 清除定时器
+        this.intervalId = null // 重置定时器 ID
+      }
+    },
     // 查看数据
     async viewData(value) {
       this.dialogTableVisible = true
+      this.dataType = null
+      this.gridData = [] // 清空 gridData
+      this.photos = [] // 清空图片数据
+      this.pageNum = 1
+      this.stopAutoPlay() // 停止之前的自动播放
       const data = {
         taskId: value.row.taskItem.taskId,
         inspectItemId: value.row.inspectItem.inspectItemId
@@ -244,6 +273,10 @@ export default {
             if (this.dataType === 1) {
               this.gridData = JSON.parse(res.result)[0]
               await this.getImage(this.gridData.photos)
+              if (this.photos.length) {
+                this.imgUrl = this.photos[this.pageNum - 1].url
+                this.startAutoPlay()
+              }
             } else if (this.dataType === 2) {
               this.gridData = JSON.parse(res.result)
             }
@@ -279,31 +312,50 @@ export default {
         this.$message.error('出错啦，请稍后重试！')
       }
     },
+    prePage() {
+      if (this.pageNum > 1) {
+        this.pageNum--
+      } else {
+        this.pageNum = this.photos.length
+      }
+      this.imgUrl = this.photos[this.pageNum - 1].url
+    },
+    nextPage() {
+      if (this.pageNum < this.photos.length) {
+        this.pageNum++
+      } else {
+        this.pageNum = 1
+      }
+      this.imgUrl = this.photos[this.pageNum - 1].url
+    },
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
-    //通过
+    // 通过
     async pass() {
-      console.log("通过", this.multipleSelection);
-      console.log("通过1", this.tableData);
-      //数据整理
+      console.log('通过', this.multipleSelection)
+      console.log('通过1', this.tableData)
+      // 数据整理
       const resultData = {
         taskId: '',
-        taskItemList: [],
+        taskItemList: []
       }
-      resultData.taskId = this.taskId;
+      resultData.taskId = this.taskId
       this.tableData.map(item => {
         const taskItem = {}
         if (item.isChecked) {
-          taskItem.teskItemId = item.taskItem.taskItemId;
+          taskItem.teskItemId = item.taskItem.taskItemId
           taskItem.isChecked = 1
-
         } else {
-          taskItem.teskItemId = item.taskItem.taskItemId;
+          taskItem.teskItemId = item.taskItem.taskItemId
           taskItem.isChecked = 0
         }
         resultData.taskItemList.push(taskItem)
       })
+    },
+    closeDialog() {
+      this.dialogTableVisible = false
+      this.stopAutoPlay()
     },
     // 取消
     cancel() {
