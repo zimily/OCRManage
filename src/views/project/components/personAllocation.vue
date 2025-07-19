@@ -132,7 +132,7 @@ export default {
       searchData: {
         projectId: this.projectId,
         // projectId: 1,
-        username: '',
+        realname: '',
         roleName: '',
         page: 1,
         pageSize: 10
@@ -153,7 +153,7 @@ export default {
         isLook2: false,
         pre: 0
       },
-      lookId: 0// 查看用户详情的用户id
+      lookId: ''// 查看用户详情的用户id
     }
   },
   computed: {
@@ -237,7 +237,7 @@ export default {
     async deleteAssignmentById(id) {
       try {
         const res = await deleteAssignment(id)
-        console.log(res)
+        console.log('删除人员', res)
       } catch (error) {
         console.log(error)
       }
@@ -251,7 +251,7 @@ export default {
       }
     },
     changeXiang() {
-
+      this.searchData.page = 1
     },
     addPeople() {
       this.looks = {
@@ -271,7 +271,8 @@ export default {
       this.searchData.page = val
     },
     handleSearch() {
-      this.searchData.username = this.tempSearch
+      this.searchData.realname = this.tempSearch
+      this.searchData.page = 1
     },
     lookUser(scope) {
       this.looks = {
@@ -279,7 +280,7 @@ export default {
         isLook2: true,
         pre: 1
       }
-      this.lookId = parseInt(scope.row.userId)
+      this.lookId = scope.row.userId
     },
     async deleteBatch(scope) {
       if (scope.row.roleName === '总工') {
@@ -288,7 +289,7 @@ export default {
       await this.deleteAssignmentById(scope.row.assignmentId)
       if ((this.totalData - 1) % this.limit === 0) {
         this.currentPage--
-        this.searchData.page = Math.max(0, this.currentPage)
+        this.searchData.page = Math.max(1, this.currentPage)
       }
       await this.postSelectAssignment()
       await this.getPersonInProject()

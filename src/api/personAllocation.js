@@ -38,6 +38,7 @@ export function putDistribute(data) {
 
 // 对分配好的人员的条件分页查询
 export function postSelectAssignment(data) {
+  console.log('分页查询参数', data)
   return request({
     url: '/assign/selectAssignment',
     method: 'post',

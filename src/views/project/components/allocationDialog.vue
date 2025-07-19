@@ -121,7 +121,7 @@
                 <el-form-item label="所属单位">{{ userDetail.companyName }}</el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="部门">{{ userDetail.deptName }}</el-form-item>
+                <el-form-item label="部门">{{ userDetail.deptname }}</el-form-item>
               </el-col>
             </el-row>
           </el-form>
@@ -146,6 +146,7 @@ import {
 import user from '../../../store/modules/user'
 import ca from 'element-ui/src/locale/lang/ca'
 import { getUser } from '@/utils/storage'
+import { string } from 'mockjs/src/mock/random/basic'
 
 export default {
   props: {
@@ -160,8 +161,8 @@ export default {
       }
     },
     lookId: {
-      type: Number,
-      default: 0
+      type: String,
+      default: ''
     },
     isZongGong: {
       type: Boolean,
@@ -211,7 +212,7 @@ export default {
     },
     lookId: {
       handler(newVal) {
-        this.lookDetailId = parseInt(newVal)
+        this.lookDetailId = newVal
       }
     },
     lookDetailId: {
@@ -223,6 +224,11 @@ export default {
       handler(newVal) {
         this.changeCurrentPageData()
       }
+    },
+    personList: {
+      handler(newVal) {
+      },
+      deep: true
     }
   },
   created() {
@@ -288,14 +294,9 @@ export default {
         console.log('lookDetailId', this.lookDetailId, typeof this.lookDetailId)
         const { result } = await getAssignDetailById(this.lookDetailId)
         console.log('getAssignDetailById', this.lookDetailId, result)
-        if (result && result.length) {
-          this.userDetail = result[0]
-          // 在好几个项目下时进行字符串拼接
-          if (result.length > 1) {
-            for (let i = 1; i < result.length; i++) {
-              this.userDetail.projectName += `, ${result[i].projectName}`
-            }
-          }
+        if (result) {
+          this.userDetail = result
+          this.userDetail.projectName = this.userDetail.projectName.toString()
         } else {
           this.userDetail = {
             realname: '',
@@ -337,6 +338,7 @@ export default {
       }
       this.roleSelect = ''
       this.tempSearch = ''
+      this.ZGongId = -1
     },
     // 点击table列表内的选择框
     handleListSelectedFn(selectionvalue, scope) {
