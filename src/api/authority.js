@@ -7,6 +7,15 @@ export function getAllRoles(page, limit) {
 
   })
 }
+export function getAllRoles2() {
+  return request({
+    url: `/role/getAllRolesNoPage`,
+    method: 'get'
+
+  })
+}
+
+
 
 export function reqPermissionList() {
   return request({

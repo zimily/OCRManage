@@ -45,7 +45,7 @@
             <el-button @click="quxiao()">取消</el-button>
         </div>
         <!-- 对话框 -->
-        <el-dialog title="选择试验报告编号" :visible.sync="dialogEdit" :show-close="false" @close="resetDialog()">
+        <el-dialog title="" :visible.sync="dialogEdit" :show-close="false" @close="resetDialog()">
             <div class="filter-container">
                 <span>台账选择</span>
                 <el-select v-model="selectType" placeholder="请选择"
@@ -103,7 +103,7 @@ function getStatusText(item) {
 export default {
     data() {
         return {
-            collectorId: '1944049080280260612',
+            collectorId: '',
             collectorName: " collectorName",
             capacityName: "",
             capacityNum: "",
@@ -139,11 +139,15 @@ export default {
         taskId() { //
             return this.rowData.taskId;
         },
-        // subprojectId() { //
+        // subprojectId() {
         //     return this.rowData.subprojectId;
-        // },
-    },
-    created() {
+        // }, 
+        },
+     created() { 
+        const user = getUser();
+        if (user) {
+            this.collectorId = user.userId;   
+        }
 
     },
     mounted() {
@@ -154,6 +158,7 @@ export default {
     methods: {
         async getDetails() {
             try {
+                console.log("发请求，获取任务详情数据", this.$route.query.taskId, this.collectorId);
                 const res = await getDetails(
                     this.$route.query.taskId,
                     this.collectorId,

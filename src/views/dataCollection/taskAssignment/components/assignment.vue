@@ -1,5 +1,20 @@
 <template>
   <div>
+    <!-- 模板选择 -->
+    <el-dialog title="请选择数据来源" :visible.sync="templateDialogVisible" :close-on-click-modal="false" :show-close="false"
+      width="30%">
+      <el-radio-group v-model="selectedTemplate">
+        <el-radio label='1'>表格导入</el-radio>
+        <el-radio label='2'>上一个检验批</el-radio>
+        <el-radio label='3'>空白</el-radio>
+      </el-radio-group>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="handleTemplateConfirm">确 定</el-button>
+        <el-button @click="cancelDistributeTask()">退出</el-button>
+      </span>
+    </el-dialog>
+
     <!-- 项目信息 -->
     <el-row :gutter="2" class="equal-height-row">
       <el-col :span="6">
@@ -107,8 +122,8 @@
       :row-class-name="rowClassName">
       <el-table-column prop="isEmpty" label="是否采集" width="80" align="center">
         <template slot-scope="scope">
-          <el-checkbox :value="scope.row.isEmpty === 1"
-            @change="val => { scope.row.isEmpty = val ? 1 : 0 }"></el-checkbox>
+          <el-checkbox :value="scope.row.isEmpty === 0"
+            @change="val => handleIsEmptyChange(scope.row, val)"></el-checkbox>
         </template>
       </el-table-column>
 
@@ -116,21 +131,21 @@
 
       <el-table-column prop="ruleStandard" label="设计要求及规范规定" align="center" show-overflow-tooltip />
 
-      <el-table-column prop="variableMeaning" label="变量的值" align="center">
+      <el-table-column prop="variableValue" label="变量的值" align="center">
         <template #default="{ row }">
-          <el-input style="width: 8em" v-model="row.variableMeaning" />
+          <el-input style="width: 8em" v-model="row.variableValue" />
         </template>
       </el-table-column>
 
-      <el-table-column prop="totalSampleNumber" label="样本总数" align="center">
+      <el-table-column prop="sampleAmount" label="样本总数" align="center">
         <template #default="{ row }">
-          <el-input style="width: 8em" v-model="row.totalSampleNumber" type="number" min="0" />
+          <el-input style="width: 8em" v-model="row.sampleAmount" type="number" min="0" />
         </template>
       </el-table-column>
 
-      <el-table-column prop="minSampleNumber" label="最小抽样批量" align="center">
+      <el-table-column prop="minSample" label="最小抽样批量" align="center">
         <template #default="{ row }">
-          <el-input style="width: 8em" v-model="row.minSampleNumber" type="number" min="0" />
+          <el-input style="width: 8em" v-model="row.minSample" type="number" min="0" />
         </template>
       </el-table-column>
       <el-table-column prop="positionId" label="分发岗位" align="center" show-overflow-tooltip>
@@ -143,7 +158,7 @@
     </el-table>
 
     <div>
-      <el-button type="primary" @click="distributeTask()">分发</el-button>
+      <el-button type="primary" @click="distributeTask()" :disabled="!isDistributable">分发</el-button>
       <el-button @click="cancelDistributeTask()">取消</el-button>
     </div>
     <!-- 设计值编辑弹窗 -->
@@ -195,7 +210,7 @@
         </el-table-column>
         <el-table-column property="volume" label="数量" align="center">
           <template slot-scope="scope">
-            <el-input v-model="scope.row.volume" @input="(val) => (scope.row.number = parseFloat(val))" type="number"
+            <el-input v-model="scope.row.volume" @input="(val) => (scope.row.volume = parseFloat(val))" type="number"
               placeholder="请输入数量" min="0" />
           </template>
         </el-table-column>
@@ -219,7 +234,7 @@
 </template>
 
 <script>
-import { getAssignData, getAllCollector, distribution,getAvailableSources } from "@/api/collection";
+import { getAssignData, getAllCollector, distribution, getAvailableSources } from "@/api/collection";
 const statusMap = {
   sampleQiang: "墙",
   sampleBan: "板",
@@ -260,13 +275,7 @@ export default {
       shigongRule: "",
       yanshouRule: "",
       Subcontractor: "",
-      inspectCapacity: [
-        {
-          sourceName: "",
-          volume: 0,
-          info: "",
-        },
-      ],
+      inspectCapacity: [],
       // 默认行模板（用于重置）
       defaultRow: { itemName: "", number: 0, other: "" },
       capactity: "请编辑检验批容量",
@@ -324,6 +333,9 @@ export default {
       distribute: "", // 状态选择器值
       dialogTableVisible2: false,
       taskId: 0,
+      isDistributable: false, // 是否可以分发
+      templateDialogVisible: true,//模板选择弹窗
+      selectedTemplate: null,
     };
   },
   computed: {
@@ -336,13 +348,13 @@ export default {
     rowData() {
       return this.$store.state.collection.currentRowData;
     },
-   inspectType(){
+    inspectType() {
       return this.rowData.inspectId
     }
   },
   created() {
     console.log("this.rowData", this.rowData)
-    this.getData();
+    // this.getData();
     this.getAllCollector();
     this.getSources()
   },
@@ -350,34 +362,59 @@ export default {
 
   },
   methods: {
+    handleTemplateConfirm() {
+      this.templateDialogVisible = false;
+      switch (this.selectedTemplate) {
+        case '1':
+          console.log(this.selectedTemplate);
+          this.getData();
+          break;
+        case '2':
+          console.log(this.selectedTemplate);
+          this.getData();
+          break;
+        case '3':
+          console.log(this.selectedTemplate);
+          this.getData();
+          break;
+        default:
+          this.$message.warning('请选择一个模板');
+          this.templateDialogVisible = true; // 保持弹窗
+          break;
+      }
+    },
     async getData() {
       console.log("taskId", this.curId)
       try {
-        const res = await getAssignData(this.curId);
+        const res = await getAssignData(Number(this.selectedTemplate), this.curId);
         if (res.code == "200") {
           console.log("待分发数据", res);
+          this.isDistributable = true;
           this.taskId = res.result.taskId;
-          this.yanshouRule = res.result.yanshouRule
+          this.yanshouRule = res.result.yanshouRule;
+          this.fenbaoCompany = res.result.fenbaoCompany;
+          this.fenbaoDirector = res.result.fenbaoDirector;
+          this.fenbaoTechnical = res.result.fenbaoTechnical;
+          this.shigongRule = res.result.shigongRule;
+          // 处理检验批内容
           const items = res.result.lastFloorInspectItem;
           this.tableData = items.map((item) => ({
             ...item, // 保留原始属性
-            totalText: getStatusText(item), // 新增状态文本
-            totalSampleNumber: 0,
-            minSampleNumber: 0,
-            isEmpty: 0,//是否采样 0-不采样
-            positionId: null,//分发岗位Id
+            totalText: getStatusText(item),
+            isEmpty: 0,//是否采样 1-不勾选（不采集1）   0-勾选 （采集0）
           }));
-          this.fenbaoCompany = res.result.fenbaoCompany,
-            this.fenbaoDirector = res.result.fenbaoDirector,
-            this.fenbaoTechnical = res.result.fenbaoTechnical,
-            this.inspectCapacity = res.result.taskInspectBatchVolume,
-            this.shigongRule = res.result.shigongRule
-          const result = this.inspectCapacity
-            .filter((row) => row.sourceName && row.volume)
-            .map((row) => `${row.sourceName}${row.volume}批`)
-            .join("；");
-          //页面中检验批容量 显示
-          this.capactity = result;
+          // 检验批容量
+          this.inspectCapacity = res.result.taskInspectBatchVolume || [];
+          console.log("获取分发--检验批容量", this.inspectCapacity);
+          if (!Array.isArray(this.inspectCapacity) || this.inspectCapacity.length === 0) {
+            const result = this.inspectCapacity
+              .filter((row) => row.sourceName && row.volume)
+              .map((row) => `${row.sourceName}${row.volume}批`)
+              .join("；");
+            //页面中检验批容量 显示
+            this.capactity = result;
+          }
+
           try {
             this.gridData = JSON.parse(res.result.designValue);
             console.log('gridData', this.gridData)
@@ -400,7 +437,7 @@ export default {
         if (res.code == "200") {
           console.log("采集员角色", res);
           this.options = res.result.map((role) => ({
-            value: role.roleId.toString(), // 根据需求决定是否转字符串
+            value: role.roleId,
             label: role.roleName,
           }));
         } else {
@@ -411,14 +448,14 @@ export default {
         console.error("操作失败", error);
       }
     },
-    async getSources() { 
+    async getSources() {
       try {
-        let res=await getAvailableSources(Number(this.inspectType))
-        if(res.code=="200"){
+        let res = await getAvailableSources(Number(this.inspectType))
+        if (res.code == "200") {
           // console.log("可用数据源",res)
           //将JSON数据转换成数组  
           const resultArray = JSON.parse(res.result); // 将 JSON 字符串转换为数组
-          console.log("可用数据源",resultArray)
+          console.log("可用数据源", resultArray)
           //遍历数组
           for (let i = 0; i < resultArray.length; i++) {
             const item = resultArray[i];
@@ -427,7 +464,7 @@ export default {
             this.optionsEdit.push(matchingItem);
           }
           // console.log("已选数据源",this.optionsEdit)
-        }else{
+        } else {
           throw new Error(res.message);
         }
       } catch (error) {
@@ -451,7 +488,17 @@ export default {
     deleteRow(index) {
       this.inspectCapacity.splice(index, 1);
     },
+    handleIsEmptyChange(row, val) {
+      this.$set(row, 'isEmpty', val ? 0 : 1);
+      console.log("多选框变化", this.tableData)
+    },
     confirmCapactity() {
+      console.log("编辑检验批容量的确认按钮", this.inspectCapacity);
+      // 检查是否有有效数据
+      if (!Array.isArray(this.inspectCapacity) || this.inspectCapacity.length === 0) {
+        this.$message.error("请添加检验批容量！");
+        return;
+      }
       this.dialogTableVisible1 = false;
       const result = this.inspectCapacity
         .filter((row) => row.sourceName && row.volume)
@@ -465,8 +512,8 @@ export default {
       //要修改表格中的样本总数和最小抽样批量
       //1.要清除已存在的数据
       this.tableData.forEach((item) => {
-        item.totalSampleNumber = 0;
-        item.minSampleNumber = 0;
+        item.sampleAmount = 0;
+        item.minSample = 0;
       });
 
       this.inspectCapacity.forEach((capacityItem) => {
@@ -477,26 +524,26 @@ export default {
           // 确保totalText存在且是数组
           if (tableItem.totalText.includes(itemName)) {
             //样本总数=检验批内容中存在的来源的总和，不存在就不计算
-            tableItem.totalSampleNumber += number;
+            tableItem.sampleAmount += number;
             //最小抽样批量计算
             if (tableItem.minSampleRule === 1) {
-              tableItem.minSampleNumber = tableItem.totalSampleNumber;
+              tableItem.minSample = tableItem.sampleAmount;
             } else if (tableItem.minSampleRule === 2) {
               //按批次
-              tableItem.minSampleNumber += tableItem.minSample;
+              tableItem.minSample += tableItem.minSample;
             } else if (tableItem.minSampleRule === 3) {
               //按比例
               const n = number * tableItem.partMinPercentage;
               if (n < tableItem.minSample) {
-                tableItem.minSampleNumber += tableItem.minSample;
+                tableItem.minSample += tableItem.minSample;
               } else {
-                tableItem.minSampleNumber += n;
+                tableItem.minSample += n;
               }
             } else if (tableItem.minSampleRule === 4) {
               //X
-              tableItem.minSampleNumber += number / tableItem.checkPer;
+              tableItem.minSample += number / tableItem.checkPer;
             }
-            console.log(tableItem.minSampleRule, tableItem.minSampleNumber);
+            console.log("最小抽样规则，最小抽样数量", tableItem.minSampleRule, tableItem.minSample);
           }
         });
       });
@@ -534,6 +581,15 @@ export default {
     },
     //分发按钮
     async distributeTask() {
+      console.log("分发--检验批容量", this.inspectCapacity);
+      if (this.inspectCapacity.length === 0) {
+        this.$message.error("请添加检验批容量！");
+        return;
+      }
+      if (this.shigongRule === "") {
+        this.$message.error("请填写施工规范！");
+        return;
+      }
       //整理数据
       const resultDate = {}
       resultDate.taskId = this.taskId
@@ -553,25 +609,24 @@ export default {
 
       const processData = (originalData) => {
         return originalData.map(item => {
-          if (item.isEmpty) {  //只要采集的数据项
-            // 通过解构赋值提取需要的属性，并用冒号(:)重命名
-            const {
-              totalSampleNumber: sampleAmount,        // 将原 totalSampleNumber属性重命名为sampleAmount
-              variableMeaning: variableValue,    // 将原name属性重命名为userName
-              passThresh: passRate,
-              isEmpty,
-              positionId,
-              inspectItemId,
-              minSampleNumber: minSample,
-            } = item;
-            const taskId = this.taskId
-            const taskItemId = null
-            const checkRecord = null
-            const isFinished = 0
-            const minSampleInfo = null
-            const collectedAmount = 0
-            return { taskItemId, taskId, inspectItemId, isEmpty, positionId, sampleAmount, variableValue, minSample, minSampleInfo, collectedAmount, isFinished, passRate, checkRecord };
-          }
+          // 通过解构赋值提取需要的属性，并用冒号(:)重命名
+          const {
+            sampleAmount,
+            variableValue,
+            passThresh: passRate,
+            isEmpty,
+            positionId,
+            inspectItemId,
+            minSample,
+          } = item;
+          const taskId = this.taskId
+          const taskItemId = null
+          const checkRecord = null
+          const isFinished = 0
+          const minSampleInfo = null
+          const collectedAmount = 0
+          return { taskItemId, taskId, inspectItemId, isEmpty, positionId, sampleAmount, variableValue, minSample, minSampleInfo, collectedAmount, isFinished, passRate, checkRecord };
+
         });
       };
       const taskItemList = processData(this.tableData);

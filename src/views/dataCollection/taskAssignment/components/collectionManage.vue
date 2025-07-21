@@ -33,9 +33,9 @@
     <el-table :data="tableData" stripe style="width: 100%">
       <el-table-column prop="projectInnerCode" label="项目号" width="180" align="center">
       </el-table-column>
-      <el-table-column prop="projectName" label="工程名称" width="180" align="center">
+      <el-table-column prop="projectName" label="工程名称" align="center">
       </el-table-column>
-      <el-table-column prop="subprojectName" label="单位工程" width="180" align="center">
+      <el-table-column prop="subprojectName" label="单位工程"  align="center">
       </el-table-column>
       <el-table-column prop="inspectPart" label="检验批部位" width="180" align="center">
       </el-table-column>
@@ -48,7 +48,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="operation" label="操作" align="center">
+      <el-table-column prop="operation" label="操作" align="center"  width="180">
         <template v-slot="scope">
           <el-button type="info" @click="check(scope)">查看</el-button>
         </template>
