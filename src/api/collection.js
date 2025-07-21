@@ -10,9 +10,9 @@ export function getAllAtatus(data) {
   }
   
 // 获取所有项目的采集状态
-export function getAssignData(id) {
+export function getAssignData(select,id) {
     return request({
-      url: `/status/getLastFloorTaskItemBytaskId?taskId=${id}`,
+      url: `/status/getLastFloorTaskItemBytaskId?select=${select}&taskId=${id}`,
       method: 'get',
     })
   }

@@ -293,7 +293,10 @@ export default {
         const res = await searchUser(this.searchQuery)
         if (res.code == 200) {
           console.log('搜索结果', res)
-          this.userInfo = res.result
+          this.userInfo = res.result.records
+          this.total = Number(res.result.total)
+          this.limit = Number(res.result.size)
+          this.curPage = Number(res.result.current)
         } else {
           throw new Error(res.message || '用户搜索失败')
         }

@@ -1,5 +1,20 @@
 <template>
   <div>
+    <!-- 模板选择 -->
+    <el-dialog title="请选择数据来源" :visible.sync="templateDialogVisible" :close-on-click-modal="false" :show-close="false"
+      width="30%">
+      <el-radio-group v-model="selectedTemplate">
+        <el-radio label='1'>表格导入</el-radio>
+        <el-radio label='2'>上一个检验批</el-radio>
+        <el-radio label='3'>空白</el-radio>
+      </el-radio-group>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="handleTemplateConfirm">确 定</el-button>
+        <el-button @click="cancelDistributeTask()">退出</el-button>
+      </span>
+    </el-dialog>
+
     <!-- 项目信息 -->
     <el-row :gutter="2" class="equal-height-row">
       <el-col :span="6">
@@ -107,8 +122,8 @@
       :row-class-name="rowClassName">
       <el-table-column prop="isEmpty" label="是否采集" width="80" align="center">
         <template slot-scope="scope">
-          <el-checkbox :value="scope.row.isEmpty === 1"
-            @change="val => { scope.row.isEmpty = val ? 1 : 0 }"></el-checkbox>
+          <el-checkbox :value="scope.row.isEmpty === 0"
+            @change="val => handleIsEmptyChange(scope.row, val)"></el-checkbox>
         </template>
       </el-table-column>
 
@@ -129,9 +144,9 @@
       </el-table-column>
 
       <el-table-column prop="minSample" label="最小抽样批量" align="center">
-        <template #default="{ row }"> 
+        <template #default="{ row }">
           <el-input style="width: 8em" v-model="row.minSample" type="number" min="0" />
-        </template> 
+        </template>
       </el-table-column>
       <el-table-column prop="positionId" label="分发岗位" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
@@ -319,6 +334,8 @@ export default {
       dialogTableVisible2: false,
       taskId: 0,
       isDistributable: false, // 是否可以分发
+      templateDialogVisible: true,//模板选择弹窗
+      selectedTemplate: null,
     };
   },
   computed: {
@@ -337,7 +354,7 @@ export default {
   },
   created() {
     console.log("this.rowData", this.rowData)
-    this.getData();
+    // this.getData();
     this.getAllCollector();
     this.getSources()
   },
@@ -345,13 +362,34 @@ export default {
 
   },
   methods: {
+    handleTemplateConfirm() {
+      this.templateDialogVisible = false;
+      switch (this.selectedTemplate) {
+        case '1':
+          console.log(this.selectedTemplate);
+          this.getData();
+          break;
+        case '2':
+          console.log(this.selectedTemplate);
+          this.getData();
+          break;
+        case '3':
+          console.log(this.selectedTemplate);
+          this.getData();
+          break;
+        default:
+          this.$message.warning('请选择一个模板');
+          this.templateDialogVisible = true; // 保持弹窗
+          break;
+      }
+    },
     async getData() {
       console.log("taskId", this.curId)
       try {
-        const res = await getAssignData(this.curId);
+        const res = await getAssignData(Number(this.selectedTemplate), this.curId);
         if (res.code == "200") {
           console.log("待分发数据", res);
-          this.isDistributable=true;
+          this.isDistributable = true;
           this.taskId = res.result.taskId;
           this.yanshouRule = res.result.yanshouRule;
           this.fenbaoCompany = res.result.fenbaoCompany;
@@ -362,11 +400,11 @@ export default {
           const items = res.result.lastFloorInspectItem;
           this.tableData = items.map((item) => ({
             ...item, // 保留原始属性
-            totalText: getStatusText(item), 
-            isEmpty: 0,//是否采样 0-不采样
+            totalText: getStatusText(item),
+            isEmpty: 0,//是否采样 1-不勾选（不采集1）   0-勾选 （采集0）
           }));
           // 检验批容量
-          this.inspectCapacity = res.result.taskInspectBatchVolumeList || [];
+          this.inspectCapacity = res.result.taskInspectBatchVolume || [];
           console.log("获取分发--检验批容量", this.inspectCapacity);
           if (!Array.isArray(this.inspectCapacity) || this.inspectCapacity.length === 0) {
             const result = this.inspectCapacity
@@ -396,10 +434,10 @@ export default {
     async getAllCollector() {
       try {
         const res = await getAllCollector();
-        if (res.code == "200") { 
+        if (res.code == "200") {
           console.log("采集员角色", res);
           this.options = res.result.map((role) => ({
-            value: role.roleId, 
+            value: role.roleId,
             label: role.roleName,
           }));
         } else {
@@ -449,6 +487,10 @@ export default {
     // 删除行
     deleteRow(index) {
       this.inspectCapacity.splice(index, 1);
+    },
+    handleIsEmptyChange(row, val) {
+      this.$set(row, 'isEmpty', val ? 0 : 1);
+      console.log("多选框变化", this.tableData)
     },
     confirmCapactity() {
       console.log("编辑检验批容量的确认按钮", this.inspectCapacity);
@@ -544,7 +586,7 @@ export default {
         this.$message.error("请添加检验批容量！");
         return;
       }
-      if(this.shigongRule === "") {
+      if (this.shigongRule === "") {
         this.$message.error("请填写施工规范！");
         return;
       }
@@ -569,8 +611,8 @@ export default {
         return originalData.map(item => {
           // 通过解构赋值提取需要的属性，并用冒号(:)重命名
           const {
-            sampleAmount,        
-            variableValue,  
+            sampleAmount,
+            variableValue,
             passThresh: passRate,
             isEmpty,
             positionId,

@@ -185,7 +185,7 @@ export default {
         name: '',
         checkedPermissions: [],
         permissions: [],
-        isCollector:null,
+        isCollector: false,
       }
       this.checkAll = false
       // 或者更精准的字段重置（推荐）
