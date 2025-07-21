@@ -60,7 +60,7 @@
       :page-size="limit" layout=" prev, pager, next, jumper,->,sizes,total" :total="total"
       @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     <!-- 查看角色权限信息 -->
-    <el-dialog title="查看角色权限信息" :visible.sync="dialogCheckRoleVisible" :show-close="false">
+    <el-dialog title="查看角色权限信息" :visible.sync="dialogCheckRoleVisible" :show-close="false" @close="resetForm">
       <el-form :model="curRole">
         <el-form-item label="角色名称：" :label-width="formLabelWidth">
           <span v-text="curRole.roleName" />
@@ -185,7 +185,7 @@ export default {
         name: '',
         checkedPermissions: [],
         permissions: [],
-        isCollector:null,
+        isCollector: false,
       }
       this.checkAll = false
       // 或者更精准的字段重置（推荐）
@@ -224,10 +224,16 @@ export default {
       this.isIndeterminate =
         checkedCount > 0 && checkedCount < this.form.permissions.length
     },
-    // 确认
+    // 新建 确认
     async confirmAddRole() {
-      this.dialogFormVisible = false
-      console.log('新角色的数据', this.form)
+      if (!this.form.name) {
+        this.$message.error('请输入角色名称！')
+        return
+      }
+      if (!this.form.checkedPermissions.length) {
+        this.$message.error('请选择权限！')
+        return
+      }
       const roleName = this.form.name
       const arr = []
       for (var p in this.form.checkedPermissions) {
@@ -238,9 +244,10 @@ export default {
       const isCollector = this.form.isCollector
       console.log(str)
       try {
-        console.log('新建',this.form.isCollector)
+        console.log('新角色的数据',this.form)
         const res = await addRoleWithPermissions(roleName, str,isCollector )
         if (res.code == 200) {
+          this.dialogFormVisible = false
           this.$message({
             message: '新建角色操作成功！',
             type: 'success'
@@ -309,7 +316,7 @@ export default {
       this.form.roleId = row.roleId
       try {
         const res = await getRoleById(id)
-        console.log("编辑", res, res.code);
+        console.log("获取编辑角色的信息", res);
         if (res.code == 200) {
           // console.log("**", this.form.name);
           this.form.name = res.result.roleName
@@ -348,9 +355,16 @@ export default {
       }
     },
     async confirmUpdateRole() {
-      this.dialogUpdateRoleVisible = false
+      if (!this.form.name) {
+        this.$message.error('请输入角色名称！')
+        return
+      }
+      if (!this.form.checkedPermissions.length) {
+        this.$message.error('请选择权限！')
+        return
+      }
       // 收集要提交的数据
-      // console.log("编辑角色的数据", this.form);
+      console.log("编辑后角色表单", this.form);
       const roleId = this.form.roleId
       const arr = []
       for (var p in this.form.checkedPermissions) {
@@ -363,8 +377,8 @@ export default {
       const roleName = this.form.name
       try {
         const res = await updateRole(roleId,roleName, str,isCollector)
-        // console.log("确认按钮",res)
         if (res.code == 200) {
+          this.dialogUpdateRoleVisible = false
           this.$message({
             message: '角色修改操作成功！',
             type: 'success'
