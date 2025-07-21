@@ -410,9 +410,15 @@ export default {
     jianyanExcel(newVal) {
       const arr = JSON.parse(JSON.stringify(newVal))
       arr.sort((a, b) => {
-        return parseInt(a['施工部位'].substring(0, 4)) - parseInt(b['施工部位'].substring(0, 4))
+        const arrA = a['施工部位'].split('层')
+        const arrB = b['施工部位'].split('层')
+        if (parseInt(arrA[0].substring(0)) === parseInt(arrB[0].substring(0))) {
+          return parseInt(arrA[1]) - parseInt(arrB[1])
+        }
+        return parseInt(arrA[0].substring(0)) - parseInt(arrB[0].substring(0))
       })
       this.allInspect = []
+      this.jianyanMap = new Map()
       let temp = []
       let pre = 0
       if (arr.length) {
@@ -420,7 +426,16 @@ export default {
         this.setYanshouByExcel(arr[0])
 
         const key = JSON.stringify({ name: arr[0]['施工部位'], obj: arr[0]['检验批名称'] })
-        this.jianyanMap.set(key, arr[0]['施工依据'])
+        let obj = {
+          shigongRule: arr[0]['施工依据'],
+          fenbaoCompany: arr[0]['分包单位'],
+          fenbaoDirector: arr[0]['分包单位项目负责人'],
+          mainItems: arr[0]['主控项目'],
+          normalItems: arr[0]['一般项目'],
+          batchVolume: arr[0]['检验批代表容量']
+        }
+
+        this.jianyanMap.set(key, obj)
 
         // const key2 = JSON.stringify({ name: arr[0]['施工部位'], obj: arr[0]['检验批名称'] })
         for (let i = 1; i < arr.length; i++) {
@@ -438,7 +453,15 @@ export default {
           }
           this.setYanshouByExcel(arr[i])
           const key2 = JSON.stringify({ name: arr[i]['施工部位'], obj: arr[i]['检验批名称'] })
-          this.jianyanMap.set(key2, arr[i]['施工依据'])
+          obj = {
+            shigongRule: arr[i]['施工依据'],
+            fenbaoCompany: arr[i]['分包单位'],
+            fenbaoDirector: arr[i]['分包单位项目负责人'],
+            mainItems: arr[i]['主控项目'],
+            normalItems: arr[i]['一般项目'],
+            batchVolume: arr[i]['检验批代表容量']
+          }
+          this.jianyanMap.set(key2, obj)
         }
         this.allInspect.push({
           floor: parseInt(arr[pre]['施工部位'].substring(0, 4)),
@@ -618,7 +641,7 @@ export default {
           const key = JSON.stringify({ name: item.inspectName, obj: item2 })
           const shigong = this.jianyanMap.get(key)
           const jianyan = this.taskMap.get(key)
-          console.log(jianyan)
+          // console.log(jianyan)
           tasks.push({
             taskId: 0,
             subprojectId: this.subprojectId,
@@ -629,18 +652,21 @@ export default {
             finishDate: '2025-05-01 00:00:00',
             taskItemTableName: jianyan ? jianyan.taskItemTableName : '',
             dataTableName: jianyan ? jianyan.dataTableName : '',
-            shigongRule: shigong || '', // 施工依据
+            shigongRule: shigong ? shigong.shigongRule : jianyan ? jianyan.shigongRule : '', // 施工依据
             projectDirector: jianyan ? jianyan.projectDirector : '',
             finishDate2: '2025-05-01 00:00:00',
             floor: item.floor,
             projectId: this.projectId,
-            fenbaoCompany: jianyan ? jianyan.fenbaoCompany : '',
-            fenbaoDirector: jianyan ? jianyan.fenbaoDirector : '',
+            fenbaoCompany: shigong ? shigong.fenbaoCompany : jianyan ? jianyan.fenbaoCompany : '',
+            fenbaoDirector: shigong ? shigong.fenbaoDirector : jianyan ? jianyan.fenbaoDirector : '',
             fenbaoTechnical: jianyan ? jianyan.fenbaoTechnical : '',
             checkResult: jianyan ? jianyan.checkResult : '',
             conclusion: jianyan ? jianyan.conclusion : '',
             inspectType: item2,
-            isUpdate: 1
+            isUpdate: 1,
+            mainItems: shigong ? shigong.mainItems : jianyan ? jianyan.mainItems : '',
+            normalItems: shigong ? shigong.normalItems : jianyan ? jianyan.normalItems : '',
+            batchVolume: shigong ? shigong.batchVolume : ''
           })
         })
       })
@@ -738,9 +764,9 @@ export default {
       // console.log('obj', obj['检验批名称'])
       // console.log(obj['检验批名称'] === '钢筋原材')
       if (obj['检验批名称'] === '钢筋原材' ||
-          obj['检验批名称'] === '钢筋加工' ||
-          obj['检验批名称'] === '钢筋连接' ||
-          obj['检验批名称'] === '钢筋安装') {
+        obj['检验批名称'] === '钢筋加工' ||
+        obj['检验批名称'] === '钢筋连接' ||
+        obj['检验批名称'] === '钢筋安装') {
         this.yanshou_rule1 = obj['验收依据']
       } else if (obj['检验批名称'] === '模板安装') {
         this.yanshou_rule2 = obj['验收依据']

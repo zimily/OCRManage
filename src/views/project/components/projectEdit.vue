@@ -183,6 +183,8 @@ export default {
       try {
         console.log('excelToJSONs', data)
         const { result } = await excelToJSONs(data)
+        this.subprojectExcel = []
+        this.jianyanExcel = []
         console.log('上传分项目Excel表格返回所有内容转成的JSON', result)
         for (let i = 0; i <= 11; i++) {
           this.subprojectExcel.push(result[i])

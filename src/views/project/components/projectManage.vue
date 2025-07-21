@@ -57,6 +57,7 @@
               type="primary"
               icon="el-icon-user"
               size="mini"
+              :disabled="roleName === '总工'"
               @click="allocation(scope)"
             >人员分配
             </el-button>
@@ -96,10 +97,16 @@
 
 <script>
 import { getProjects } from '@/api/project'
+import user from '@/store/modules/user'
+import { getRoleById, getUserById } from '@/api/authority'
+import { getUser, getUserId } from '@/utils/storage'
+import { getPersonInProject } from '@/api/personAllocation'
 
 export default {
   data() {
     return {
+      roleName: '',
+      tempTotal: 0, // 暂存人员分配数据总条数
       projectState: '', // 存下拉框内容
       searchQuery: '', // 用于存储输入框的内容
       finalSearchQuery: '', // 用于存储输入框最终的内容
@@ -141,22 +148,30 @@ export default {
     }
   },
   async created() {
-    try {
-      const { result } = await getProjects()
-      this.info = result
-    } catch (error) {
-      console.log(error)
-    }
-    console.log('项目信息', this.info)
+    await this.getProjects()
+    await this.getRoleById()
     this.chakan = false
-    // const list = JSON.parse(JSON.stringify(this.info))
-    // for (let i = 0; i < list.length; i++) {
-    //   this.info.push(list[i])
-    // }
-    //  console.log("项目信息1",this.info)
   },
   methods: {
     changeXiang() {
+    },
+    async getProjects() {
+      try {
+        const { result } = await getProjects()
+        console.log('项目信息', result)
+        this.info = result
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getRoleById() {
+      try {
+        const { result } = await getUserById(getUserId())
+        console.log('当前用户职位', result)
+        this.roleName = result[0].roleName
+      } catch (error) {
+        console.log(error)
+      }
     },
     // 编辑按钮
     updateproject(scope) {

@@ -109,7 +109,7 @@
         <el-row style="font-size: 1.5em">
           <el-col :span="4">照片</el-col>
           <el-col :span="20">
-            <div class="scrollable-container">
+            <div v-if="photos.length" class="scrollable-container">
               <!-- 横向排列的内容 -->
               <div class="photo-navigation">
                 <el-button class="left-button" @click="prePage">上一页</el-button>
