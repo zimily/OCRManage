@@ -3,7 +3,7 @@
     <router-view/>
 
     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-      <el-tab-pane label="检验批验收记录" name="1" @click="changeTable1">检验批验收记录</el-tab-pane>
+      <el-tab-pane label="检验批验收记录" name="1">检验批验收记录</el-tab-pane>
       <el-tab-pane label="隐蔽验收记录" name="2">隐蔽验收记录</el-tab-pane>
       <el-tab-pane label="分部验收记录" name="3">分部验收记录</el-tab-pane>
       <el-tab-pane label="分项验收记录" name="4">分项验收记录</el-tab-pane>
@@ -96,7 +96,7 @@ export default {
       activeName: '1',
       inspectPart: '',
       currentPageData: [],
-      currentTableName: ''
+      currentTableName: '1'
     }
   },
   computed: {},
