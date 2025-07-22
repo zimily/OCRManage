@@ -59,9 +59,9 @@
         </el-table-column>
         <el-table-column prop="dataType" label="数据类型" align="center" width="100">
           <template v-slot="scope">
-            <span v-if="scope.row.ruleType === 1">目测</span>
-            <span v-else-if="scope.row.ruleType === 2">尺量</span>
-            <span v-else-if="scope.row.ruleType === 3">实验报告</span>
+            <span v-if="scope.row.dataType === 1">目测</span>
+            <span v-else-if="scope.row.dataType === 2">尺量</span>
+            <span v-else-if="scope.row.dataType === 3">实验报告</span>
             <span v-else>未知数据类型</span>
           </template>
         </el-table-column>
@@ -91,7 +91,7 @@
     <el-dialog :title="dialogFormTitle" :visible.sync="dialogFormVisible" :show-close="false" @change=" reSetForm()">
       <el-form :model="form">
         <el-form-item label="验收项目" :label-width="formLabelWidth" :required="true">
-          <el-input v-model="form.itemName" autocomplete="off" ></el-input>
+          <el-input v-model="form.itemName" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="规则" :label-width="formLabelWidth" :required="true">
           <el-select v-model="form.ruleType" placeholder="请选择">
@@ -100,13 +100,13 @@
           </el-select>
         </el-form-item>
         <el-form-item label="标准值或规范" :label-width="formLabelWidth" :required="true">
-          <el-input v-model="form.ruleStandard" autocomplete="off" ></el-input>
+          <el-input v-model="form.ruleStandard" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="参数含义" :label-width="formLabelWidth">
-          <el-input v-model="form.variableMeaning" autocomplete="off" ></el-input>
+          <el-input v-model="form.variableMeaning" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="单位" :label-width="formLabelWidth">
-          <el-input v-model="form.dataUnit" autocomplete="off" ></el-input>
+          <el-input v-model="form.dataUnit" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="项目类型" :label-width="formLabelWidth" :required="true">
           <el-select v-model="form.itemType" placeholder="请选择">
@@ -149,14 +149,14 @@
         <!-- 动态表单内容 -->
         <template v-if="form.minSampleRule === 2">
           <el-form-item label="每批抽" :label-width="formLabelWidth">
-            <el-input v-model="form.minSample" placeholder="请输入每批抽取个数" suffix="个" 
+            <el-input v-model="form.minSample" placeholder="请输入每批抽取个数" suffix="个"
               :disabled="isCheckboxGroupDisabled1"></el-input>
           </el-form-item>
         </template>
         <template v-else-if="form.minSampleRule === 3">
           <el-form-item label="抽取比例" :label-width="formLabelWidth">
             <el-input v-model="form.partMinPercentage" type="number" :min="0" :max="1" :step="0.01" autocomplete="off"
-               @blur="handlePassThreshBlur"></el-input>
+              @blur="handlePassThreshBlur"></el-input>
           </el-form-item>
           <el-form-item label="不少于" :label-width="formLabelWidth">
             <el-input v-model="form.minSample" placeholder="请输入最少抽取数量" suffix="处"
@@ -166,7 +166,7 @@
 
         <template v-else-if="form.minSampleRule === 4">
           <el-form-item label="满X抽1" :label-width="formLabelWidth">
-            <el-input v-model="form.checkPer" placeholder="请输入X值" suffix="抽1" 
+            <el-input v-model="form.checkPer" placeholder="请输入X值" suffix="抽1"
               :disabled="isCheckboxGroupDisabled1"></el-input>
           </el-form-item>
         </template>
@@ -186,6 +186,7 @@ import {
   newInspectDetil,
   newInspectDetil1,
 } from "@/api/specifications";
+import _ from 'lodash';
 const statusMap = {
   sampleQiang: "墙",
   sampleBan: "板",
@@ -520,29 +521,44 @@ export default {
     //弹窗的确认按钮
     confirm() {
       //表单必填项验证
+      // console.log("确认按钮", this.form,this.curIndex);
       if (!this.form.itemName || !this.form.ruleType || !this.form.ruleStandard || !this.form.itemType || !this.form.dataType || !this.form.passThresh) {
         this.$message.warning('请填写必填项');
         return;
       }
-      this.dialogFormVisible = false;
       if (
-        this.curIndex.totalSampleEmpty === 1 &&
-        this.curIndex.totalText.length > 0
+        this.form.totalSampleEmpty === 1 &&
+        this.form.totalText.length > 0
       ) {
         this.$message.error("当样本总数为空时，不能选择样本来源");
         return false;
       }
-      //添加一条数据
-      const formCopy = JSON.parse(JSON.stringify(this.form)); // 创建一个深拷贝，确保打印的是当前状态
-      console.log(
-        "确认按钮",
-        this.dialogFormTitle,
-        formCopy.ruleType,
-        formCopy
-      );
-      this.indices.push(formCopy);
-      console.log("新建后的全部细则", this.indices);
-      this.reSetForm();
+      this.dialogFormVisible = false;
+
+      if (this.dialogFormTitle === "添加规则") {
+        //添加一条数据
+        const formCopy = JSON.parse(JSON.stringify(this.form)); // 创建一个深拷贝，确保打印的是当前状态
+        // console.log(
+        //   "确认按钮",
+        //   this.dialogFormTitle,
+        //   formCopy.ruleType,
+        //   formCopy
+        // );
+        this.indices.push(formCopy);
+        console.log("新建后的全部细则", this.indices);
+        this.reSetForm();
+      } else if (this.dialogFormTitle === "编辑规则") {
+        //数组中数据替换
+        const formCopy = JSON.parse(JSON.stringify(this.form)); // 创建一个深拷贝，确保打印的是当前状态
+        //将样本来源文本转换成对应的字段
+        const data = setTextStatus(formCopy);
+        //最小抽样规则 文字修改
+        data.minSampleText = getMinSampleText(data);
+        // 替换索引为 index 的数据
+        this.$set(this.indices, this.curIndex, _.cloneDeep(data));
+        console.log("编辑后的全部细则", this.indices);
+        this.reSetForm();
+      }
     },
     //弹窗取消按钮
     cancel() {
