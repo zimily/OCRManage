@@ -624,8 +624,8 @@ export default {
       // 处理数据，和后端格式相同
       const data = []
       this.tableData.forEach(item => {
-        const temp = JSON.parse(JSON.stringify(item.table_info))
-        Object.assign(temp, item.data)
+        const temp = JSON.parse(JSON.stringify(item.data))
+        Object.assign(temp, item.table_info)
         // 处理数据，和后端格式相同
         Object.keys(temp).forEach(key => {
           if (Array.isArray(temp[key])) {

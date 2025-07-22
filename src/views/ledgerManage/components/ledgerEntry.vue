@@ -27,13 +27,13 @@
         <el-button @click="qrCodeDialogVisible = false">取消</el-button>
       </div>
     </el-dialog>
-    <!-- 台账录入界面 -->  
+    <!-- 台账录入界面 -->
     <div class="scrollable-content">
       <el-card>
         <el-row :gutter="2" style="margin-bottom: 10px;">
           <el-col :span="6">
             <span>项目名称：</span>
-            <el-select v-model="project" placeholder="请选择" size="small" @change="changeProject" >
+            <el-select v-model="project" placeholder="请选择" size="small" @change="changeProject">
               <el-option
                 v-for="item in options1"
                 :key="item.projectId"
@@ -528,8 +528,8 @@ export default {
     confirmMaterialSelection() {
       if (this.selectedRow) {
         console.log('已选择的物资平台数据:', this.selectedRow)
-        this.formData = { 
-            diameter:this.selectedRow.diameter, 
+        this.formData = {
+            diameter:this.selectedRow.diameter,
             steelType: this.selectedRow.steelType,
             heatBatchNumber: this.selectedRow.heatBatchNumber,
             getAmount:  this.selectedRow.getAmount,
