@@ -1,35 +1,36 @@
 <template>
   <div class="report-container">
-    <router-view />
+    <router-view/>
 
     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-      <el-tab-pane label="检验批验收记录" name="1">检验批验收记录</el-tab-pane>
-      <!--      <el-tab-pane label="隐蔽验收记录" name="2">隐蔽验收记录</el-tab-pane>
-            <el-tab-pane label="分部验收记录" name="3">分部验收记录</el-tab-pane>
-            <el-tab-pane label="分项验收记录" name="4">分项验收记录</el-tab-pane>
-            <el-tab-pane label="台账" name="5">台账</el-tab-pane>
-            <el-tab-pane label="混凝土测温记录" name="6">混凝土测温记录</el-tab-pane>
-            <el-tab-pane label="混凝土强度离散度" name="7">混凝土强度离散度</el-tab-pane>-->
+      <el-tab-pane label="检验批验收记录" name="1" @click="changeTable1">检验批验收记录</el-tab-pane>
+      <el-tab-pane label="隐蔽验收记录" name="2">隐蔽验收记录</el-tab-pane>
+      <el-tab-pane label="分部验收记录" name="3">分部验收记录</el-tab-pane>
+      <el-tab-pane label="分项验收记录" name="4">分项验收记录</el-tab-pane>
+      <el-tab-pane label="台账" name="5">台账</el-tab-pane>
+      <el-tab-pane label="混凝土测温记录" name="6">混凝土测温记录</el-tab-pane>
+      <el-tab-pane label="混凝土强度离散度" name="7">混凝土强度离散度</el-tab-pane>
     </el-tabs>
     <!--这是搜索框-->
 
     <div id="searchForm" style="display: flex; justify-content: flex-end; align-items: center">
       <span style="line-height: 100%">请输入检验批部位：</span>
-      <el-input v-model="inspectPart" placeholder="请输入检验批部位进行检索" style="width: 300px" />
+      <el-input v-model="inspectPart" placeholder="请输入检验批部位进行检索" style="width: 300px"/>
       <el-button type="primary" style="margin-left: 10px" @click="search">搜索</el-button>
     </div>
 
-    <!-- 表格 -->
+    <!-- 检验批验收记录表格 -->
     <el-table
       ref="multipleTable"
       :data="currentPageData"
       stripe
       style="width: 100%; margin-top: 15px"
       @selection-change="handleSelectionChange"
+      v-if="currentTableName === '1'"
     >
 
       <!-- 第一列：多选框 -->
-      <el-table-column type="selection" width="55" />
+      <el-table-column type="selection" width="55"/>
       <!-- 第二列：编号 -->
       <el-table-column label="编号" width="80" align="center">
         <template slot-scope="scope">
@@ -38,10 +39,10 @@
       </el-table-column>
 
       <!-- 固定列：项目名称、单位工程 -->
-      <el-table-column prop="projectName" label="项目名称" align="center" />
-      <el-table-column prop="subprojectName" label="单位工程" align="center" />
-      <el-table-column prop="inspectPart" label="检验批部位" align="center" />
-      <el-table-column prop="finishDate" label="验收日期" align="center" />
+      <el-table-column prop="projectName" label="项目名称" align="center"/>
+      <el-table-column prop="subprojectName" label="单位工程" align="center"/>
+      <el-table-column prop="inspectPart" label="检验批部位" align="center"/>
+      <el-table-column prop="finishDate" label="验收日期" align="center"/>
 
       <!-- 最后一列：操作按钮 -->
       <el-table-column label="操作" align="center" width="200">
@@ -85,31 +86,26 @@ export default {
             subprojectName: '测试',
             inspectPart: '测试检验批',
             finishDate: '2005-05-01',
-            taskId: '1',
+            taskId: '1'
 
           }
         ],
       currentPage: 1,
       pageSize: 10,
-      totalData: 100,
+      totalData: 0,
       activeName: '1',
       inspectPart: '',
-      currentPageData: []
+      currentPageData: [],
+      currentTableName: ''
     }
   },
-  computed: {
-
-    mounted(){
-      console.log(`current:${this.current}  size:${ this.size }   total:${ this.total }`)
-    }
-
-  },
+  computed: {},
   methods: {
     // 搜索
     async search() {
       // 首先判断输入是否合法！
       // 好像都可以。。。那就不管了
-      console.log(this.inspectPart + "    " + this.currentPage + "   " + this.pageSize)
+      console.log(this.inspectPart + '    ' + this.currentPage + '   ' + this.pageSize)
       // 点击search之后，首先需要发送请求，拿到数据
       const { result } = await search(this.inspectPart, this.currentPage, this.pageSize)
       console.log('条件分页查询result：' + JSON.stringify(result))
@@ -136,12 +132,17 @@ export default {
       console.log('导出单行数据:', row)
       this.$message.success(`正在导出 ${row.projectName} - ${row.unitProject} 的数据`)
     },
+    //切换不同表格
     handleClick(tab, event) {
-      console.log(tab, event)
+      this.currentTableName = tab.name
+      console.log('目前切换的表格为:' + this.currentTableName)
     },
     handlePreview(row) {
       console.log('<UNK>:', row)
     }
+  },
+  mounted() {
+    this.search()
   }
 }
 </script>
