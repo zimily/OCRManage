@@ -65,7 +65,7 @@
               type="info"
               icon="el-icon-view"
               size="mini"
-              :disabled="!scope.row.isCreated"
+              :disabled="!scope.row.isCreated||!scope.row.memCount"
               @click="lookProject(scope)"
             >查看
             </el-button>
@@ -73,6 +73,7 @@
               type="warning"
               icon="el-icon-edit"
               size="mini"
+              :disabled="!scope.row.memCount"
               @click="updateproject(scope)"
             >编辑
             </el-button>
@@ -147,9 +148,9 @@ export default {
       )
     }
   },
-  async created() {
-    await this.getProjects()
-    await this.getRoleById()
+  created() {
+    this.getProjects()
+    this.getRoleById()
     this.chakan = false
   },
   methods: {
@@ -209,6 +210,10 @@ export default {
     allocation(scope) {
       console.log('人员分配', scope.row)
       // 注意params/query传参的时候，params-name/query-path  路径的内容是不同，对应于路由中的name,path属性，注意区分大小写
+      if (this.roleName === '总工') {
+        this.$message.warning('当前状态下无法进行人员分配')
+        return
+      }
       this.$router.push({
         name: 'PersonAllocation',
         query: {
