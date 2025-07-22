@@ -57,6 +57,7 @@
               type="primary"
               icon="el-icon-user"
               size="mini"
+              :disabled="roleName === '总工'"
               @click="allocation(scope)"
             >人员分配
             </el-button>
@@ -64,7 +65,7 @@
               type="info"
               icon="el-icon-view"
               size="mini"
-              :disabled="!scope.row.isCreated"
+              :disabled="!scope.row.isCreated||!scope.row.memCount"
               @click="lookProject(scope)"
             >查看
             </el-button>
@@ -72,6 +73,7 @@
               type="warning"
               icon="el-icon-edit"
               size="mini"
+              :disabled="!scope.row.memCount"
               @click="updateproject(scope)"
             >编辑
             </el-button>
@@ -96,10 +98,16 @@
 
 <script>
 import { getProjects } from '@/api/project'
+import user from '@/store/modules/user'
+import { getRoleById, getUserById } from '@/api/authority'
+import { getUser, getUserId } from '@/utils/storage'
+import { getPersonInProject } from '@/api/personAllocation'
 
 export default {
   data() {
     return {
+      roleName: '',
+      tempTotal: 0, // 暂存人员分配数据总条数
       projectState: '', // 存下拉框内容
       searchQuery: '', // 用于存储输入框的内容
       finalSearchQuery: '', // 用于存储输入框最终的内容
@@ -140,23 +148,31 @@ export default {
       )
     }
   },
-  async created() {
-    try {
-      const { result } = await getProjects()
-      this.info = result
-    } catch (error) {
-      console.log(error)
-    }
-    console.log('项目信息', this.info)
+  created() {
+    this.getProjects()
+    this.getRoleById()
     this.chakan = false
-    // const list = JSON.parse(JSON.stringify(this.info))
-    // for (let i = 0; i < list.length; i++) {
-    //   this.info.push(list[i])
-    // }
-    //  console.log("项目信息1",this.info)
   },
   methods: {
     changeXiang() {
+    },
+    async getProjects() {
+      try {
+        const { result } = await getProjects()
+        console.log('项目信息', result)
+        this.info = result
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getRoleById() {
+      try {
+        const { result } = await getUserById(getUserId())
+        console.log('当前用户职位', result)
+        this.roleName = result[0].roleName
+      } catch (error) {
+        console.log(error)
+      }
     },
     // 编辑按钮
     updateproject(scope) {
@@ -194,6 +210,10 @@ export default {
     allocation(scope) {
       console.log('人员分配', scope.row)
       // 注意params/query传参的时候，params-name/query-path  路径的内容是不同，对应于路由中的name,path属性，注意区分大小写
+      if (this.roleName === '总工') {
+        this.$message.warning('当前状态下无法进行人员分配')
+        return
+      }
       this.$router.push({
         name: 'PersonAllocation',
         query: {
