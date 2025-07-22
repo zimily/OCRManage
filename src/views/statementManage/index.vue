@@ -62,6 +62,9 @@
       <!-- 最后一列：操作按钮 -->
       <el-table-column label="操作" align="center" width="200">
         <template slot-scope="scope">
+          <el-button type="primary" @click="handlePreview(scope.row)">
+            预览
+          </el-button>
           <el-button type="warning" @click="handleExport(scope.row)">
             导出
           </el-button>
@@ -84,7 +87,8 @@
 </template>
 
 <script>
-//仓库提交测试。
+// 仓库提交测试。
+// 直接写入仓库测试
 export default {
   data() {
     return {
@@ -103,33 +107,169 @@ export default {
 
       staticData: {
         subitem: [
-          { projectName: '阳光城项目', unitProject: '1号楼', inspectionBatch: '地基与基础', inspectionDate: '2023-05-10', inspector: '张三', status: '合格' },
-          { projectName: '阳光城项目', unitProject: '1号楼', inspectionBatch: '主体结构', inspectionDate: '2023-06-15', inspector: '李四', status: '合格' },
-          { projectName: '阳光城项目', unitProject: '2号楼', inspectionBatch: '地基与基础', inspectionDate: '2023-05-12', inspector: '王五', status: '合格' },
-          { projectName: '阳光城项目', unitProject: '2号楼', inspectionBatch: '主体结构', inspectionDate: '2023-06-20', inspector: '赵六', status: '待验收' },
-          { projectName: '幸福家园项目', unitProject: '3号楼', inspectionBatch: '装饰装修', inspectionDate: '2023-07-05', inspector: '钱七', status: '合格' }
+          {
+            projectName: '阳光城项目',
+            unitProject: '1号楼',
+            inspectionBatch: '地基与基础',
+            inspectionDate: '2023-05-10',
+            inspector: '张三',
+            status: '合格'
+          },
+          {
+            projectName: '阳光城项目',
+            unitProject: '1号楼',
+            inspectionBatch: '主体结构',
+            inspectionDate: '2023-06-15',
+            inspector: '李四',
+            status: '合格'
+          },
+          {
+            projectName: '阳光城项目',
+            unitProject: '2号楼',
+            inspectionBatch: '地基与基础',
+            inspectionDate: '2023-05-12',
+            inspector: '王五',
+            status: '合格'
+          },
+          {
+            projectName: '阳光城项目',
+            unitProject: '2号楼',
+            inspectionBatch: '主体结构',
+            inspectionDate: '2023-06-20',
+            inspector: '赵六',
+            status: '待验收'
+          },
+          {
+            projectName: '幸福家园项目',
+            unitProject: '3号楼',
+            inspectionBatch: '装饰装修',
+            inspectionDate: '2023-07-05',
+            inspector: '钱七',
+            status: '合格'
+          }
         ],
         division: [
-          { projectName: '阳光城项目', unitProject: '1号楼', divisionName: '地基与基础分部', startDate: '2023-01-01', endDate: '2023-03-30', leader: '张三' },
-          { projectName: '阳光城项目', unitProject: '1号楼', divisionName: '主体结构分部', startDate: '2023-04-01', endDate: '2023-07-30', leader: '李四' },
-          { projectName: '幸福家园项目', unitProject: '2号楼', divisionName: '地基与基础分部', startDate: '2023-02-15', endDate: '2023-05-15', leader: '王五' }
+          {
+            projectName: '阳光城项目',
+            unitProject: '1号楼',
+            divisionName: '地基与基础分部',
+            startDate: '2023-01-01',
+            endDate: '2023-03-30',
+            leader: '张三'
+          },
+          {
+            projectName: '阳光城项目',
+            unitProject: '1号楼',
+            divisionName: '主体结构分部',
+            startDate: '2023-04-01',
+            endDate: '2023-07-30',
+            leader: '李四'
+          },
+          {
+            projectName: '幸福家园项目',
+            unitProject: '2号楼',
+            divisionName: '地基与基础分部',
+            startDate: '2023-02-15',
+            endDate: '2023-05-15',
+            leader: '王五'
+          }
         ],
         ledger: [
-          { projectName: '阳光城项目', unitProject: '1号楼', materialName: '钢筋HRB400', specification: 'Φ20', batch: 'LP001', quantity: 500 },
-          { projectName: '阳光城项目', unitProject: '1号楼', materialName: '钢筋HRB400', specification: 'Φ16', batch: 'LP002', quantity: 300 },
-          { projectName: '阳光城项目', unitProject: '2号楼', materialName: '水泥P.O42.5', specification: '袋装', batch: 'SN1001', quantity: 1000 },
-          { projectName: '幸福家园项目', unitProject: '3号楼', materialName: '砂子', specification: '中砂', batch: 'SC2001', quantity: 2000 }
+          {
+            projectName: '阳光城项目',
+            unitProject: '1号楼',
+            materialName: '钢筋HRB400',
+            specification: 'Φ20',
+            batch: 'LP001',
+            quantity: 500
+          },
+          {
+            projectName: '阳光城项目',
+            unitProject: '1号楼',
+            materialName: '钢筋HRB400',
+            specification: 'Φ16',
+            batch: 'LP002',
+            quantity: 300
+          },
+          {
+            projectName: '阳光城项目',
+            unitProject: '2号楼',
+            materialName: '水泥P.O42.5',
+            specification: '袋装',
+            batch: 'SN1001',
+            quantity: 1000
+          },
+          {
+            projectName: '幸福家园项目',
+            unitProject: '3号楼',
+            materialName: '砂子',
+            specification: '中砂',
+            batch: 'SC2001',
+            quantity: 2000
+          }
         ],
         temperature: [
-          { projectName: '阳光城项目', unitProject: '1号楼', location: '基础承台', temperature: '25℃', recordTime: '2023-05-10 08:30', recorder: '张三' },
-          { projectName: '阳光城项目', unitProject: '1号楼', location: '基础承台', temperature: '26℃', recordTime: '2023-05-10 14:30', recorder: '张三' },
-          { projectName: '阳光城项目', unitProject: '1号楼', location: '框架柱', temperature: '24℃', recordTime: '2023-05-11 08:30', recorder: '李四' },
-          { projectName: '幸福家园项目', unitProject: '2号楼', location: '基础承台', temperature: '27℃', recordTime: '2023-06-01 08:30', recorder: '王五' }
+          {
+            projectName: '阳光城项目',
+            unitProject: '1号楼',
+            location: '基础承台',
+            temperature: '25℃',
+            recordTime: '2023-05-10 08:30',
+            recorder: '张三'
+          },
+          {
+            projectName: '阳光城项目',
+            unitProject: '1号楼',
+            location: '基础承台',
+            temperature: '26℃',
+            recordTime: '2023-05-10 14:30',
+            recorder: '张三'
+          },
+          {
+            projectName: '阳光城项目',
+            unitProject: '1号楼',
+            location: '框架柱',
+            temperature: '24℃',
+            recordTime: '2023-05-11 08:30',
+            recorder: '李四'
+          },
+          {
+            projectName: '幸福家园项目',
+            unitProject: '2号楼',
+            location: '基础承台',
+            temperature: '27℃',
+            recordTime: '2023-06-01 08:30',
+            recorder: '王五'
+          }
         ],
         concrete: [
-          { projectName: '阳光城项目', unitProject: '1号楼', batchNumber: 'HN20230501', strengthGrade: 'C30', testDate: '2023-05-10', dispersionDegree: '1.2', status: '合格' },
-          { projectName: '阳光城项目', unitProject: '1号楼', batchNumber: 'HN20230601', strengthGrade: 'C40', testDate: '2023-06-15', dispersionDegree: '1.1', status: '合格' },
-          { projectName: '幸福家园项目', unitProject: '2号楼', batchNumber: 'HN20230510', strengthGrade: 'C30', testDate: '2023-05-20', dispersionDegree: '1.3', status: '合格' }
+          {
+            projectName: '阳光城项目',
+            unitProject: '1号楼',
+            batchNumber: 'HN20230501',
+            strengthGrade: 'C30',
+            testDate: '2023-05-10',
+            dispersionDegree: '1.2',
+            status: '合格'
+          },
+          {
+            projectName: '阳光城项目',
+            unitProject: '1号楼',
+            batchNumber: 'HN20230601',
+            strengthGrade: 'C40',
+            testDate: '2023-06-15',
+            dispersionDegree: '1.1',
+            status: '合格'
+          },
+          {
+            projectName: '幸福家园项目',
+            unitProject: '2号楼',
+            batchNumber: 'HN20230510',
+            strengthGrade: 'C30',
+            testDate: '2023-05-20',
+            dispersionDegree: '1.3',
+            status: '合格'
+          }
         ]
       }
     }
@@ -216,6 +356,10 @@ export default {
     handleExport(row) {
       console.log('导出单行数据:', row)
       this.$message.success(`正在导出 ${row.projectName} - ${row.unitProject} 的数据`)
+    },
+    // 预览文件
+    handlePreview(row) {
+      console.log('预览文件', row.projectName)
     }
   }
 }
