@@ -566,10 +566,10 @@ export default {
             producer: res.result.producer,
             antiQuakeLevel: res.result.antiQuakeLevel
           }
-          this.formData.diameter = res.result.diameter
-          this.formData.steelType = res.result.steelType
-          this.formData.heatBatchNumber = res.result.heatBatchNumber
-          this.formData.getAmount = res.result.getAmount
+          // this.formData.diameter = res.result.diameter
+          // this.formData.steelType = res.result.steelType
+          // this.formData.heatBatchNumber = res.result.heatBatchNumber
+          // this.formData.getAmount = res.result.getAmount
           // 关闭对话框
           this.qrCodeDialogVisible = false
           // 清空上传组件中的文件列表

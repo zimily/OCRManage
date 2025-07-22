@@ -211,7 +211,7 @@ export default {
       console.log('人员分配', scope.row)
       // 注意params/query传参的时候，params-name/query-path  路径的内容是不同，对应于路由中的name,path属性，注意区分大小写
       if (this.roleName === '总工') {
-        this.$message.warning('当前状态下无法进行人员分配')
+        this.$message.warning('您没有权限')
         return
       }
       this.$router.push({
