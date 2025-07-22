@@ -97,11 +97,18 @@ const actions = {
     return new Promise((resolve, reject) => {
       loginByPhone(userphone, verifycode).then(response => {
         const data = response.result
-        console.log('手机号登录11', response)
-        // 1.获取并存储token
+        console.log('手机号登录', response)
+       // 1.获取并存储token
         const token = data.token
         commit('SET_TOKEN', token)
+        commit('SET_USERID', data.userId)
         setToken(token)
+
+        // 获取用户信息 
+        const name = data.username
+        setUser(username, password, data.userId)
+        commit('SET_NAME', name)
+        setUserId(data.userId)
         resolve()// 表示 Promise 成功完成
       }).catch(error => {
         console.log('手机号登录请求报错', error)
@@ -110,6 +117,8 @@ const actions = {
       )
     })
   },
+
+
   // get user info
   getInfo({ commit, state }) {
     // console.log('getInfo', state.userId, state.token)

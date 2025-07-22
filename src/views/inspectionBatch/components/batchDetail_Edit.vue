@@ -45,9 +45,9 @@
         </el-table-column>
         <el-table-column prop="dataType" label="数据类型" align="center" width="100">
           <template v-slot="scope">
-            <span v-if="scope.row.ruleType === 1">目测</span>
-            <span v-else-if="scope.row.ruleType === 2">尺量</span>
-            <span v-else-if="scope.row.ruleType === 3">实验报告</span>
+            <span v-if="scope.row.dataType === 1">目测</span>
+            <span v-else-if="scope.row.dataType === 2">尺量</span>
+            <span v-else-if="scope.row.dataType === 3">实验报告</span>
             <span v-else>未知数据类型</span>
           </template>
         </el-table-column>

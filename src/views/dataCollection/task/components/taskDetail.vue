@@ -337,7 +337,7 @@ export default {
                     task_item_id: Number(item.taskItemId),
                     inspect_item_id: item.inspectItemId,
                     data_type: String(item.dataType),
-                    fail_resample: 0,
+                    fail_resample: 1,
                     data: [  //reportName
                         {
                             collector: this.collectorName,
