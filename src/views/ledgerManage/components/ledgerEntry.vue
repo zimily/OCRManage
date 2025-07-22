@@ -27,12 +27,13 @@
         <el-button @click="qrCodeDialogVisible = false">取消</el-button>
       </div>
     </el-dialog>
+    <!-- 台账录入界面 -->  
     <div class="scrollable-content">
       <el-card>
         <el-row :gutter="2" style="margin-bottom: 10px;">
           <el-col :span="6">
             <span>项目名称：</span>
-            <el-select v-model="project" placeholder="请选择" size="small" @change="changeProject">
+            <el-select v-model="project" placeholder="请选择" size="small" @change="changeProject" >
               <el-option
                 v-for="item in options1"
                 :key="item.projectId"
@@ -408,6 +409,10 @@ export default {
     },
     // 保存按钮
     async save() {
+      if (!this.project || !this.subProject) {
+        this.$message.error('请选择项目名称和单位工程')
+        return
+      }
       this.$refs.form1.validate(async valid => {
         if (valid) {
           console.log('验证通过', this.formData)
@@ -523,12 +528,14 @@ export default {
     confirmMaterialSelection() {
       if (this.selectedRow) {
         console.log('已选择的物资平台数据:', this.selectedRow)
-        this.formData.diameter = this.selectedRow.diameter
-        this.formData.steelType = this.selectedRow.steelType
-        this.formData.heatBatchNumber = this.selectedRow.heatBatchNumber
-        this.formData.getAmount = this.selectedRow.getAmount
-        this.formData.antiQuakeLevel = this.selectedRow.antiQuakeLevel
-        this.formData.producer = this.selectedRow.getAmount
+        this.formData = { 
+            diameter:this.selectedRow.diameter, 
+            steelType: this.selectedRow.steelType,
+            heatBatchNumber: this.selectedRow.heatBatchNumber,
+            getAmount:  this.selectedRow.getAmount,
+            producer: this.selectedRow.producer,
+            antiQuakeLevel: this.selectedRow.antiQuakeLevel,
+          }
       }
       this.dialogTableVisible = false
     },
@@ -566,10 +573,6 @@ export default {
             producer: res.result.producer,
             antiQuakeLevel: res.result.antiQuakeLevel
           }
-          this.formData.diameter = res.result.diameter
-          this.formData.steelType = res.result.steelType
-          this.formData.heatBatchNumber = res.result.heatBatchNumber
-          this.formData.getAmount = res.result.getAmount
           // 关闭对话框
           this.qrCodeDialogVisible = false
           // 清空上传组件中的文件列表

@@ -80,9 +80,9 @@ const actions = {
         setToken(token)
 
         // console.log('getInfo11', state.userId, state.token)
-        // 获取用户信息
+        // 获取用户信息 
         const name = data.username
-        setUser(username, password, data.userId)
+        setUser(name, data.userId)
         commit('SET_NAME', name)
         setUserId(data.userId)
         resolve()// 表示 Promise 成功完成
@@ -106,7 +106,7 @@ const actions = {
 
         // 获取用户信息 
         const name = data.username
-        setUser(username, password, data.userId)
+        setUser(name, data.userId)
         commit('SET_NAME', name)
         setUserId(data.userId)
         resolve()// 表示 Promise 成功完成
