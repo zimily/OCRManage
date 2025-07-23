@@ -183,7 +183,8 @@ export default {
           this.$store
             .dispatch("user/loginByPhone", this.loginForm)
             .then(() => {
-              this.$router.push({ path: this.redirect || "/" });
+              // this.$router.push({ path: this.redirect || "/" });
+              this.$router.push({ path: "/" }); // 强制跳首页
             })
             .catch(() => {
               this.loading = false;
