@@ -71,6 +71,7 @@
       </el-table>
       <!-- 分页器 -->
       <el-pagination
+        v-if="roleName==='分公司管理员'"
         style="margin-top: 20px; text-align: center"
         :current-page="currentPage"
         :page-sizes="[10, 15, 20]"
@@ -200,6 +201,12 @@ export default {
     },
     totalData() { // 总共筛选出的数据条目
       return this.preCurrentPageData.length
+    },
+    roleName() {
+      return this.$route.query.roleName
+    },
+    projectId() {
+      return this.$route.query.id
     }
   },
   watch: {
@@ -232,8 +239,12 @@ export default {
     }
   },
   created() {
-    this.getPersons()
     this.getAllRolesNoPage()
+    if (this.roleName === '总工') {
+      this.getPersonInProject()
+    } else {
+      this.getPersons()
+    }
   },
   methods: {
     //  获取人员列表
@@ -244,6 +255,7 @@ export default {
         console.log('getUser', user.userId)
         const { result } = await getPerson(user.userId)
         // this.tableData = result
+        this.tableData = []
         for (let i = 0; i < result.length; i++) {
           this.tableData.push({
             certid: result[i].certid,
@@ -275,6 +287,43 @@ export default {
         // this.changeCurrentPageData()
         console.log('getPerson', result)
         this.changeCurrentPageData()
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getPersonInProject() {
+      try {
+        const { result } = await getPersonInProject(this.projectId)
+        console.log('获取某个项目下所有的人员', result)
+        this.tableData = []
+        for (let i = 0; i < result.length; i++) {
+          this.tableData.push({
+            certid: result[i].certid,
+            companyName: result[i].companyName,
+            deptname: result[i].deptname,
+            email: result[i].email,
+            userId: result[i].id,
+            isDelete: result[i].isDelete,
+            password: result[i].password,
+            phone: result[i].phone,
+            pkDeptdoc: result[i].pkDeptdoc,
+            psncode: result[i].psncode,
+            psnscopename: result[i].psnscopename,
+            realname: result[i].realname,
+            roleName: result[i].roleName,
+            userAge: result[i].userAge,
+            companyId: result[i].userCompanyId,
+            userGender: result[i].userGender,
+            username: result[i].userName,
+            roleId: result[i].userTypeId,
+            projectName: '',
+            projectId: '',
+            selection: false,
+            invalidStatus: 0
+          })
+          // this.tableData[i].selection = false
+          this.currentPageData = this.tableData
+        }
       } catch (error) {
         console.log(error)
       }

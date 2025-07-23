@@ -165,6 +165,7 @@ export default {
       try {
         const res = await postSubAndTasks(data)
         console.log('根据分项目ID更新分项目全部字段', res)
+        this.$message.success('保存成功')
       } catch (error) {
         console.log(error)
       }

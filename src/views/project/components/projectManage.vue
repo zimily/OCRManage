@@ -57,7 +57,7 @@
               type="primary"
               icon="el-icon-user"
               size="mini"
-              :disabled="roleName === '总工'"
+              :disabled="!(roleName==='分公司管理员'||roleName==='总工')"
               @click="allocation(scope)"
             >人员分配
             </el-button>
@@ -155,6 +155,7 @@ export default {
   },
   methods: {
     changeXiang() {
+      this.currentPage = 1
     },
     async getProjects() {
       try {
@@ -193,6 +194,7 @@ export default {
     handleSearch() {
       console.log('搜索内容:', this.searchQuery)
       this.finalSearchQuery = this.searchQuery
+      this.currentPage = 1
     },
     // 分页器
     handleSizeChange(val) {
@@ -210,14 +212,11 @@ export default {
     allocation(scope) {
       console.log('人员分配', scope.row)
       // 注意params/query传参的时候，params-name/query-path  路径的内容是不同，对应于路由中的name,path属性，注意区分大小写
-      if (this.roleName === '总工') {
-        this.$message.warning('您没有权限')
-        return
-      }
       this.$router.push({
         name: 'PersonAllocation',
         query: {
-          id: scope.row.projectId
+          id: scope.row.projectId,
+          roleName: this.roleName
         }
       })
     }

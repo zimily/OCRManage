@@ -264,6 +264,7 @@ export default {
       try {
         const res = await putProjects(this.projectId, this.info)
         console.log('putProjects更新项目', res)
+        this.$message.success('保存成功')
       } catch (error) {
         console.log(error)
       }

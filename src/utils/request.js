@@ -10,7 +10,7 @@ const service = axios.create({
   // baseURL: 'http://localhost:8080',
   // baseURL: '',
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 100000 // request timeout
 })
 
 // request interceptor  request拦截器
@@ -50,7 +50,7 @@ service.interceptors.response.use(
     const res = response.data
     // console.log('测试', res, res.code)
     // if the custom code is not 200, it is judged as an error.
-    if (res.code !== 20000 && res.code !== 200 ) {
+    if (res.code !== 20000 && res.code !== 200) {
       Message({
         message: res.message || 'Error',
         type: 'error',

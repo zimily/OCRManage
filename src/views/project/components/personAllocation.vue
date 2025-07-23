@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div v-if="roleName==='分公司管理员'">
       <!--头部-->
       <div style="margin: 1em">
         <el-row>
@@ -45,7 +45,21 @@
           </el-col>
         </el-row>
       </div>
-      <el-button type="primary" style="margin-bottom: 1em" @click="addPeople">添加</el-button>
+      <el-button-group style="display: flex;margin-bottom: 1em">
+        <el-button type="primary" style="margin-right: 1em" @click="addPeople">添加</el-button>
+        <el-upload
+          ref="upload"
+          class="imp-button"
+          :action="aaa"
+          :on-change="importProject"
+          name="excelFile"
+          multiple
+          :show-file-list="false"
+          :auto-upload="false"
+        >
+          <el-button type="warning">导入</el-button>
+        </el-upload>
+      </el-button-group>
       <div>
         <!-- 表格 -->
         <el-table
@@ -109,6 +123,78 @@
         @savePeople="savePeople"
       />
     </div>
+    <div v-else class="container">
+      <el-row :gutter="10" class="full-height-row">
+        <el-col :span="6" class="full-height-col">
+          <el-card shadow="hover" class="full-height-card">
+            <div>
+              <el-tree
+                ref="tree"
+                :data="treeData"
+                :props="defaultProps"
+                node-key="id"
+                show-checkbox
+                default-expand-all
+                @node-click="hangleNodeClick"
+              />
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="18" class="full-height-col">
+          <el-card shadow="hover" class="full-height-card">
+            <el-button type="primary" @click="addPeople">添加</el-button>
+            <!-- 表格 -->
+            <el-table
+              :data="currentPageData"
+              style="width: 100%"
+              border
+              :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+            >
+              <el-table-column
+                prop="realname"
+                label="姓名"
+                align="center"
+              />
+              <el-table-column
+                prop="roleName"
+                label="角色"
+                align="center"
+              />
+              <el-table-column
+                prop="companyName"
+                label="所属单位"
+                align="center"
+              />
+              <el-table-column prop="prop" label="操作" align="center">
+                <template v-slot="scope">
+                  <el-button
+                    type="info"
+                    size="mini"
+                    @click="lookUser(scope)"
+                  >查看
+                  </el-button>
+                  <el-button
+                    type="danger"
+                    size="mini"
+                    @click="deleteBatch(scope)"
+                  >删除
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <!--弹窗-->
+            <AllocationDialog
+              :looks="looks"
+              :look-id="lookId"
+              :project="project"
+              :is-zong-gong="isZongGong"
+              :person-list="personList"
+              @savePeople="savePeople"
+            />
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
@@ -118,15 +204,19 @@ import {
   deleteAssignment, getAl1RolesNoPage, getAllRolesNoPage, getPersonInProject,
   postSelectAssignment, putDistribute
 } from '@/api/personAllocation'
-import { getProjectsById } from '@/api/project'
+import { getAllSubprojectsById, getProjectsById } from '@/api/project'
 import AllocationDialog from '@/views/project/components/allocationDialog.vue'
+import UnitNameItem from '@/views/project/components/unitNameItem.vue'
+import ProjectInfo from '@/views/project/components/projectInfo.vue'
 
 export default {
   components: {
+    ProjectInfo, UnitNameItem,
     AllocationDialog
   },
   data() {
     return {
+      aaa: '',
       projectId: 0, // 当前项目的id
       isZongGong: false, // 当前分项目下是否有总工
       searchData: {
@@ -153,7 +243,21 @@ export default {
         isLook2: false,
         pre: 0
       },
-      lookId: ''// 查看用户详情的用户id
+      lookId: '', // 查看用户详情的用户id
+      treeData: [
+        {
+          id: 0,
+          subprojectName: '郑州中原保利心语项目',
+          disabled: true, // 不可勾选 根节点不能删除
+          children: []
+        }
+      ],
+      defaultProps: {
+        children: 'children',
+        label: 'subprojectName'
+      },
+      idCounter: 1,
+      subprojectId: null// 总工下的分项目id
     }
   },
   computed: {
@@ -170,11 +274,17 @@ export default {
     // totalData() { // 总共筛选出的数据条目
     //   return this.personList.length
     // }
+    roleName() {
+      return this.$route.query.roleName
+    }
   },
   watch: {
     searchData: {
       handler() {
-        this.postSelectAssignment()
+        if (this.roleName === '分公司管理员') {
+          this.postSelectAssignment()
+        }
+        this.postSelectAssignment()// ==========================================================
       },
       deep: true
     },
@@ -184,20 +294,26 @@ export default {
       }
     }
   },
-  created() {
+  async  created() {
     this.projectId = this.$route.query.id
     this.searchData.projectId = this.projectId
 
-    this.getProject()
-    this.getAllRolesNoPage()
-    this.postSelectAssignment()
-    this.getPersonInProject()
+    await this.getProject()
+    if (this.roleName === '总工') {
+      await this.getAllSubprojectsById()
+    } else {
+      await this.getAllRolesNoPage()
+      await this.postSelectAssignment()
+      await this.getPersonInProject()
+    }
+    console.log(this.roleName)
   },
   methods: {
     async getProject() {
       try {
         const { result } = await getProjectsById(this.projectId)
         console.log('项目详情', result)
+        this.treeData[0].subprojectName = result.projectName
         this.companyId = result.companyId
         this.project = result
       } catch (error) {
@@ -250,6 +366,15 @@ export default {
         console.log(error)
       }
     },
+    async getAllSubprojectsById() {
+      try {
+        const { result } = await getAllSubprojectsById(this.projectId)
+        console.log('getAllSubprojectsById', this.projectId, result)
+        this.treeData[0].children = result
+      } catch (error) {
+        console.log(error)
+      }
+    },
     changeXiang() {
       this.searchData.page = 1
     },
@@ -259,6 +384,19 @@ export default {
         isLook2: false,
         pre: 0
       }
+    },
+    importProject(file) {
+      const fd = new FormData()
+      // if (!this.isCreated && this.isShow === 1) { // 导入项目数据
+      //   fd.append('file', file.raw)
+      //   this.excelToJSON(fd)
+      // } else { // 导入分项目数据
+      //   console.log('file', file)
+      //   fd.append('file', file.raw)
+      //   this.excelToJSONs(fd)
+      // }
+      // console.log('文件', file)
+      console.log('fd', fd)
     },
     // 分页器
     handleSizeChange(val) {
@@ -328,6 +466,12 @@ export default {
           await this.getPersonInProject()
         }
       }
+    },
+    // 点击树的节点
+    hangleNodeClick(node) {
+      console.log('点击树的节点', node, this.idCounter)
+      if (node.id === 0) return
+      this.subprojectId = node.subprojectId
     }
   }
 }
@@ -340,6 +484,29 @@ export default {
   font-size: 20px; /* 增大字体 */
 }
 
+.app-main-wrapper {
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.container {
+  height: 100vh;
+  overflow: hidden; /* 防止溢出滚动条 */
+}
+
+.full-height-row {
+  height: 100%;
+}
+
+.full-height-col {
+  height: 100%;
+}
+
+.full-height-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 .app-main-wrapper {
   height: calc(100vh - 100px);
   overflow-y: auto;

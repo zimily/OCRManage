@@ -80,7 +80,7 @@
               </el-form-item>
             </el-card>
           </el-col>
-          <el-col :span="8">
+          <el-col v-if="!isShowOCRInfo" :span="8">
             <el-card class="card-box">
               <el-form-item
                 v-for="(item, index3) in field2"
@@ -99,7 +99,7 @@
               </el-form-item>
             </el-card>
           </el-col>
-          <el-col :span="8">
+          <el-col v-if="!isShowOCRInfo" :span="8">
             <el-card class="card-box">
               <el-form-item
                 v-for="(item, index3) in field3"
@@ -127,6 +127,14 @@
                   />
                 </template>
               </el-form-item>
+            </el-card>
+          </el-col>
+          <el-col v-if="isShowOCRInfo" :span="16">
+            <el-card class="card-box">
+              <div class="ocr-info-container">
+                <div v-for="(item, index) in OCRInfo" :key="index" class="ocr-info-item">{{ item }}</div>
+              </div>
+              <el-button type="info" @click="closeOCRInfo">关闭</el-button>
             </el-card>
           </el-col>
         </el-row>
@@ -234,7 +242,9 @@ export default {
       materialName: '', // 材料名称
       spec: '', // 规格型号
       qrCodeDialogVisible: false, // 二维码对话框可见性
-      qrCodeImage: null // 用于存储上传的图片
+      qrCodeImage: null, // 用于存储上传的图片
+      isShowOCRInfo: false, // ocr扫描结果显示
+      OCRInfo: []
     }
   },
   computed: {
@@ -529,13 +539,13 @@ export default {
       if (this.selectedRow) {
         console.log('已选择的物资平台数据:', this.selectedRow)
         this.formData = {
-            diameter:this.selectedRow.diameter,
-            steelType: this.selectedRow.steelType,
-            heatBatchNumber: this.selectedRow.heatBatchNumber,
-            getAmount:  this.selectedRow.getAmount,
-            producer: this.selectedRow.producer,
-            antiQuakeLevel: this.selectedRow.antiQuakeLevel,
-          }
+          diameter: this.selectedRow.diameter,
+          steelType: this.selectedRow.steelType,
+          heatBatchNumber: this.selectedRow.heatBatchNumber,
+          getAmount: this.selectedRow.getAmount,
+          producer: this.selectedRow.producer,
+          antiQuakeLevel: this.selectedRow.antiQuakeLevel
+        }
       }
       this.dialogTableVisible = false
     },
@@ -565,13 +575,20 @@ export default {
         if (res.code === 200) {
           this.$message.success('二维码上传成功')
           console.log('上传响应:', res)
-          this.formData = {
-            diameter: res.result.diameter,
-            steelType: res.result.steelType,
-            heatBatchNumber: res.result.heatBatchNumber,
-            getAmount: res.result.getAmount,
-            producer: res.result.producer,
-            antiQuakeLevel: res.result.antiQuakeLevel
+          // 扫描二维码
+          if (typeof res.result === 'object') {
+            this.formData = {
+              diameter: res.result.diameter,
+              steelType: res.result.steelType,
+              heatBatchNumber: res.result.heatBatchNumber,
+              getAmount: res.result.getAmount,
+              producer: res.result.producer,
+              antiQuakeLevel: res.result.antiQuakeLevel
+            }
+          } else { // 扫描ocr图片
+            this.OCRInfo = JSON.parse(res.result).data
+            console.log('OCR扫描结果:', this.OCRInfo)
+            this.isShowOCRInfo = true
           }
           // 关闭对话框
           this.qrCodeDialogVisible = false
@@ -586,6 +603,10 @@ export default {
         console.error('上传出错:', error)
         this.$message.error(error.message || '出错啦，请稍后重试！')
       }
+    },
+    // 关闭OCR扫描的信息
+    closeOCRInfo() {
+      this.isShowOCRInfo = false
     },
     // 处理文件上传成功
     handleUploadSuccess(response, file) {
@@ -628,6 +649,19 @@ export default {
 
 .compact-form .el-form-item {
   margin-bottom: 15px;
+}
+
+/*OCR扫描的样式*/
+.ocr-info-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+.ocr-info-item {
+  flex: 0 0 49%; /* 每项占据 49% 的宽度，加上间距 */
+  box-sizing: border-box;
 }
 </style>
 
