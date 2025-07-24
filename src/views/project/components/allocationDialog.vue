@@ -5,7 +5,7 @@
     :show-close="false"
     :visible.sync="dialogVisible1"
     title="人员添加"
-    width="60%"
+    width="70%"
     @close="savePeople(0)"
   >
     <div>
@@ -44,7 +44,7 @@
           </el-form>
         </el-col>
       </el-row>
-      <el-table :data="currentPageData" style="width: 100%" :row-class-name="isEnableClass">
+      <el-table :data="currentPageData" height="40em" style="width: 100%" :row-class-name="isEnableClass">
         <el-table-column prop="selection" label="选择" width="90">
           <template v-slot="scope">
             <div>
@@ -55,7 +55,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="userId" label="用户编号" width="160" />
+        <el-table-column prop="userId" label="用户编号" width="200" />
         <el-table-column prop="realname" label="姓名" min-width="100" />
         <el-table-column prop="roleName" label="角色" width="100" />
         <el-table-column prop="companyName" label="所属单位" width="180" />
@@ -255,7 +255,6 @@ export default {
         console.log('getUser', user.userId)
         const { result } = await getPerson(user.userId)
         // this.tableData = result
-        this.tableData = []
         for (let i = 0; i < result.length; i++) {
           this.tableData.push({
             certid: result[i].certid,
@@ -302,14 +301,14 @@ export default {
             companyName: result[i].companyName,
             deptname: result[i].deptname,
             email: result[i].email,
-            userId: result[i].id,
+            userId: result[i].userId,
             isDelete: result[i].isDelete,
             password: result[i].password,
             phone: result[i].phone,
             pkDeptdoc: result[i].pkDeptdoc,
             psncode: result[i].psncode,
             psnscopename: result[i].psnscopename,
-            realname: result[i].realname,
+            realname: result[i].username,
             roleName: result[i].roleName,
             userAge: result[i].userAge,
             companyId: result[i].userCompanyId,
@@ -322,8 +321,8 @@ export default {
             invalidStatus: 0
           })
           // this.tableData[i].selection = false
-          this.currentPageData = this.tableData
         }
+        this.currentPageData = this.tableData
       } catch (error) {
         console.log(error)
       }
