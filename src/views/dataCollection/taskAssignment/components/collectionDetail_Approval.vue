@@ -17,8 +17,13 @@
       </el-row>
     </el-card>
     <el-card style="margin-top: 5px">
-      <el-table ref="multipleTable" :data="tableData" stripe style="width: 100%"
-        @selection-change="handleSelectionChange">
+      <el-table
+        ref="multipleTable"
+        :data="tableData"
+        stripe
+        style="width: 100%"
+        @selection-change="handleSelectionChange"
+      >
         <!-- 复选框列 -->
         <el-table-column type="selection" width="55" align="center" />
         <!-- 其他列 -->
@@ -108,7 +113,7 @@
 
 <script>
 
-import { getTaskDetailData,getCollectData } from '@/api/collection'
+import { getTaskDetailData, getCollectData } from '@/api/collection'
 import { getImage } from '@/api/ocrTest'
 
 export default {
@@ -145,7 +150,7 @@ export default {
   },
   mounted() {
     console.log('taskId', this.taskId)
-    console.log("rowData", this.rowData)
+    console.log('rowData', this.rowData)
     this.getDetailData()
   },
   methods: {
@@ -296,4 +301,66 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+img {
+  width: 100%;
+  height: 100%;
+  margin-right: 1em;
+  object-fit: contain;
+}
+
+.photo-navigation {
+  position: relative;
+  display: flex;
+  align-items: center; /* 垂直居中 */
+  justify-content: space-between; /* 两端对齐 */
+  width: 100%;
+  margin: 10px 0;
+}
+
+.photo-navigation button {
+  position: absolute;
+  background-color: grey;
+  border: none;
+  cursor: pointer;
+  writing-mode: vertical-rl; /* 垂直排列文字 */
+  white-space: nowrap; /* 防止文字换行 */
+}
+.photo-navigation .right-button{
+  border-top-left-radius: 50%;
+  border-bottom-left-radius: 50%;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.photo-navigation .left-button{
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 50%;
+  border-bottom-right-radius: 50%;
+}
+.photo-navigation .divs {
+  position: absolute;
+  display: flex;
+  left: 0;
+  bottom: 0.3em;
+}
+
+.photo-navigation .divs div {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%; /* 设置为圆形 */
+  background-color: #ccc; /* 默认背景颜色 */
+  margin: 0 0.1em; /* 按钮之间的间距 */
+}
+
+.photo-navigation .divs .active {
+  background-color: #409EFF; /* 选中时的背景颜色 */
+  color: #fff; /* 选中时的文字颜色 */
+}
+
+.scrollable-container {
+  overflow-x: auto; /* 横向滚动 */
+  white-space: nowrap; /* 防止子元素换行 */
+  max-width: 100%; /* 限制最大宽度 */
+}
+</style>
