@@ -31,7 +31,7 @@
             <el-input v-model="form.userPhone" placeholder="请输入内容" autocomplete="off" />
           </el-form-item>
           <el-form-item label="所属公司" :label-width="formLabelWidth">
-            <el-input v-model="form.userCompanyId" placeholder="请输入内容" autocomplete="off" />
+            <el-input v-model="form.userCompanyName" placeholder="请输入内容" autocomplete="off" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -61,7 +61,7 @@
             <el-input v-model="form.userPhone" placeholder="" autocomplete="off" disabled />
           </el-form-item>
           <el-form-item label="所属公司" :label-width="formLabelWidth">
-            <el-input v-model="form.userCompanyId" placeholder="" autocomplete="off" disabled />
+            <el-input v-model="form.userCompanyName" placeholder="" autocomplete="off" disabled />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -137,6 +137,7 @@ export default {
         userNumber: '',
         userGender: '',
         userCompanyId: '',
+        userCompanyName: '',
         age: '',
         isDelete: true
       },
@@ -290,10 +291,10 @@ export default {
     },
     async handleSearch() {
       try {
-        const res = await searchUser(this.searchQuery)
+        const res = await searchUser(this.searchQuery,this.curPage, this.limit)
         if (res.code == 200) {
           console.log('搜索结果', res)
-          this.userInfo = res.result.records
+          this.userInfo = res.result.list
           this.total = Number(res.result.total)
           this.limit = Number(res.result.size)
           this.curPage = Number(res.result.current)
@@ -308,12 +309,20 @@ export default {
     handleSizeChange(size) {
       // console.log("页面的数据条数",size)
       this.limit = size
-      this.getAllUser()
+      if (this.searchQuery) {
+        this.handleSearch()
+      } else {
+        this.getAllUser()
+      }
     },
     handleCurrentChange(index) {
       // console.log("直接跳转到",index)
       this.curPage = index
-      this.getAllUser()
+      if (this.searchQuery) {
+        this.handleSearch()
+      } else {
+        this.getAllUser()
+      }
     },
     async deleteUser(row, index) {
       // console.log(row, index);
@@ -342,7 +351,7 @@ export default {
         const res = await getUserById(id)
         if (res.code == 200) {
           console.log('查看用户信息', res)
-          const userDetail = res.result[0];
+          const userDetail = res.result;
           this.form = { ...userDetail };
           // this.form = {
           //   ...userDetail,
@@ -369,11 +378,12 @@ export default {
       this.dialog_title = '编辑用户信息'
       this.dialogFormVisible = true
       const id = row.userId
-      console.log("获取用户信息", row, id);
+      console.log("编辑当前行信息", row, id);
       try {
         const res = await getUserById(id);
+        console.log("获取用户信息", res);
         if (res.code === 200) {
-          const userDetail = res.result[0];
+          const userDetail = res.result;
           this.form = { ...userDetail };
         }
       } catch (error) {

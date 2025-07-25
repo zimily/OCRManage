@@ -426,11 +426,20 @@ export default {
     handleSizeChange(size) {
       this.curPage=1
       this.limit = size
-      this.getAllRoles()
+      if(this.searchQuery){ 
+        this. handleSearch()
+      }else{
+        this.getAllRoles()
+      }
+     
     },
     handleCurrentChange(index) {
       this.curPage = index
-      this.getAllRoles()
+       if(this.searchQuery){ 
+        this. handleSearch()
+      }else{
+        this.getAllRoles()
+      }
     }
   }
 }
