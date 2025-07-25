@@ -182,6 +182,7 @@
                 </template>
               </el-table-column>
             </el-table>
+            <el-button type="info" @click="back">退出</el-button>
             <!--弹窗-->
             <AllocationDialog
               :looks="looks"
@@ -384,6 +385,10 @@ export default {
         isLook2: false,
         pre: 0
       }
+    },
+    // 退出按钮
+    back() {
+      this.$router.back()
     },
     importProject(file) {
       const fd = new FormData()

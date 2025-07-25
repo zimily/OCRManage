@@ -141,7 +141,8 @@
             </el-card>
           </el-col>
           <el-col v-if="isShowOCRInfo" :span="16">
-            <el-card class="card-box">
+            <el-card class="ocr-card-box">
+              <div style="font-size: 2em">OCR扫描结果</div>
               <div class="ocr-info-container">
                 <div v-for="(item, index) in OCRInfo" :key="index" class="ocr-info-item">{{ item }}</div>
               </div>
@@ -679,7 +680,13 @@ export default {
   flex-direction: column;
 
 }
-
+.ocr-card-box {
+  flex: 1;
+  /* 让 card 撑满列的高度 */
+  display: flex;
+  flex-direction: column;
+  background-color: #cfd3d2;
+}
 .compact-form .el-form-item {
   margin-bottom: 15px;
 }

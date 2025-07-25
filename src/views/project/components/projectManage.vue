@@ -170,7 +170,7 @@ export default {
       try {
         const { result } = await getUserById(getUserId())
         console.log('当前用户职位', result)
-        this.roleName = result[0].roleName
+        this.roleName = result.roleName
       } catch (error) {
         console.log(error)
       }
