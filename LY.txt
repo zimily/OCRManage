@@ -1,0 +1,86 @@
+1.流程：
+使用mock npm install mockjs -S
+
+远程修改
+
+问题：
+1.不要太依赖VUEX存储数据，将角色信息存储到VUEX中刷新会掉的。每一次页面刷新重新访问。
+   什么情况下适合用VUEX存储数据
+
+
+================================
+更新github的项目：
+要将你本地的项目更新到 GitHub 上，可以按以下流程操作。下面是**完整的步骤说明**，适合你已经在本地有 Git 仓库，并且已经连接了 GitHub 仓库的情况。
+
+---
+
+### ✅ 一、确保你已经设置了远程仓库
+
+先检查是否已连接到 GitHub 仓库：
+
+```bash
+git remote -v
+```
+
+如果你看到类似这样：
+
+```
+origin  https://github.com/your-username/your-repo.git (fetch)
+origin  https://github.com/your-username/your-repo.git (push)
+```
+
+说明你已经设置好了。如果没有远程仓库，可以这样添加：
+
+```bash
+git remote add origin https://github.com/your-username/your-repo.git
+```
+
+---
+
+### ✅ 二、将本地更改添加并提交
+
+```bash
+git add .                 # 添加所有更改的文件
+git commit -m "你的提交说明"  # 提交更改
+```
+
+---
+
+### ✅ 三、推送到 GitHub 仓库
+
+如果你是第一次推送，可以使用：
+
+```bash
+git push -u origin master   # 或 main，看你 GitHub 上的主分支名字
+```
+
+以后再推送时只需要：
+
+```bash
+git push
+```
+
+---
+
+### ❗ 如果分支名不确定，可以先查看：
+
+```bash
+git branch
+```
+
+主分支通常是 `master` 或 `main`，以你 GitHub 上的为准。
+
+---
+
+### ✅ 四、登录 GitHub 验证推送结果
+
+打开你的 GitHub 项目页面，刷新之后应该能看到你刚提交的更改。
+
+---
+
+### 🔒 温馨提示：
+
+* 如果你用的是 HTTPS 地址，Git 可能会提示你输入 GitHub 用户名和 token（注意：GitHub 已不再支持密码，必须使用 [个人访问令牌](https://github.com/settings/tokens)）。
+* 推荐用 SSH key 来免输密码：如果你感兴趣，我可以教你配置。
+
+---
