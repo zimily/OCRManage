@@ -30,9 +30,9 @@
           <el-form-item label="电话号码" prop="userPhone" :label-width="formLabelWidth">
             <el-input v-model="form.userPhone" placeholder="请输入内容" autocomplete="off" />
           </el-form-item>
-          <el-form-item label="所属公司" :label-width="formLabelWidth">
+          <!-- <el-form-item label="所属公司" :label-width="formLabelWidth">
             <el-input v-model="form.userCompanyName" placeholder="请输入内容" autocomplete="off" />
-          </el-form-item>
+          </el-form-item> -->
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="primary" @click="confirmAddUser">确 定</el-button>
