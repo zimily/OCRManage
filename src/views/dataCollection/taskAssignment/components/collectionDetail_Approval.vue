@@ -78,7 +78,7 @@
           <template slot-scope="scope">
             <el-button
               type="primary"
-              @click="dialogTableVisible = true"
+              @click="viewData(scope)"
             >查看数据
             </el-button>
           </template>
@@ -219,16 +219,19 @@ export default {
   },
   computed: {
     rowData() {
-      return this.$route.params.row
+      return this.$store.state.collection.currentRowData
+    },
+    taskId() {
+      return this.$route.query.taskId
     },
     subprojectName() {
-      return this.$route.params.row.subprojectName
+      return this.rowData.subprojectName
     },
     inspectPart() {
-      return this.$route.params.row.inspectPart
+      return this.rowData.inspectPart
     },
     inspectName() {
-      return this.$route.params.row.inspectType
+      return this.rowData.inspectType
     }
   },
   mounted() {
@@ -259,6 +262,7 @@ export default {
       this.photos = [] // 清空图片数据
       this.pageNum = 1
       this.stopAutoPlay() // 停止之前的自动播放
+      console.log('查看数据', value)
       const data = {
         taskId: value.row.taskItem.taskId,
         inspectItemId: value.row.inspectItem.inspectItemId

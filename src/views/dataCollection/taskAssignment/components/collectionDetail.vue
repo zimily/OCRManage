@@ -194,6 +194,7 @@ export default {
       this.photos = [] // 清空图片数据
       this.pageNum = 1
       this.stopAutoPlay() // 停止之前的自动播放
+      console.log('查看数据', value)
       const data = {
         taskId: value.row.taskItem.taskId,
         inspectItemId: value.row.inspectItem.inspectItemId

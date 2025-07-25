@@ -205,7 +205,7 @@ import {
   deleteAssignment, getAl1RolesNoPage, getAllRolesNoPage, getPersonInProject,
   postSelectAssignment, putDistribute
 } from '@/api/personAllocation'
-import { getAllSubprojectsById, getProjectsById } from '@/api/project'
+import { excelToJSON, excelToJSONs, getAllSubprojectsById, getProjectsById } from '@/api/project'
 import AllocationDialog from '@/views/project/components/allocationDialog.vue'
 import UnitNameItem from '@/views/project/components/unitNameItem.vue'
 import ProjectInfo from '@/views/project/components/projectInfo.vue'
@@ -342,6 +342,27 @@ export default {
         console.log(error)
       }
     },
+    async excelToJSONs(data) {
+      try {
+        console.log('excelToJSONs', data)
+        const { result } = await excelToJSONs(data)
+        console.log('人员分配导入数据', result)
+
+        // 数据格式转换
+        const temp = []
+        result.forEach(item => {
+          temp.push({
+            userId: item['员工编号'],
+            projectId: item['项目号']
+          })
+        })
+        await this.putDistribute(temp)
+        // 重新查询
+        await this.postSelectAssignment()
+      } catch (error) {
+        console.log(error)
+      }
+    },
     async getPersonInProject() {
       try {
         const { result } = await getPersonInProject(this.projectId)
@@ -392,14 +413,8 @@ export default {
     },
     importProject(file) {
       const fd = new FormData()
-      // if (!this.isCreated && this.isShow === 1) { // 导入项目数据
-      //   fd.append('file', file.raw)
-      //   this.excelToJSON(fd)
-      // } else { // 导入分项目数据
-      //   console.log('file', file)
-      //   fd.append('file', file.raw)
-      //   this.excelToJSONs(fd)
-      // }
+      fd.append('file', file.raw)
+      this.excelToJSONs(fd)
       // console.log('文件', file)
       console.log('fd', fd)
     },
