@@ -17,67 +17,30 @@
       </el-row>
     </el-card>
     <el-card style="margin-top: 5px">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        stripe
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
-      >
+      <el-table ref="multipleTable" :data="tableData" stripe style="width: 100%"
+        @selection-change="handleSelectionChange">
         <!-- 复选框列 -->
-        <el-table-column
-          type="selection"
-          width="55"
-          align="center"
-        />
-        <!-- <el-table-column label="是否通过" width="60" align="center">
-          <template slot-scope="scope">
-            <el-checkbox v-model="scope.row.isChecked"></el-checkbox>
-          </template>
-        </el-table-column> -->
+        <el-table-column type="selection" width="55" align="center" />
         <!-- 其他列 -->
-        <el-table-column
-          prop="project"
-          label="验收项目"
-          width="150"
-          align="center"
-        />
-        <el-table-column
-          prop="require"
-          label="设计要求及规范规定"
-          width="150"
-          align="center"
-        />
-        <el-table-column prop="sum" label="样本总数" width="120" align="center" />
-        <el-table-column
-          prop="min"
-          label="最小抽样批量"
-          width="120"
-          align="center"
-        />
-        <el-table-column
-          prop="reality"
-          label="实际抽样批量"
-          width="120"
-          align="center"
-        />
-        <el-table-column
-          prop="record"
-          label="验收记录"
-          width="150"
-          align="center"
-        />
-        <el-table-column prop="value" label="合格率" width="120" align="center" />
-        <el-table-column
-          prop="master"
-          label="是否为主控项"
-          width="120"
-          align="center"
-        />
-        <el-table-column label="操作" align="center">
+        <el-table-column prop="inspectItem.itemName" label="验收项目" align="center" />
+        <el-table-column prop="inspectItem.ruleStandard" label="设计要求及规范规定" align="center" />
+        <el-table-column prop="taskItem.sampleAmount" label="样本总数" width="120" align="center" />
+        <el-table-column prop="taskItem.minSample" label="最小抽样批量" width="120" align="center" />
+        <el-table-column prop="taskItem.collectedAmount" label="实际抽样批量" width="120" align="center" />
+        <el-table-column prop="taskItem.checkRecord" label="验收记录" width="200" align="center" />
+        <el-table-column prop="taskItem.passRate" label="合格率" width="120" align="center" />
+        <el-table-column prop="inspectItem.itemType" label="项目类型" align="center" width="100">
+          <template v-slot="scope">
+            <span v-if="scope.row.inspectItem.itemType === 1">主控项目</span>
+            <span v-else-if="scope.row.inspectItem.itemType === 2">一般项目</span>
+            <span v-else>未知项目类型</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center" width="150">
           <template slot-scope="scope">
             <el-button
               type="primary"
+              :disabled="scope.row.taskItem.isEmpty===1"
               @click="viewData(scope)"
             >查看数据
             </el-button>
@@ -86,22 +49,13 @@
       </el-table>
     </el-card>
     <div style="margin-top: 10px">
-      <el-button
-        type="primary"
-        :disabled="multipleSelection.length === 0"
-        @click="pass()"
-      >通过
+      <el-button type="primary" :disabled="multipleSelection.length === 0" @click="pass()">通过
       </el-button>
       <el-button @click="cancel()">取消</el-button>
     </div>
     <!-- 弹窗 -->
-    <el-dialog
-      title="原始数据展示"
-      :visible.sync="dialogTableVisible"
-      :show-close="false"
-      @close="closeDialog"
-    >
-      <div v-if="dataType===1">
+    <el-dialog title="原始数据展示" :visible.sync="dialogTableVisible" :show-close="false" @close="closeDialog">
+      <div v-if="dataType === 1">
         <el-row style="font-size: 1.5em">
           <el-col :span="4">合格数量</el-col>
           <el-col :span="20">{{ gridData.passed_amount }}/{{ gridData.check_amount }}</el-col>
@@ -116,14 +70,14 @@
                 <img :src="imgUrl">
                 <el-button class="right-button" style="right: 1.5em" @click="nextPage">下一页</el-button>
                 <div class="divs">
-                  <div v-for="(item,index) in photos" :key="index" :class="{active:index===pageNum-1}" />
+                  <div v-for="(item, index) in photos" :key="index" :class="{ active: index === pageNum - 1 }" />
                 </div>
               </div>
             </div>
           </el-col>
         </el-row>
       </div>
-      <div v-else-if="dataType===2">
+      <div v-else-if="dataType === 2">
         <el-table :data="gridData" stripe style="width: 100%">
           <el-table-column prop="inspect_part" label="采集部位" width="120" align="center" />
           <el-table-column prop="records" label="原始数据" align="center">
@@ -136,13 +90,13 @@
           <el-table-column prop="records" label="是否合格" align="center">
             <template v-slot="scope">
               <div v-for="(item, index) in scope.row.records" :key="index">
-                {{ item.is_passed?'合格' : '不合格' }}
+                {{ item.is_passed ? '合格' : '不合格' }}
               </div>
             </template>
           </el-table-column>
         </el-table>
       </div>
-      <div v-else-if="dataType===3">
+      <div v-else-if="dataType === 3">
         试验报告数据
       </div>
       <div slot="footer" class="dialog-footer">
@@ -154,61 +108,16 @@
 
 <script>
 
-import { getAllList, getCollectData } from '@/api/collection'
+import { getTaskDetailData,getCollectData } from '@/api/collection'
 import { getImage } from '@/api/ocrTest'
 
 export default {
   data() {
     return {
-      inspectVolume: '钢筋6批',
+      inspectVolume: '',
       gridData: [], // 点击查看数据按钮后显示的表格数据
       dialogTableVisible: false,
-      tableData: [
-        {
-          isChecked: false,
-          project: '钢筋力学性能和重量偏差检验',
-          require: '第5.2.1条',
-          sum: '6',
-          min: '全',
-          reality: '6',
-          record: '/',
-          value: '100%',
-          master: '是'
-        },
-        {
-          isChecked: false,
-          project: '钢筋力学性能和重量偏差检验',
-          require: '第5.2.1条',
-          sum: '6',
-          min: '全',
-          reality: '6',
-          record: '/',
-          value: '100%',
-          master: '是'
-        },
-        {
-          isChecked: false,
-          project: '钢筋力学性能和重量偏差检验',
-          require: '第5.2.1条',
-          sum: '6',
-          min: '全',
-          reality: '6',
-          record: '/',
-          value: '100%',
-          master: '是'
-        },
-        {
-          isChecked: false,
-          project: '钢筋力学性能和重量偏差检验',
-          require: '第5.2.1条',
-          sum: '6',
-          min: '全',
-          reality: '6',
-          record: '/',
-          value: '100%',
-          master: '是'
-        }
-      ],
+      tableData: [],
       multipleSelection: [],
       dataType: null, // 1-观察 2-采集数据 3-报告
       photos: [],
@@ -235,10 +144,27 @@ export default {
     }
   },
   mounted() {
-    console.log('row', this.rowData)
-    console.log(this.subprojectName)
+    console.log('taskId', this.taskId)
+    console.log("rowData", this.rowData)
+    this.getDetailData()
   },
   methods: {
+    async getDetailData() {
+      console.log('待审核页面', this.taskId)
+      try {
+        const res = await getTaskDetailData(this.taskId)
+        if (res.code == 200) {
+          console.log('数据', res)
+          this.tableData = res.result.taskItemList
+          this.inspectVolume = res.result.taskInspectBatchVolumeList.map(item => `${item.sourceName}：${item.volume}`).join('；')
+        } else {
+          throw new Error(res.message)
+        }
+      } catch (error) {
+        console.error('操作失败', error)
+        this.$message.error('获取详情数据失败！')
+      }
+    },
     startAutoPlay() {
       if (this.photos.length) {
         this.intervalId = setInterval(() => {
@@ -262,7 +188,6 @@ export default {
       this.photos = [] // 清空图片数据
       this.pageNum = 1
       this.stopAutoPlay() // 停止之前的自动播放
-      console.log('查看数据', value)
       const data = {
         taskId: value.row.taskItem.taskId,
         inspectItemId: value.row.inspectItem.inspectItemId
@@ -371,5 +296,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>

@@ -95,9 +95,9 @@ export function deleteUserById(id) {
   })
 }
 
-export function searchUser(key) {
+export function searchUser(key,pageNum, pageSize) {
   return request({
-    url: `/user/getUserByNameFuzzy?keyword=${key}`,
+    url: `/user/getUserByNameFuzzy?keyword=${key}&&pageNum=${pageNum}&pageSize=${pageSize}`,
     method: 'get'
   })
 }

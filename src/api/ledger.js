@@ -112,3 +112,11 @@ export function uploadQrCode(data) {
     data: data
   })
 }
+
+//根据单位工程获取使用部位
+export function getUsePartBySubProject(subProjectId) {
+  return request({
+    url: `/ledger/distinctInspectParts?subprojectId=${subProjectId}`,
+    method: 'get'
+  })
+}

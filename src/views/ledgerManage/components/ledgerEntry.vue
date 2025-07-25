@@ -2,7 +2,9 @@
   <div>
     <!-- 根据类别控制按钮显示 -->
     <el-row v-if="category === '钢筋原材'" style="margin-bottom: 20px">
+      <span style="margin-right: 20px" >快捷录入方式：</span>
       <el-button type="primary" style="margin-right: 20px" @click="openMaterialPlatformDialog">选择物资平台数据</el-button>
+      <span style="margin-right: 20px" >或</span>
       <el-button type="primary" @click="scanQRCode">二维码扫描</el-button>
     </el-row>
     <!-- 点击二维码扫描后，提交本地的二维码信息，并上传至服务器，服务器会返回数据，并保存到数据库中。 -->
@@ -44,7 +46,7 @@
           </el-col>
           <el-col :span="6">
             <span>单位工程（栋）：</span>
-            <el-select v-model="subProject" placeholder="请选择" size="small">
+            <el-select v-model="subProject" placeholder="请选择" size="small" @change="changeSubproject">
               <el-option v-for="item in options2" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-col>
@@ -69,6 +71,7 @@
         <el-row :gutter="2" class="equal-height-row">
           <el-col :span="8">
             <el-card class="card-box">
+              <el-tag>材料信息</el-tag>
               <el-form-item
                 v-for="(item, index) in field1"
                 :key="index"
@@ -82,6 +85,7 @@
           </el-col>
           <el-col v-if="!isShowOCRInfo" :span="8">
             <el-card class="card-box">
+              <el-tag>见证送检信息</el-tag>
               <el-form-item
                 v-for="(item, index3) in field2"
                 :key="index3"
@@ -101,6 +105,7 @@
           </el-col>
           <el-col v-if="!isShowOCRInfo" :span="8">
             <el-card class="card-box">
+              <el-tag>实验报告数据</el-tag>
               <el-form-item
                 v-for="(item, index3) in field3"
                 :key="index3"
@@ -108,8 +113,14 @@
                 :prop="item.fieldName"
                 :required="item.required"
               >
+                <el-date-picker
+                  v-if="item.dataType === 'DATE'"
+                  v-model="formData[item.fieldName]"
+                  type="date"
+                  value-format="yyyy-MM-dd"
+                />
                 <el-input
-                  v-if="item.dataCount === 1"
+                 v-else-if="item.dataCount === 1&& item.dataType != 'DATE'"
                   v-model="formData[item.fieldName]"
                   size="small"
                   style="width: 250px;"
@@ -193,7 +204,8 @@ import {
   getProjectInfo,
   getFormData,
   saveLedgerData,
-  uploadQrCode
+  uploadQrCode,
+  getUsePartBySubProject,
 } from '@/api/ledger'
 import { getUser } from '@/utils/storage'
 import { getMaterialPlatformData } from '@/api/materialPlatform'
@@ -245,7 +257,8 @@ export default {
       qrCodeDialogVisible: false, // 二维码对话框可见性
       qrCodeImage: null, // 用于存储上传的图片
       isShowOCRInfo: false, // ocr扫描结果显示
-      OCRInfo: []
+      OCRInfo: [],
+      usePartList: [], // 使用部位列表
     }
   },
   computed: {
@@ -363,6 +376,26 @@ export default {
           this.generateRules()
         } else {
           throw new Error(res.message || '获取字段名称失败')
+        }
+      } catch (error) {
+        console.log(error)
+        this.$message.error('出错啦，请稍后重试！')
+      }
+    },
+    changeSubproject(value) {
+      console.log('选中的单位工程ID:', value)
+      // 获取使用部位
+      this.getUsePartList(value)
+    },
+    //获取使用部位
+    async getUsePartList(subProjectId) {
+      try {
+        const res = await getUsePartBySubProject(subProjectId)
+        if (res.code == 200) {
+          console.log('获取使用部位成功', res)
+          this.usePartList = res.result || []
+        } else {
+          throw new Error(res.message || '获取使用部位失败')
         }
       } catch (error) {
         console.log(error)
@@ -669,6 +702,17 @@ export default {
 .ocr-info-item {
   flex: 0 0 49%; /* 每项占据 49% 的宽度，加上间距 */
   box-sizing: border-box;
+}
+
+/* 添加el-tag居中和文字加粗样式 */
+.card-box >>> .el-tag {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 14px;
+  width: 100%;
+  margin-bottom: 15px;
 }
 </style>
 

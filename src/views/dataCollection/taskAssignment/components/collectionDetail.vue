@@ -102,13 +102,12 @@
 
 <script>
 import { getTaskDetailData, getCollectData } from '@/api/collection'
-import item from '../../../../layout/components/Sidebar/Item.vue'
 import { getImage } from '@/api/ocrTest'
 
 export default {
   data() {
     return {
-      inspectVolume: '钢筋6批',
+      inspectVolume: '',
       gridData: [], // 点击查看数据按钮后显示的表格数据
       dialogTableVisible: false,
       tableData: [
@@ -127,10 +126,7 @@ export default {
     }
   },
   computed: {
-    item() {
-      return item
-    },
-    rowData() {
+     rowData() {
       return this.$store.state.collection.currentRowData
     },
     taskId() {
@@ -145,6 +141,7 @@ export default {
     inspectName() {
       return this.rowData.inspectType
     }
+   
   },
   mounted() {
     console.log('row', this.rowData)
