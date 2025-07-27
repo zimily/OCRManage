@@ -11,9 +11,9 @@
       <el-tab-pane label="混凝土测温记录" name="6">混凝土测温记录</el-tab-pane>
       <el-tab-pane label="混凝土强度离散度" name="7">混凝土强度离散度</el-tab-pane>
     </el-tabs>
-    <!--这是搜索框-->
+    <!--检验批验收记录搜索框-->
 
-    <div id="searchForm" style="display: flex; justify-content: flex-end; align-items: center">
+    <div id="searchForm1" style="display: flex; justify-content: flex-end; align-items: center" v-if="currentTableName === '1' || currentTableName === '2'">
       <span style="line-height: 100%">请输入检验批部位：</span>
       <el-input v-model="inspectPart" placeholder="请输入检验批部位进行检索" style="width: 300px"/>
       <el-button type="primary" style="margin-left: 10px" @click="search">搜索</el-button>
@@ -57,6 +57,34 @@
       </el-table-column>
     </el-table>
 
+    <!-- 隐蔽验收记录表格 -->
+    <el-table
+      ref="multipleTable"
+      :data="currentPageData"
+      stripe
+      style="width: 100%; margin-top: 15px"
+      @selection-change="handleSelectionChange"
+      v-if="currentTableName === '2'"
+    >
+      <el-table-column type="selection" width="55"></el-table-column>
+      <el-table-column label="项目号" width="80" align="center" prop="projectId"></el-table-column>
+      <el-table-column label="工程名称" prop="projectName" align="center"></el-table-column>
+      <el-table-column label="单位工程" prop="danweiProject" align="center"></el-table-column>
+      <el-table-column label="检验批部位" prop="inspectPart" align="center"></el-table-column>
+      <el-table-column label="操作" align="center" width="200px">
+
+          <template slot-scope="scope">
+            <el-button type="primary" @click="handlePreview(scope.row)">
+              预览
+            </el-button>
+            <el-button type="warning" @click="handleExport(scope.row)">
+              导出
+            </el-button>
+          </template>
+      </el-table-column>
+    </el-table>
+
+
     <!-- 分页 -->
     <el-pagination
       style="margin-top: 20px; text-align: center"
@@ -90,13 +118,13 @@ export default {
 
           }
         ],
-      currentPage: 1,
-      pageSize: 10,
-      totalData: 0,
-      activeName: '1',
-      inspectPart: '',
-      currentPageData: [],
-      currentTableName: '1'
+      currentPage: 1,           //当前页码
+      pageSize: 10,             //页面容量
+      totalData: 0,             //总记录条数
+      activeName: '1',         //多选框选中的value，默认赋值为1
+      inspectPart: '',        //检验批部位，用来搜索
+      currentPageData: [],   //这是接收的数据
+      currentTableName: '1' //记录当前要展示的表格id
     }
   },
   computed: {},
@@ -132,10 +160,11 @@ export default {
       console.log('导出单行数据:', row)
       this.$message.success(`正在导出 ${row.projectName} - ${row.unitProject} 的数据`)
     },
-    //切换不同表格
+    //使用多选框展示不同表格，这是切换表格数据展示的关键函数
     handleClick(tab, event) {
-      this.currentTableName = tab.name
+      this.currentTableName = tab.name   //这个是因为多选框的value和展示表格的控制变量的值是对应的，value 1 对应 currentTableName 1
       console.log('目前切换的表格为:' + this.currentTableName)
+      //todo 需要根据切换表格的不同展示不同的数据，要用到switch-case来进行接口的访问
     },
     handlePreview(row) {
       console.log('<UNK>:', row)
