@@ -52,6 +52,7 @@
             :visible.sync="isShow"
             :project-id="projectId"
             :project-excel="projectExcel"
+            :not-import="notImport"
             @transmit="getMessage"
           />
           <unit-name-item
@@ -59,6 +60,7 @@
             :subproject-id="subprojectId"
             :subproject-excel="subprojectExcel"
             :jianyan-excel="jianyanExcel"
+            :not-import="notImport"
             @transmit="handleUnitNameItem"
           />
         </el-card>
@@ -106,7 +108,9 @@ export default {
       subprojectId: null,
       projectExcel: null, // 项目Excel表格
       subprojectExcel: [], // 分项目基础信息Excel表格
-      jianyanExcel: []// 检验批Excel表格
+      jianyanExcel: [], // 检验批Excel表格
+      notImport: true,
+      designValues: new Array(8)// 设计值
     }
   },
   computed: {
@@ -127,6 +131,7 @@ export default {
         const { result } = await getProjectsById(this.projectId)
         this.treeData[0].subprojectName = result.projectName
         this.isCreated = result.isCreated
+        this.notImport = !result.isCreated
         console.log('getProjectsById', result)
       } catch (error) {
         console.log(error)
@@ -163,6 +168,8 @@ export default {
 
     async postSubAndTasks(data) {
       try {
+        data.designValues = this.designValues
+        console.log('postSubAndTasks', data)
         const res = await postSubAndTasks(data)
         console.log('根据分项目ID更新分项目全部字段', res)
         this.$message.success('保存成功')
@@ -176,6 +183,7 @@ export default {
         const { result } = await excelToJSON(data)
         console.log('上传Excel表格返回所有内容转成的JSON', result)
         this.projectExcel = result
+        this.notImport = false
       } catch (error) {
         console.log(error)
       }
@@ -184,24 +192,57 @@ export default {
       try {
         console.log('excelToJSONs', data)
         const { result } = await excelToJSONs(data)
+        this.notImport = false
         this.subprojectExcel = []
         this.jianyanExcel = []
         console.log('上传分项目Excel表格返回所有内容转成的JSON', result)
         for (let i = 0; i <= 11; i++) {
           this.subprojectExcel.push(result[i])
         }
+        let designIndex = 0
         for (let i = 12; i < result.length; i++) {
           if (typeof (result[i]['施工部位']) !== 'undefined') {
             this.jianyanExcel.push(result[i])
           } else {
+            designIndex = i
             break
           }
         }
-        // if (result[0]['填写范例'] === '单位工程名称') {
-        //   this.subprojectExcel = result
-        // } else {
-        //   this.jianyanExcel = result
-        // }
+
+        //
+        let designArr = []
+        let cnt = 1
+        for (let i = designIndex; i < result.length; i++) {
+          if (result[i]['名称'].includes('验收依据')) {
+            designArr.push({
+              position: result[i]['名称'],
+              value: result[i]['内容\n' + '（填写范例）']
+            })
+            if (cnt === 1) { // 混凝土施工和拌合物检验批内容
+              this.designValues[5] = { inspectTypeId: 6, designValue: JSON.stringify(designArr) }
+              this.designValues[6] = { inspectTypeId: 7, designValue: JSON.stringify(designArr) }
+            } else if (cnt === 2) { // 钢筋原材和钢筋加工检验批内容
+              this.designValues[0] = { inspectTypeId: 1, designValue: JSON.stringify(designArr) }
+              this.designValues[1] = { inspectTypeId: 2, designValue: JSON.stringify(designArr) }
+            } else if (cnt === 3) { // 钢筋连接检验批内容
+              this.designValues[2] = { inspectTypeId: 3, designValue: JSON.stringify(designArr) }
+            } else if (cnt === 4) { // 钢筋安装检验批内容
+              this.designValues[3] = { inspectTypeId: 4, designValue: JSON.stringify(designArr) }
+            } else if (cnt === 5) { // 模版安装检验批内容
+              this.designValues[4] = { inspectTypeId: 5, designValue: JSON.stringify(designArr) }
+            } else { // 现浇结构检验批内容
+              this.designValues[7] = { inspectTypeId: 8, designValue: JSON.stringify(designArr) }
+            }
+            cnt++
+            designArr = []
+          } else {
+            designArr.push({
+              position: result[i]['名称'],
+              value: result[i]['内容\n' + '（填写范例）']
+            })
+          }
+        }
+        console.log('设计值', this.designValues)
       } catch (error) {
         console.log(error)
       }
@@ -225,6 +266,7 @@ export default {
       }
       const rootNode = this.treeData[0]
       this.subprojectId = null
+      this.notImport = true
       this.$refs.tree.append(newChild, rootNode)
       // 新建按钮禁用，
       this.isAbled = true
@@ -267,6 +309,7 @@ export default {
       if (node.id === 0) return
       this.isShow = 2
       this.subprojectId = node.subprojectId
+      this.notImport = !this.subprojectId
     },
     delProject() {
       // 删除选中的树状节点

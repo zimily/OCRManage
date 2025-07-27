@@ -272,7 +272,7 @@
         <el-button @click="dialogVisible = false">取 消</el-button>
       </span>
     </el-dialog>
-    <el-button v-if="!chakan" type="primary" @click="preserve">保存</el-button>
+    <el-button v-if="!chakan" :disabled="notImport" type="primary" @click="preserve">保存</el-button>
     <el-button v-if="!chakan" type="info" @click="cancel">取消</el-button>
   </div>
 </template>
@@ -306,6 +306,10 @@ export default {
       default: () => {
         return []
       }
+    },
+    notImport: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

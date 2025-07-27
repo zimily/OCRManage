@@ -140,7 +140,7 @@
             </div>
           </el-card>
         </el-col>
-        <el-col :span="18" class="full-height-col">
+        <el-col v-if="subprojectId" :span="18" class="full-height-col">
           <el-card shadow="hover" class="full-height-card">
             <el-button type="primary" @click="addPeople">添加</el-button>
             <!-- 表格 -->
@@ -202,8 +202,15 @@
 <script>
 
 import {
-  deleteAssignment, getAl1RolesNoPage, getAllRolesNoPage, getPersonInProject,
-  postSelectAssignment, putDistribute
+  deleteAssignment,
+  deletePersonInSubproject,
+  distributeSub,
+  getAl1RolesNoPage,
+  getAllRolesNoPage,
+  getPersonInProject,
+  getPersonInSubproject,
+  postSelectAssignment,
+  putDistribute
 } from '@/api/personAllocation'
 import { excelToJSON, excelToJSONs, getAllSubprojectsById, getProjectsById } from '@/api/project'
 import AllocationDialog from '@/views/project/components/allocationDialog.vue'
@@ -285,13 +292,17 @@ export default {
         if (this.roleName === '分公司管理员') {
           this.postSelectAssignment()
         }
-        this.postSelectAssignment()// ==========================================================
       },
       deep: true
     },
     roleSelect: {
       handler() {
         this.searchData.roleName = this.roleSelect === '空' ? '' : this.roleSelect
+      }
+    },
+    subprojectId: {
+      handler(newVal) {
+        this.getPersonInSubproject()
       }
     }
   },
@@ -302,6 +313,7 @@ export default {
     await this.getProject()
     if (this.roleName === '总工') {
       await this.getAllSubprojectsById()
+      await this.getPersonInSubproject()
     } else {
       await this.getAllRolesNoPage()
       await this.postSelectAssignment()
@@ -372,10 +384,31 @@ export default {
         console.log(error)
       }
     },
+    async getPersonInSubproject() {
+      try {
+        if (this.subprojectId) {
+          console.log(this.subprojectId)
+          const { result } = await getPersonInSubproject(this.subprojectId)
+          console.log('获取某个分项目下所有的人员', result)
+          this.personList = result
+          this.currentPageData = result
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    },
     async deleteAssignmentById(id) {
       try {
         const res = await deleteAssignment(id)
-        console.log('删除人员', res)
+        console.log('删除项目人员', res)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async deletePersonInSubproject(data) {
+      try {
+        const res = await deletePersonInSubproject(this.subprojectId, data)
+        console.log('删除分项目下人员', res)
       } catch (error) {
         console.log(error)
       }
@@ -384,6 +417,16 @@ export default {
       try {
         const res = await putDistribute(data)
         console.log('putDistribute', res)
+        this.$message.success('分配成功')
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async distributeSub(data) {
+      try {
+        const res = await distributeSub(data)
+        console.log('给人员分配分项目', res)
+        this.$message.success('分配成功')
       } catch (error) {
         console.log(error)
       }
@@ -416,7 +459,7 @@ export default {
       fd.append('file', file.raw)
       this.excelToJSONs(fd)
       // console.log('文件', file)
-      console.log('fd', fd)
+      // console.log('fd', fd)
     },
     // 分页器
     handleSizeChange(val) {
@@ -441,16 +484,23 @@ export default {
       this.lookId = scope.row.userId
     },
     async deleteBatch(scope) {
-      if (scope.row.roleName === '总工') {
-        this.isZongGong = false
+      console.log(scope.row)
+      if (this.roleName === '总工') {
+        const data = [scope.row.userId]
+        await this.deletePersonInSubproject(data)
+        await this.getPersonInSubproject()
+      } else {
+        if (scope.row.roleName === '总工') {
+          this.isZongGong = false
+        }
+        await this.deleteAssignmentById(scope.row.assignmentId)
+        if ((this.totalData - 1) % this.limit === 0) {
+          this.currentPage--
+          this.searchData.page = Math.max(1, this.currentPage)
+        }
+        await this.postSelectAssignment()
+        await this.getPersonInProject()
       }
-      await this.deleteAssignmentById(scope.row.assignmentId)
-      if ((this.totalData - 1) % this.limit === 0) {
-        this.currentPage--
-        this.searchData.page = Math.max(1, this.currentPage)
-      }
-      await this.postSelectAssignment()
-      await this.getPersonInProject()
     },
     async savePeople(obj) {
       const { option, data, looks } = obj
@@ -475,15 +525,26 @@ export default {
         }
       }
       if (option === -1) {
-        data.forEach(item => {
-          item.projectName = this.project.projectName
-          item.projectId = this.project.projectId
-        })
-        console.log(data, 'data')
-        if (data.length > 0) {
-          await this.putDistribute(data)
-          await this.postSelectAssignment()
-          await this.getPersonInProject()
+        if (this.roleName === '总工') {
+          data.forEach(item => {
+            item.subprojectId = this.subprojectId
+          })
+          console.log(data, 'data')
+          if (data.length > 0) {
+            await this.distributeSub(data)
+            await this.getPersonInSubproject()
+          }
+        } else {
+          data.forEach(item => {
+            item.projectName = this.project.projectName
+            item.projectId = this.project.projectId
+          })
+          console.log(data, 'data')
+          if (data.length > 0) {
+            await this.putDistribute(data)
+            await this.postSelectAssignment()
+            await this.getPersonInProject()
+          }
         }
       }
     },

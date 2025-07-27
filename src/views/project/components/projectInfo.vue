@@ -151,7 +151,7 @@
           </el-row>
         </el-form>
         <el-col :span="24">
-          <el-button style="margin-left: 7em" type="primary" @click="preserve">{{ chakan?'查看分项目':'保存' }}</el-button>
+          <el-button :disabled="notImport" style="margin-left: 7em" type="primary" @click="preserve">{{ chakan?'查看分项目':'保存' }}</el-button>
           <el-button type="info" @click="cancel">返回</el-button>
         </el-col>
       </el-col>
@@ -171,6 +171,10 @@ export default {
       default: () => {
         return []
       }
+    },
+    notImport: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

@@ -295,6 +295,7 @@ export default {
         const { result } = await getPersonInProject(this.projectId)
         console.log('获取某个项目下所有的人员', result)
         this.tableData = []
+        // TODO realname: result[i].realname, 用户编号改变psncode
         for (let i = 0; i < result.length; i++) {
           this.tableData.push({
             certid: result[i].certid,
@@ -308,7 +309,7 @@ export default {
             pkDeptdoc: result[i].pkDeptdoc,
             psncode: result[i].psncode,
             psnscopename: result[i].psnscopename,
-            realname: result[i].username,
+            realname: result[i].realname,
             roleName: result[i].roleName,
             userAge: result[i].userAge,
             companyId: result[i].userCompanyId,
