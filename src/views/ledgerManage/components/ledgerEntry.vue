@@ -7,6 +7,10 @@
       <span style="margin-right: 20px">或</span>
       <el-button type="primary" @click="scanQRCode">二维码扫描</el-button>
     </el-row>
+     <el-row v-if="category === '混凝土强度'" style="margin-bottom: 20px">
+      <span style="margin-right: 20px">快捷录入方式：</span>
+      <el-button type="primary" style="margin-right: 20px" @click="openMaterialPlatformDialog">选择物资平台数据</el-button>
+    </el-row>
     <!-- 点击二维码扫描后，提交本地的二维码信息，并上传至服务器，服务器会返回数据，并保存到数据库中。 -->
     <el-dialog title="二维码扫描" :visible.sync="qrCodeDialogVisible">
       <!-- 添加 ref="upload" -->
@@ -58,7 +62,7 @@
         <el-row :gutter="2" class="equal-height-row">
           <el-col :span="8">
             <el-card class="card-box">
-              <el-tag>材料信息</el-tag>
+              <el-tag>基本信息</el-tag>
               <el-form-item v-for="(item, index) in field1" :key="index" :label="item.label" :prop="item.fieldName"
                 :required="item.required">
                  <el-date-picker v-if="item.dataType === 'DATE'" v-model="formData[item.fieldName]" type="date"
@@ -75,7 +79,7 @@
           </el-col>
           <el-col v-if="!isShowOCRInfo" :span="8">
             <el-card class="card-box">
-              <el-tag>见证送检信息</el-tag>
+              <el-tag>过程中填写</el-tag>
               <el-form-item v-for="(item, index3) in field2" :key="index3" :label="item.label" :prop="item.fieldName"
                 :required="item.required">
                 <el-date-picker v-if="item.dataType === 'DATE'" v-model="formData[item.fieldName]" type="date"
@@ -86,7 +90,7 @@
           </el-col>
           <el-col v-if="!isShowOCRInfo" :span="8">
             <el-card class="card-box">
-              <el-tag>实验报告数据</el-tag>
+              <el-tag>试验报告结果</el-tag>
               <el-form-item v-for="(item, index3) in field3" :key="index3" :label="item.label" :prop="item.fieldName"
                 :required="item.required">
                 <el-date-picker v-if="item.dataType === 'DATE'" v-model="formData[item.fieldName]" type="date"

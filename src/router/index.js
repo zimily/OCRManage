@@ -238,6 +238,12 @@ export const asyncRoutes = [
         meta: { title: '数据报表管理', icon: 'statement' }
       },
       {
+        path: 'schedule',
+        name: 'Schedule',
+        component: () => import('@/views/scheduleManage'),
+        meta: { title: '计划表管理', icon: 'schedule' }
+      },
+      {
         path: 'users',
         name: 'Users',
         component: () => import('@/views/authority/users'),

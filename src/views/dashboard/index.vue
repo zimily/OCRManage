@@ -65,7 +65,8 @@ export default {
         数据采集任务: "/menus/task",
         OCR模版库: "/menus/ocrTemplate",
         角色管理: "/menus/roles",
-        人员管理: "/menus/users"
+        人员管理: "/menus/users",
+        计划表管理: "/menus/schedule",
       },
       routeMap: {},  // 根据权限过滤后的映射
       recentApps: [],
@@ -77,8 +78,9 @@ export default {
         { id: 5, name: "数据采集情况", icon: "dataCollection" },
         { id: 6, name: "数据采集任务", icon: "task" },
         { id: 7, name: "OCR模版库", icon: "ocr" },
-        { id: 8, name: "角色管理", icon: "role1" },
-        { id: 9, name: "人员管理", icon: "role" },
+        { id: 8, name: "计划表管理", icon: "schedule" },
+        { id: 9, name: "角色管理", icon: "role1" },
+        { id: 10, name: "人员管理", icon: "role" },
       ],
       allApps1: [
       ],
