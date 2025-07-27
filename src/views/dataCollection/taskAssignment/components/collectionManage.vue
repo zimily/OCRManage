@@ -50,6 +50,7 @@
       </el-table-column>
       <el-table-column prop="operation" label="操作" align="center"  width="180">
         <template v-slot="scope">
+          <el-button type="primary" @click="importData(scope)" :disabled="scope.row.status !== 1">导入</el-button>
           <el-button type="info" @click="check(scope)">查看</el-button>
         </template>
       </el-table-column>
@@ -263,6 +264,10 @@ export default {
         console.error("操作失败", error);
       }
 
+    },
+    //导入接口
+    importData(value){
+      console.log("导入",value)
     }
   },
 };

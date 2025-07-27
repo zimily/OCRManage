@@ -2,25 +2,20 @@
   <div>
     <!-- 根据类别控制按钮显示 -->
     <el-row v-if="category === '钢筋原材'" style="margin-bottom: 20px">
-      <span style="margin-right: 20px" >快捷录入方式：</span>
+      <span style="margin-right: 20px">快捷录入方式：</span>
       <el-button type="primary" style="margin-right: 20px" @click="openMaterialPlatformDialog">选择物资平台数据</el-button>
-      <span style="margin-right: 20px" >或</span>
+      <span style="margin-right: 20px">或</span>
       <el-button type="primary" @click="scanQRCode">二维码扫描</el-button>
+    </el-row>
+     <el-row v-if="category === '混凝土强度'" style="margin-bottom: 20px">
+      <span style="margin-right: 20px">快捷录入方式：</span>
+      <el-button type="primary" style="margin-right: 20px" @click="openMaterialPlatformDialog">选择物资平台数据</el-button>
     </el-row>
     <!-- 点击二维码扫描后，提交本地的二维码信息，并上传至服务器，服务器会返回数据，并保存到数据库中。 -->
     <el-dialog title="二维码扫描" :visible.sync="qrCodeDialogVisible">
       <!-- 添加 ref="upload" -->
-      <el-upload
-        ref="upload"
-        action="#"
-        list-type="picture-card"
-        :auto-upload="false"
-        :on-success="handleUploadSuccess"
-        :before-upload="beforeUpload"
-        :http-request="uploadQRCodeFile"
-        :limit="1"
-        accept="image/*"
-      >
+      <el-upload ref="upload" action="#" list-type="picture-card" :auto-upload="false" :on-success="handleUploadSuccess"
+        :before-upload="beforeUpload" :http-request="uploadQRCodeFile" :limit="1" accept="image/*">
         <i class="el-icon-plus" />
       </el-upload>
 
@@ -36,12 +31,8 @@
           <el-col :span="6">
             <span>项目名称：</span>
             <el-select v-model="project" placeholder="请选择" size="small" @change="changeProject">
-              <el-option
-                v-for="item in options1"
-                :key="item.projectId"
-                :label="item.projectName"
-                :value="item.projectId"
-              />
+              <el-option v-for="item in options1" :key="item.projectId" :label="item.projectName"
+                :value="item.projectId" />
             </el-select>
           </el-col>
           <el-col :span="6">
@@ -71,71 +62,46 @@
         <el-row :gutter="2" class="equal-height-row">
           <el-col :span="8">
             <el-card class="card-box">
-              <el-tag>材料信息</el-tag>
-              <el-form-item
-                v-for="(item, index) in field1"
-                :key="index"
-                :label="item.label"
-                :prop="item.fieldName"
-                :required="item.required"
-              >
-                <el-input v-model="formData[item.fieldName]" style="width: 250px;" size="small" />
+              <el-tag>基本信息</el-tag>
+              <el-form-item v-for="(item, index) in field1" :key="index" :label="item.label" :prop="item.fieldName"
+                :required="item.required">
+                 <el-date-picker v-if="item.dataType === 'DATE'" v-model="formData[item.fieldName]" type="date"
+                  value-format="yyyy-MM-dd" />
+                <!-- 多选框 -->
+                <el-select v-else-if="item.label === '使用部位'" v-model="formData[item.fieldName]" size="small"
+                  style="width: 250px;">
+                  <el-option v-for="option in optionPart" :key="option.value" :label="option.label"
+                    :value="option.value" />
+                </el-select>
+                <el-input v-else v-model="formData[item.fieldName]" style="width: 250px;" size="small" />
               </el-form-item>
             </el-card>
           </el-col>
           <el-col v-if="!isShowOCRInfo" :span="8">
             <el-card class="card-box">
-              <el-tag>见证送检信息</el-tag>
-              <el-form-item
-                v-for="(item, index3) in field2"
-                :key="index3"
-                :label="item.label"
-                :prop="item.fieldName"
-                :required="item.required"
-              >
-                <el-date-picker
-                  v-if="item.dataType === 'DATE'"
-                  v-model="formData[item.fieldName]"
-                  type="date"
-                  value-format="yyyy-MM-dd"
-                />
+              <el-tag>过程中填写</el-tag>
+              <el-form-item v-for="(item, index3) in field2" :key="index3" :label="item.label" :prop="item.fieldName"
+                :required="item.required">
+                <el-date-picker v-if="item.dataType === 'DATE'" v-model="formData[item.fieldName]" type="date"
+                  value-format="yyyy-MM-dd" />
                 <el-input v-else v-model="formData[item.fieldName]" size="small" style="width: 250px;" />
               </el-form-item>
             </el-card>
           </el-col>
           <el-col v-if="!isShowOCRInfo" :span="8">
             <el-card class="card-box">
-              <el-tag>实验报告数据</el-tag>
-              <el-form-item
-                v-for="(item, index3) in field3"
-                :key="index3"
-                :label="item.label"
-                :prop="item.fieldName"
-                :required="item.required"
-              >
-                <el-date-picker
-                  v-if="item.dataType === 'DATE'"
-                  v-model="formData[item.fieldName]"
-                  type="date"
-                  value-format="yyyy-MM-dd"
-                />
-                <el-input
-                 v-else-if="item.dataCount === 1&& item.dataType != 'DATE'"
-                  v-model="formData[item.fieldName]"
-                  size="small"
-                  style="width: 250px;"
-                />
+              <el-tag>试验报告结果</el-tag>
+              <el-form-item v-for="(item, index3) in field3" :key="index3" :label="item.label" :prop="item.fieldName"
+                :required="item.required">
+                <el-date-picker v-if="item.dataType === 'DATE'" v-model="formData[item.fieldName]" type="date"
+                  value-format="yyyy-MM-dd" />
+                <el-input v-else-if="item.dataCount === 1 && item.dataType != 'DATE'" v-model="formData[item.fieldName]"
+                  size="small" style="width: 250px;" />
                 <template v-else>
-                  <el-input
-                    v-for="i in item.dataCount"
-                    :key="`${item.fieldName}_${i}`"
-                    size="small"
-                    :value="getMultiInputValue(item.fieldName, i - 1)"
-                    :style="getInputStyle(item.dataCount)"
-                    :placeholder="`请输入${item.label}${item.dataCount > 1 ? i : ''}`"
-                    style="width: 50px;"
-                    @input="val => updateMultiInputValue(item.fieldName, i - 1, val)"
-                  />
+                  <el-input v-for="i in item.dataCount" :key="`${item.fieldName}_${i}`" size="small"
+                    :value="getMultiInputValue(item.fieldName, i - 1)" :style="getInputStyle(item.dataCount)"
+                    :placeholder="`请输入${item.label}${item.dataCount > 1 ? i : ''}`" style="width: 50px;"
+                    @input="val => updateMultiInputValue(item.fieldName, i - 1, val)" />
                 </template>
               </el-form-item>
             </el-card>
@@ -175,17 +141,9 @@
       </el-table>
 
       <!-- 分页器 -->
-      <el-pagination
-        v-if="!loading"
-        style="margin-top: 20px; text-align: center"
-        :current-page="pageNum"
-        :page-sizes="[10, 15, 20]"
-        :page-size="pageSize"
-        layout="prev, pager, next, jumper,->,sizes,total"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+      <el-pagination v-if="!loading" style="margin-top: 20px; text-align: center" :current-page="pageNum"
+        :page-sizes="[10, 15, 20]" :page-size="pageSize" layout="prev, pager, next, jumper,->,sizes,total"
+        :total="total" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
 
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="confirmMaterialSelection">确 定</el-button>
@@ -259,6 +217,7 @@ export default {
       isShowOCRInfo: false, // ocr扫描结果显示
       OCRInfo: [],
       usePartList: [], // 使用部位列表
+      optionPart: []
     }
   },
   computed: {
@@ -286,12 +245,13 @@ export default {
     const user = getUser()
     this.userId = user.userId
   },
-  mounted() {
+  async mounted() {
     this.getAllProjectName()
     this.getFieldName()
     if (this.dataId) {
       // 如果有 dataId，说明是编辑状态
-      this.editMaterialData()
+      await this.editMaterialData()
+      await this.getUsePartList(this.subProject)
     }
   },
   methods: {
@@ -394,6 +354,10 @@ export default {
         if (res.code == 200) {
           console.log('获取使用部位成功', res)
           this.usePartList = res.result || []
+          this.optionPart = this.usePartList.map(item => ({
+            value: item,
+            label: item
+          }))
         } else {
           throw new Error(res.message || '获取使用部位失败')
         }
@@ -429,7 +393,7 @@ export default {
           this.developmentUnit = res.result.jiansheCompanyName || ''
           this.projectNumber = res.result.projectInnerCode || ''
           this.project = res.result.projectId || '',
-          await this.getAllSubrojectName(this.project)
+            await this.getAllSubrojectName(this.project)
           this.subProject = res.result.subprojectId || ''
         } else {
           throw new Error(res.message || '获取物资数据失败')
@@ -680,6 +644,7 @@ export default {
   flex-direction: column;
 
 }
+
 .ocr-card-box {
   flex: 1;
   /* 让 card 撑满列的高度 */
@@ -687,6 +652,7 @@ export default {
   flex-direction: column;
   background-color: #cfd3d2;
 }
+
 .compact-form .el-form-item {
   margin-bottom: 15px;
 }
@@ -700,12 +666,13 @@ export default {
 }
 
 .ocr-info-item {
-  flex: 0 0 49%; /* 每项占据 49% 的宽度，加上间距 */
+  flex: 0 0 49%;
+  /* 每项占据 49% 的宽度，加上间距 */
   box-sizing: border-box;
 }
 
 /* 添加el-tag居中和文字加粗样式 */
-.card-box >>> .el-tag {
+.card-box>>>.el-tag {
   display: flex;
   justify-content: center;
   align-items: center;

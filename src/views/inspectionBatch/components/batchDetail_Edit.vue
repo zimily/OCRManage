@@ -58,7 +58,8 @@
         <el-table-column prop="totalText" label="样本总数" align="center" width="80"
           :formatter="(row) => Array.isArray(row.totalText) ? row.totalText.join('、') : row.totalText">
         </el-table-column>
-        <el-table-column prop="minSampleText" label="最小抽样批量" align="center" width="200">
+        <el-table-column prop="minSampleText" label="最小抽样批量" align="center" width="200"></el-table-column>
+        <el-table-column prop="role_id" label="采集员" align="center" width="200"></el-table-column>
         </el-table-column>
         <el-table-column prop="prop" label="操作" align="center" width="150">
           <template v-slot="scope">
