@@ -168,18 +168,21 @@ export default {
 
     async postSubAndTasks(data) {
       try {
-        data.designValues = this.designValues
+        if (this.designValues[0]) {
+          data.designValues = this.designValues
+        }
         console.log('postSubAndTasks', data)
         const res = await postSubAndTasks(data)
         console.log('根据分项目ID更新分项目全部字段', res)
         this.$message.success('保存成功')
+        this.designValues = new Array(8)
       } catch (error) {
         console.log(error)
       }
     },
     async excelToJSON(data) {
       try {
-        console.log('excelToJSON', data)
+        // console.log('excelToJSON', data)
         const { result } = await excelToJSON(data)
         console.log('上传Excel表格返回所有内容转成的JSON', result)
         this.projectExcel = result
@@ -211,35 +214,32 @@ export default {
 
         //
         let designArr = []
-        let cnt = 1
+        console.log('designIndex', designIndex)
         for (let i = designIndex; i < result.length; i++) {
-          if (result[i]['名称'].includes('验收依据')) {
-            designArr.push({
-              position: result[i]['名称'],
-              value: result[i]['内容\n' + '（填写范例）']
-            })
-            if (cnt === 1) { // 混凝土施工和拌合物检验批内容
-              this.designValues[5] = { inspectTypeId: 6, designValue: JSON.stringify(designArr) }
-              this.designValues[6] = { inspectTypeId: 7, designValue: JSON.stringify(designArr) }
-            } else if (cnt === 2) { // 钢筋原材和钢筋加工检验批内容
-              this.designValues[0] = { inspectTypeId: 1, designValue: JSON.stringify(designArr) }
-              this.designValues[1] = { inspectTypeId: 2, designValue: JSON.stringify(designArr) }
-            } else if (cnt === 3) { // 钢筋连接检验批内容
-              this.designValues[2] = { inspectTypeId: 3, designValue: JSON.stringify(designArr) }
-            } else if (cnt === 4) { // 钢筋安装检验批内容
-              this.designValues[3] = { inspectTypeId: 4, designValue: JSON.stringify(designArr) }
-            } else if (cnt === 5) { // 模版安装检验批内容
-              this.designValues[4] = { inspectTypeId: 5, designValue: JSON.stringify(designArr) }
-            } else { // 现浇结构检验批内容
-              this.designValues[7] = { inspectTypeId: 8, designValue: JSON.stringify(designArr) }
-            }
-            cnt++
+          designArr.push({
+            position: result[i]['名称'],
+            value: result[i]['内容\n' + '（填写范例）']
+          })
+          if (i - designIndex === 6) { // 混凝土施工和拌合物检验批内容
+            this.designValues[5] = { inspectTypeId: 6, designValue: JSON.stringify(designArr) }
+            this.designValues[6] = { inspectTypeId: 7, designValue: JSON.stringify(designArr) }
             designArr = []
-          } else {
-            designArr.push({
-              position: result[i]['名称'],
-              value: result[i]['内容\n' + '（填写范例）']
-            })
+          } else if (i - designIndex === 32) { // 钢筋原材和钢筋加工检验批内容
+            this.designValues[0] = { inspectTypeId: 1, designValue: JSON.stringify(designArr) }
+            this.designValues[1] = { inspectTypeId: 2, designValue: JSON.stringify(designArr) }
+            designArr = []
+          } else if (i - designIndex === 48) { // 钢筋连接检验批内容
+            this.designValues[2] = { inspectTypeId: 3, designValue: JSON.stringify(designArr) }
+            designArr = []
+          } else if (i - designIndex === 52) { // 钢筋安装检验批内容
+            this.designValues[3] = { inspectTypeId: 4, designValue: JSON.stringify(designArr) }
+            designArr = []
+          } else if (i - designIndex === 59) { // 模版安装检验批内容
+            this.designValues[4] = { inspectTypeId: 5, designValue: JSON.stringify(designArr) }
+            designArr = []
+          } else if (i - designIndex === 61) { // 现浇结构检验批内容
+            this.designValues[7] = { inspectTypeId: 8, designValue: JSON.stringify(designArr) }
+            designArr = []
           }
         }
         console.log('设计值', this.designValues)

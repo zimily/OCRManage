@@ -348,7 +348,6 @@ export default {
         const { result } = await postSelectAssignment(this.searchData)
         console.log('分配好的人员的条件分页查询', result)
         this.currentPageData = result.list
-        this.isZongGong = !!result.list.find(item => item.roleName === '总工')
         this.totalData = parseInt(result.total)
       } catch (error) {
         console.log(error)
@@ -361,13 +360,29 @@ export default {
         console.log('人员分配导入数据', result)
 
         // 数据格式转换
-        const temp = []
+        let temp = []
         result.forEach(item => {
           temp.push({
             userId: item['员工编号'],
-            projectId: item['项目号']
+            projectId: this.projectId
           })
         })
+
+        // 对temp数组进行去重处理
+        const uniqueTemp = []
+        const userIds = new Set()
+        this.personList.forEach(item => {
+          if (!userIds.has(item.userId)) {
+            userIds.add(item.userId)
+          }
+        })
+        temp.forEach(item => {
+          if (!userIds.has(item.userId)) {
+            userIds.add(item.userId)
+            uniqueTemp.push(item)
+          }
+        })
+        temp = uniqueTemp
         await this.putDistribute(temp)
         // 重新查询
         await this.postSelectAssignment()
@@ -380,6 +395,7 @@ export default {
         const { result } = await getPersonInProject(this.projectId)
         console.log('获取某个项目下所有的人员', result)
         this.personList = result
+        this.isZongGong = !!result.find(item => item.roleName === '总工')
       } catch (error) {
         console.log(error)
       }
@@ -460,6 +476,9 @@ export default {
       this.excelToJSONs(fd)
       // console.log('文件', file)
       // console.log('fd', fd)
+      if (this.$refs.upload) {
+        this.$refs.upload.clearFiles()// 清空上传文件
+      }
     },
     // 分页器
     handleSizeChange(val) {
