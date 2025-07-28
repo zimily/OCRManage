@@ -19,10 +19,11 @@
       <el-button type="primary" style="margin-left: 10px" @click="search">搜索</el-button>
     </div>
 
-    <!-- 检验批验收记录表格 -->
+    <!-- 检验批验收记录表格 -->   <!-- key是保证dom不残留的关键，这个必须不同 -->
     <el-table
-      ref="multipleTable"
+      ref="table1"
       :data="currentPageData"
+      :key="'table1' + currentTableName"
       stripe
       style="width: 100%; margin-top: 15px"
       @selection-change="handleSelectionChange"
@@ -59,8 +60,9 @@
 
     <!-- 隐蔽验收记录表格 -->
     <el-table
-      ref="multipleTable"
+      ref="table2"
       :data="currentPageData"
+      :key="'table2' + currentTableName"
       stripe
       style="width: 100%; margin-top: 15px"
       @selection-change="handleSelectionChange"
@@ -135,9 +137,20 @@ export default {
       // 好像都可以。。。那就不管了
       console.log(this.inspectPart + '    ' + this.currentPage + '   ' + this.pageSize)
       // 点击search之后，首先需要发送请求，拿到数据
-      const { result } = await search(this.inspectPart, this.currentPage, this.pageSize)
+      //todo 需要根据切换表格的不同展示不同的数据，要用到switch-case来进行接口的访问
+      switch(this.currentTableName){
+        case '1':
+          const { result } = await search(this.inspectPart, this.currentPage, this.pageSize)
+          this.currentPageData = result.records
+          console.log('切换表格后，现在为1表格，看到我说明接口成功请求了')
+          break;
+
+        default:
+          console.log('switch-case执行了default方法，有地方出错了！！！')
+          this.currentPageData = []    //正常是不会这样的
+      }
       console.log('条件分页查询result：' + JSON.stringify(result))
-      this.currentPageData = result.records
+
       this.totalData = Number(result.total)
     },
     // 分页大小变化
@@ -164,7 +177,12 @@ export default {
     handleClick(tab, event) {
       this.currentTableName = tab.name   //这个是因为多选框的value和展示表格的控制变量的值是对应的，value 1 对应 currentTableName 1
       console.log('目前切换的表格为:' + this.currentTableName)
-      //todo 需要根据切换表格的不同展示不同的数据，要用到switch-case来进行接口的访问
+
+      //初始化表格
+      this.currentPageData = []   //确保上一个表格的数据被完全销毁
+      this.currentPage = 1
+      this.pageSize = 10
+      this.search()
     },
     handlePreview(row) {
       console.log('<UNK>:', row)
