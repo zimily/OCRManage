@@ -52,7 +52,7 @@
               <div class="card-item">分包单位:</div>
             </el-col>
             <el-col :span="15">
-              <el-input v-model="fenbaoCompany" placeholder="请输入分包单位" class="card-item-name" size="small"></el-input>
+              <el-input v-model="fenbaoCompany"  :disabled="isAdmin !== 1" placeholder="请输入分包单位" class="card-item-name" size="small"></el-input>
             </el-col>
           </el-row>
           <el-row :gutter="3" class="spaced-row">
@@ -60,7 +60,7 @@
               <div class="card-item">分包单位项目负责人:</div>
             </el-col>
             <el-col :span="15">
-              <el-input v-model="fenbaoDirector" placeholder="请输入项目负责人" class="card-item-name" size="small"></el-input>
+              <el-input v-model="fenbaoDirector" :disabled="isAdmin !== 1" placeholder="请输入项目负责人" class="card-item-name" size="small"></el-input>
             </el-col>
           </el-row>
           <el-row :gutter="3" class="spaced-row">
@@ -68,7 +68,7 @@
               <div class="card-item">分包单位技术负责人:</div>
             </el-col>
             <el-col :span="15">
-              <el-input v-model="fenbaoTechnical" placeholder="请输入技术负责人" class="card-item-name" size="small"></el-input>
+              <el-input v-model="fenbaoTechnical"  :disabled="isAdmin !== 1" placeholder="请输入技术负责人" class="card-item-name" size="small"></el-input>
             </el-col>
           </el-row>
         </el-card>
@@ -80,7 +80,7 @@
               <div class="card-item">施工规范:</div>
             </el-col>
             <el-col :span="20">
-              <el-input v-model="shigongRule" size="small" placeholder="请输入施工规范" style="width: 400px;"></el-input>
+              <el-input v-model="shigongRule" size="small"  :disabled="isAdmin !== 1" placeholder="请输入施工规范" style="width: 400px;"></el-input>
             </el-col>
           </el-row>
           <el-row :gutter="2" class="spaced-row">
@@ -90,8 +90,8 @@
             <el-col :span="20">
               <div class="card-item-name">
                 <span class="capacity-text">{{ capactity }}</span>
-                <el-button type="primary" @click="editCapactity" size="small" style="margin-left: 10px">编辑</el-button>
-                <el-button type="primary" @click="importLedger" size="small" style="margin-left: 10px">选择台账</el-button>
+                <el-button type="primary" @click="editCapactity" :disabled="isAdmin !== 1" size="small" style="margin-left: 10px">编辑</el-button>
+                <el-button type="primary" @click="importLedger" :disabled="isAdmin !== 1" size="small" style="margin-left: 10px">选择台账</el-button>
               </div>
             </el-col>
           </el-row>
@@ -110,7 +110,7 @@
             <el-col :span="20">
               <div class="card-item-name">
                 <span class="capacity-text">{{ shejizhi }}</span>
-                <el-button type="primary" @click="editDesignValue" size="small" style="margin-left: 10px">编辑</el-button>
+                <el-button type="primary" @click="editDesignValue" :disabled="isAdmin !== 1" size="small" style="margin-left: 10px">编辑</el-button>
               </div>
             </el-col>
           </el-row>
@@ -122,7 +122,7 @@
       :row-class-name="rowClassName">
       <el-table-column prop="isEmpty" label="是否采集" width="80" align="center">
         <template slot-scope="scope">
-          <el-checkbox :value="scope.row.isEmpty === 0"
+          <el-checkbox :value="scope.row.isEmpty === 0" :disabled="isAdmin !== 1"
             @change="val => handleIsEmptyChange(scope.row, val)"></el-checkbox>
         </template>
       </el-table-column>
@@ -133,24 +133,24 @@
 
       <el-table-column prop="variableValue" label="变量的值" align="center">
         <template #default="{ row }">
-          <el-input style="width: 8em" v-model="row.variableValue" />
+          <el-input style="width: 8em" v-model="row.variableValue"  :disabled="isAdmin !== 1" />
         </template>
       </el-table-column>
 
       <el-table-column prop="sampleAmount" label="样本总数" align="center">
         <template #default="{ row }">
-          <el-input style="width: 8em" v-model="row.sampleAmount" type="number" min="0" />
+          <el-input style="width: 8em" v-model="row.sampleAmount" type="number" min="0" :disabled="isAdmin !== 1" />
         </template>
       </el-table-column>
 
       <el-table-column prop="minSample" label="最小抽样批量" align="center">
         <template #default="{ row }">
-          <el-input style="width: 8em" v-model="row.minSample" type="number" min="0" />
+          <el-input style="width: 8em" v-model="row.minSample" type="number" min="0" :disabled="isAdmin !== 1"/>
         </template>
       </el-table-column>
       <el-table-column prop="positionId" label="分发岗位" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
-          <el-select v-model="scope.row.positionId" placeholder="" style="width: 100%">
+          <el-select v-model="scope.row.positionId" placeholder="" style="width: 100%" :disabled="isAdmin !== 1">
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </template>
@@ -235,6 +235,10 @@
 
 <script>
 import { getAssignData, getAllCollector, distribution, getAvailableSources } from "@/api/collection";
+import { getUserTypeId } from '@/utils/storage'
+import {
+  getRoleById,
+} from '@/api/authority'
 const statusMap = {
   sampleQiang: "墙",
   sampleBan: "板",
@@ -269,6 +273,8 @@ function getStatusText(item) {
 export default {
   data() {
     return {
+      userTypeId: "",
+      isAdmin: "", // 是否是管理员
       fenbaoCompany: "",
       fenbaoDirector: "",
       fenbaoTechnical: "",
@@ -350,11 +356,16 @@ export default {
     },
     inspectType() {
       return this.rowData.inspectId
+    },
+    isEditable() {
+      return this.isAdmin === 1;
     }
   },
   created() {
+    this.userTypeId = getUserTypeId();
+    console.log("任务用户类型信息", this.userTypeId);
     console.log("this.rowData", this.rowData)
-    // this.getData();
+    this.getRoleInfo();
     this.getAllCollector();
     this.getSources()
   },
@@ -362,6 +373,22 @@ export default {
 
   },
   methods: {
+    //获取用户权限信息
+    async getRoleInfo() {
+      try {
+        const res = await getRoleById(this.userTypeId);
+        if (res.code == "200") {
+          // console.log("用户权限信息", res);
+          this.isAdmin = res.result.isAdmin; // 是否是管理员
+          console.log("是否是管理员", this.isAdmin);
+        } else {
+          this.$message.error("获取用户权限信息失败！");
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
+      }
+    },
     handleTemplateConfirm() {
       this.templateDialogVisible = false;
       switch (this.selectedTemplate) {
