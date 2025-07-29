@@ -28,7 +28,7 @@
             :show-file-list="false"
             :auto-upload="false"
           >
-            <el-button type="warning">导入</el-button>
+            <el-button type="warning" :disabled="roleName==='总工'">导入</el-button>
           </el-upload>
           <el-table :data="plans" border>
             <el-table-column align="center" label="工程部位" prop="inspectPart" min-width="10%" />
@@ -47,6 +47,7 @@
                       placeholder="选择日期"
                       format="yyyy-MM-dd"
                       value-format="yyyy-MM-dd"
+                      :disabled="roleName==='总工'"
                     />
                   </el-col>
                   <el-col style="width: 30%">
@@ -57,6 +58,7 @@
                       placeholder="选择日期"
                       format="yyyy-MM-dd"
                       value-format="yyyy-MM-dd"
+                      :disabled="roleName==='总工'"
                     />
                   </el-col>
                   <el-col style="width: 30%">
@@ -67,13 +69,14 @@
                       placeholder="选择日期"
                       format="yyyy-MM-dd"
                       value-format="yyyy-MM-dd"
+                      :disabled="roleName==='总工'"
                     />
                   </el-col>
                 </div>
               </template>
             </el-table-column>
           </el-table>
-          <el-button type="primary" @click="save">保存</el-button>
+          <el-button v-if="roleName!=='总工'" type="primary" @click="save">保存</el-button>
           <el-button type="info" @click="cancel">取消</el-button>
         </el-card>
       </el-col>
@@ -86,11 +89,14 @@
 import { excelToJSON, getAllSubprojectsById, getProjectsById } from '@/api/project'
 import router from '@/router'
 import { getInspectPlan, importInspectPlan, postInspectPlan } from '@/api/schedule'
+import { getUserById } from '@/api/authority'
+import { getUserId } from '@/utils/storage'
 
 export default {
   data() {
     return {
       aaa: '',
+      roleName: '', // 当前用户的职位 总工只能看不能编辑，管理员可以编辑
       plans: [],
       subprojectId: null,
       treeData: [
@@ -131,6 +137,7 @@ export default {
   created() {
     this.getProjectsById()
     this.getAllSubprojectsById()
+    this.getRoleById()
     this.idCounter = this.treeData[0].children.length
   },
   methods: {
@@ -257,6 +264,16 @@ export default {
         this.$message.success('导入成功')
         // 获取检验批计划,刷新页面
         await this.getInspectPlan()
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    async getRoleById() {
+      try {
+        const { result } = await getUserById(getUserId())
+        console.log('当前用户职位', result)
+        this.roleName = result.roleName
+        console.log(this.roleName)
       } catch (error) {
         console.log(error)
       }
