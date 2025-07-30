@@ -79,13 +79,23 @@ export const constantRoutes = [
         meta: { title: '系统设置', icon: 'setting' }
       }
     ]
+  },
+  {
+    path: '/report-viewer/originalInspect',
+    name: 'ReportViewer',
+    component: () => import('@/views/statementManage/viewer/table-1-1.vue'),
+    meta: { title: '报表预览', hidden: true }
+  },
+  {
+    path: '/report-viewer/inspect',
+    name: 'ReportViewer1.1',
+    component: () => import('@/views/statementManage/viewer/table-1.vue'),
+    meta: { title: '检验批质量验收记录', hidden: true }
   }
-
-  // { path: '*', redirect: '/404', hidden: true }
 ]
 // 异步路由
 export const asyncRoutes = [
-  {
+    {
     path: '/menus',
     component: Layout,
     redirect: '/dashboard',
@@ -138,7 +148,7 @@ export const asyncRoutes = [
             name: 'TaskDetail',
             component: () => import('@/views/dataCollection/task/components/taskDetail.vue'),
             meta: { title: '任务详情' }
-          }
+          },
         ]
       },
       {
@@ -186,7 +196,7 @@ export const asyncRoutes = [
             path: 'personAllocation',
             name: 'PersonAllocation',
             component: () => import('@/views/project/components/personAllocation.vue'),
-            meta: { title: '人员分配' }
+            meta: { title: '人员分配', }
           },
           {
             path: 'projectManage',
@@ -220,7 +230,7 @@ export const asyncRoutes = [
             name: 'OcrDetail',
             component: () => import('@/views/ocrTemplate/components/ocrDetail.vue'),
             meta: { title: 'OCR模版详情', icon: 'statement' }
-          }
+          },
         ]
       },
       {
@@ -240,23 +250,8 @@ export const asyncRoutes = [
       {
         path: 'schedule',
         name: 'Schedule',
-        redirect: '/menus/schedule/scheduleManage',
         component: () => import('@/views/scheduleManage'),
-        meta: { title: '计划表管理', icon: 'schedule', breadcrumb: false },
-        children: [
-          {
-            path: 'scheduleManage',
-            name: 'ScheduleManage',
-            component: () => import('@/views/scheduleManage/components/scheduleManage.vue'),
-            meta: { title: '计划表管理', icon: 'statement' }
-          },
-          {
-            path: 'scheduleEdit',
-            name: 'ScheduleEdit',
-            component: () => import('@/views/scheduleManage/components/scheduleEdit.vue'),
-            meta: { title: '计划表详情', icon: 'statement' }
-          }
-        ]
+        meta: { title: '计划表管理', icon: 'schedule' }
       },
       {
         path: 'users',
@@ -271,6 +266,18 @@ export const asyncRoutes = [
         meta: { title: '角色管理', icon: 'el-icon-lock' }
       }
     ]
+  },
+  {
+    path: '/report-viewer/originalInspect',
+    name: 'ReportViewer1',
+    component: () => import('@/views/statementManage/viewer/table-1-1.vue'),
+    meta: { title: '检验批原始记录预览', hidden: true }
+  },
+  {
+    path: '/report-viewer/inspect',
+    name: 'ReportViewer1.1',
+    component: () => import('@/views/statementManage/viewer/table-1.vue'),
+    meta: { title: '检验批质量验收记录', hidden: true }
   }
 ]
 // 任意路由：当路径出现错误的时候重定向404
