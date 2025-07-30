@@ -41,6 +41,7 @@ export default {
 </script>
 
 <style scoped>
+
 .app-item {
   margin-bottom: 80px; /* 可选，增加底部间距 */
   margin-left: 100px;

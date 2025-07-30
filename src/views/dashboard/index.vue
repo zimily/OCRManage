@@ -211,13 +211,13 @@ export default {
 
 .row-recent .el-card {
   height: 150px;
-  /* overflow: auto; */
+  overflow: auto;
 }
 
 .row-app-center .el-card {
   height: 480px;
   /* 主功能最大 */
-  /* overflow: auto; */
+  overflow: auto;
 }
 
 .mt-20 {

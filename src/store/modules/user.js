@@ -1,8 +1,9 @@
 import { login, loginByPhone, logout, getInfo, getPermissionList } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { setUser, setUserId,getUserId} from '@/utils/storage'
+import { setUser, setUserId, getUserId, setUserTypeId, getUserTypeId } from '@/utils/storage'
 import { asyncRoutes, resetRouter, constantRoutes, anyRoutes } from '@/router/index'
 import router from '@/router'
+import { set } from 'nprogress'
 // console.log('asyncRoutes imported:', asyncRoutes);
 
 const getDefaultState = () => {
@@ -10,6 +11,7 @@ const getDefaultState = () => {
     token: getToken(),
     name: '',
     userId: getUserId(),//用户的ID
+    userTypeId: getUserTypeId(),//用户类型ID
     avatar: '',
     role: {}, // 从存储中读取角色  对象需要序列化
     flag: '',
@@ -79,12 +81,12 @@ const actions = {
         commit('SET_USERID', data.userId)
         setToken(token)
 
-        // console.log('getInfo11', state.userId, state.token)
         // 获取用户信息 
         const name = data.username
         setUser(name, data.userId)
         commit('SET_NAME', name)
         setUserId(data.userId)
+        setUserTypeId(data.userTypeId)
         resolve()// 表示 Promise 成功完成
       }).catch(error => {
         console.log('登录请求报错', error)
@@ -98,7 +100,7 @@ const actions = {
       loginByPhone(userphone, verifycode).then(response => {
         const data = response.result
         console.log('手机号登录', response)
-       // 1.获取并存储token
+        // 1.获取并存储token
         const token = data.token
         commit('SET_TOKEN', token)
         commit('SET_USERID', data.userId)
@@ -109,6 +111,7 @@ const actions = {
         setUser(name, data.userId)
         commit('SET_NAME', name)
         setUserId(data.userId)
+        setUserTypeId(data.userTypeId)
         resolve()// 表示 Promise 成功完成
       }).catch(error => {
         console.log('手机号登录请求报错', error)
@@ -135,7 +138,7 @@ const actions = {
         // console.log('act_routs', act_routs)
         // 计算异步路由并提交 mutation
         // console.log('asyncRoutes', asyncRoutes)
-        const computedRoutes = computedAsyncRoutes(asyncRoutes,data)
+        const computedRoutes = computedAsyncRoutes(asyncRoutes, data)
         // console.log('computedRoutes', computedRoutes)
         commit('SET_RESULTASYNCROUTES', computedRoutes)
         resolve()

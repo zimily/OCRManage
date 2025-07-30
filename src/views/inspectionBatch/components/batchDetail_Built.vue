@@ -74,6 +74,13 @@
         </el-table-column>
         <el-table-column prop="minSampleText" label="最小抽样批量" align="center" width="200">
         </el-table-column>
+        <el-table-column prop="roleId" label="采集员" align="center" width="200">
+          <template slot-scope="scope">
+            <el-select v-model="scope.row.roleId" placeholder="" style="width: 100%">
+              <el-option v-for="item in optionsCollector" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </template>
+        </el-table-column>
         <el-table-column prop="prop" label="操作" align="center" width="250">
           <template v-slot="scope">
             <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateRule(scope)">编辑规则</el-button>
@@ -186,6 +193,7 @@ import {
   newInspectDetil,
   newInspectDetil1,
 } from "@/api/specifications";
+import { getAllCollector } from "@/api/collection";
 import _ from 'lodash';
 const statusMap = {
   sampleQiang: "墙",
@@ -350,6 +358,7 @@ export default {
       formLabelWidth: "150px",
       curIndex: 0, //表示当前所选的行号
       indices: [], //多条细则信息
+      optionsCollector: [], //采集员角色
       inspectTypeId: null, //类别对应的Id
       yanshouRule: "", //验收依据
       isBasedOnExistingRule: null, //已有规范
@@ -384,8 +393,9 @@ export default {
       }
     },
   },
-  created() {
-    this.getInspectType();
+  async created() {
+    await this.getInspectType();
+    await this.getAllCollector();
   },
   mounted() { },
 
@@ -405,7 +415,7 @@ export default {
         itemType: "",
         items: null,
         minSample: "",
-        minSampleEmpty: "",
+        minSampleEmpty: "1",
         partMinPercentage: "",
         passThresh: "",
         ruleStandard: "",
@@ -420,7 +430,7 @@ export default {
         sampleLt: "",
         sampleQiang: "",
         sampleZhu: "",
-        totalSampleEmpty: "",
+        totalSampleEmpty: "1",
         variableMeaning: "",
         yanshouRule: "",
         totalText: [],
@@ -496,8 +506,27 @@ export default {
         console.log(error);
       }
     },
+    //获取所有采集员信息
+    async getAllCollector() {
+      try {
+        const res = await getAllCollector();
+        if (res.code == "200") {
+          console.log("采集员角色", res);
+          this.optionsCollector = res.result.map((role) => ({
+            value: role.roleId,
+            label: role.roleName,
+          }));
+        } else {
+          this.$message.error("获取采集员角色失败！");
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
+      }
+    },
     //添加规则按钮
     addRule() {
+      console.log("添加规则按钮",this.form);
       this.dialogFormVisible = true;
       this.dialogFormTitle = "添加规则";
       //清空表单数据
@@ -621,6 +650,7 @@ export default {
           yanshouRule,
           baseRule,
           items,
+          roleId,
         }) => ({
           inspectItemId,
           inspectId,
@@ -653,6 +683,7 @@ export default {
           yanshouRule,
           baseRule,
           items,
+          roleId,
         })
       );
       if (this.selectedExistingRules) {

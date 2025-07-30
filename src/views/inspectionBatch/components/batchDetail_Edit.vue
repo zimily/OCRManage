@@ -59,7 +59,13 @@
           :formatter="(row) => Array.isArray(row.totalText) ? row.totalText.join('、') : row.totalText">
         </el-table-column>
         <el-table-column prop="minSampleText" label="最小抽样批量" align="center" width="200"></el-table-column>
-        <el-table-column prop="role_id" label="采集员" align="center" width="200"></el-table-column>
+        <el-table-column prop="roleId" label="采集员" align="center" width="200">
+          <template slot-scope="scope">
+            <el-select v-model="scope.row.roleId" placeholder="" style="width: 100%">
+              <el-option v-for="item in optionsCollector" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </template>
+        </el-table-column>
         </el-table-column>
         <el-table-column prop="prop" label="操作" align="center" width="150">
           <template v-slot="scope">
@@ -173,6 +179,7 @@ import {
   getAllInspectType,
   updateInspectDetil,
 } from "@/api/specifications";
+import { getAllCollector } from "@/api/collection";
 const statusMap = {
   sampleQiang: "墙",
   sampleBan: "板",
@@ -320,6 +327,7 @@ export default {
           label: "实验报告",
         },
       ],
+      optionsCollector: [], //采集员角色
       checkList: [
         "墙",
         "板",
@@ -386,6 +394,7 @@ export default {
   async created() {
     await this.getInpecInfo();
     await this.getInspectType();
+    await this.getAllCollector();
   },
   mounted() { },
   methods: {
@@ -461,8 +470,6 @@ export default {
         let res = await getAllInspectType();
         if (res.code == 200) {
           console.log("所有验收类别", res, this.inspectTypeId);
-          // console.log(res.result)
-          // ... existing code ...
           this.options0 = res.result.map((item, index) => {
             if (item.inspectType === this.inspectTypeId) {
               this.checkList = JSON.parse(item.availableSources);
@@ -472,14 +479,31 @@ export default {
               label: item.typeName
             };
           });
-          // ... existing code ...
-          console.log(this.options0);
+          // console.log(this.options0);
         } else {
           throw new Error(res.message || "获取所有验收类别信息失败");
         }
       } catch (error) {
         this.$message.error("出错啦，请稍后重试！");
         console.log(error);
+      }
+    },
+    //获取所有采集员信息
+    async getAllCollector() {
+      try {
+        const res = await getAllCollector();
+        if (res.code == "200") {
+          console.log("采集员角色", res);
+          this.optionsCollector = res.result.map((role) => ({
+            value: role.roleId,
+            label: role.roleName,
+          }));
+        } else {
+          this.$message.error("获取采集员角色失败！");
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
       }
     },
     //编辑规则
@@ -560,6 +584,7 @@ export default {
           yanshouRule,
           baseRule,
           items,
+          roleId,
         }) => ({
           inspectItemId,
           inspectId,
@@ -592,6 +617,7 @@ export default {
           yanshouRule,
           baseRule,
           items,
+          roleId,
         })
       );
       try {
