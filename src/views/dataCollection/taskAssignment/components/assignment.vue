@@ -52,7 +52,8 @@
               <div class="card-item">分包单位:</div>
             </el-col>
             <el-col :span="15">
-              <el-input v-model="fenbaoCompany"  :disabled="isAdmin !== 1" placeholder="请输入分包单位" class="card-item-name" size="small"></el-input>
+              <el-input v-model="fenbaoCompany" :disabled="isAdmin !== 1" placeholder="请输入分包单位" class="card-item-name"
+                size="small"></el-input>
             </el-col>
           </el-row>
           <el-row :gutter="3" class="spaced-row">
@@ -60,7 +61,8 @@
               <div class="card-item">分包单位项目负责人:</div>
             </el-col>
             <el-col :span="15">
-              <el-input v-model="fenbaoDirector" :disabled="isAdmin !== 1" placeholder="请输入项目负责人" class="card-item-name" size="small"></el-input>
+              <el-input v-model="fenbaoDirector" :disabled="isAdmin !== 1" placeholder="请输入项目负责人" class="card-item-name"
+                size="small"></el-input>
             </el-col>
           </el-row>
           <el-row :gutter="3" class="spaced-row">
@@ -68,7 +70,8 @@
               <div class="card-item">分包单位技术负责人:</div>
             </el-col>
             <el-col :span="15">
-              <el-input v-model="fenbaoTechnical"  :disabled="isAdmin !== 1" placeholder="请输入技术负责人" class="card-item-name" size="small"></el-input>
+              <el-input v-model="fenbaoTechnical" :disabled="isAdmin !== 1" placeholder="请输入技术负责人"
+                class="card-item-name" size="small"></el-input>
             </el-col>
           </el-row>
         </el-card>
@@ -80,7 +83,8 @@
               <div class="card-item">施工规范:</div>
             </el-col>
             <el-col :span="20">
-              <el-input v-model="shigongRule" size="small"  :disabled="isAdmin !== 1" placeholder="请输入施工规范" style="width: 400px;"></el-input>
+              <el-input v-model="shigongRule" size="small" :disabled="isAdmin !== 1" placeholder="请输入施工规范"
+                style="width: 400px;"></el-input>
             </el-col>
           </el-row>
           <el-row :gutter="2" class="spaced-row">
@@ -90,8 +94,10 @@
             <el-col :span="20">
               <div class="card-item-name">
                 <span class="capacity-text">{{ capactity }}</span>
-                <el-button type="primary" @click="editCapactity" :disabled="isAdmin !== 1" size="small" style="margin-left: 10px">编辑</el-button>
-                <el-button type="primary" @click="importLedger" :disabled="isAdmin !== 1" size="small" style="margin-left: 10px">选择台账</el-button>
+                <el-button type="primary" @click="editCapactity" :disabled="isAdmin !== 1" size="small"
+                  style="margin-left: 10px">编辑</el-button>
+                <el-button type="primary" @click="importLedger" :disabled="isAdmin !== 1" size="small"
+                  style="margin-left: 10px">选择台账</el-button>
               </div>
             </el-col>
           </el-row>
@@ -110,7 +116,8 @@
             <el-col :span="20">
               <div class="card-item-name">
                 <span class="capacity-text">{{ shejizhi }}</span>
-                <el-button type="primary" @click="editDesignValue" :disabled="isAdmin !== 1" size="small" style="margin-left: 10px">编辑</el-button>
+                <el-button type="primary" @click="editDesignValue" :disabled="isAdmin !== 1" size="small"
+                  style="margin-left: 10px">编辑</el-button>
               </div>
             </el-col>
           </el-row>
@@ -133,24 +140,27 @@
 
       <el-table-column prop="variableValue" label="变量的值" align="center">
         <template #default="{ row }">
-          <el-input style="width: 8em" v-model="row.variableValue"  :disabled="isAdmin !== 1" />
+          <el-input style="width: 8em" v-model="row.variableValue" :disabled="isAdmin !== 1 || row.isEmpty !== 0" />
         </template>
       </el-table-column>
 
       <el-table-column prop="sampleAmount" label="样本总数" align="center">
         <template #default="{ row }">
-          <el-input style="width: 8em" v-model="row.sampleAmount" type="number" min="0" :disabled="isAdmin !== 1" />
+          <el-input style="width: 8em" v-model="row.sampleAmount" type="number" min="0"
+            :disabled="isAdmin !== 1 || row.isEmpty !== 0" @input="val => handleSampleAmountChange(row, val)" />
         </template>
       </el-table-column>
 
-      <el-table-column prop="minSample" label="最小抽样批量" align="center">
+      <el-table-column prop="taskItemminSample" label="最小抽样批量" align="center">
         <template #default="{ row }">
-          <el-input style="width: 8em" v-model="row.minSample" type="number" min="0" :disabled="isAdmin !== 1"/>
+          <el-input style="width: 8em" v-model="row.taskItemminSample" type="number" min="0"
+            :disabled="isAdmin !== 1 || row.isEmpty !== 0" />
         </template>
       </el-table-column>
-      <el-table-column prop="positionId" label="分发岗位" align="center" show-overflow-tooltip>
+      <el-table-column prop="roleId" label="分发岗位" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
-          <el-select v-model="scope.row.positionId" placeholder="" style="width: 100%" :disabled="isAdmin !== 1">
+          <el-select v-model="scope.row.roleId" placeholder="" style="width: 100%"
+            :disabled="isAdmin !== 1 || scope.row.isEmpty !== 0">
             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </template>
@@ -158,7 +168,7 @@
     </el-table>
 
     <div>
-      <el-button type="primary" @click="distributeTask()" :disabled="!isDistributable">分发</el-button>
+      <el-button type="primary" @click="distributeTask()" :disabled="!isDistributable">保存</el-button>
       <el-button @click="cancelDistributeTask()">取消</el-button>
     </div>
     <!-- 设计值编辑弹窗 -->
@@ -390,18 +400,17 @@ export default {
       }
     },
     handleTemplateConfirm() {
-      this.templateDialogVisible = false;
       switch (this.selectedTemplate) {
         case '1':
-          console.log(this.selectedTemplate);
+          //console.log(this.selectedTemplate);
           this.getData();
           break;
         case '2':
-          console.log(this.selectedTemplate);
+          //console.log(this.selectedTemplate);
           this.getData();
           break;
         case '3':
-          console.log(this.selectedTemplate);
+          //console.log(this.selectedTemplate);
           this.getData();
           break;
         default:
@@ -415,6 +424,7 @@ export default {
       try {
         const res = await getAssignData(Number(this.selectedTemplate), this.curId);
         if (res.code == "200") {
+          this.templateDialogVisible = false;
           console.log("待分发数据", res);
           this.isDistributable = true;
           this.taskId = res.result.taskId;
@@ -428,11 +438,11 @@ export default {
           this.tableData = items.map((item) => ({
             ...item, // 保留原始属性
             totalText: getStatusText(item),
-            isEmpty: 0,//是否采样 1-不勾选（不采集1）   0-勾选 （采集0）
           }));
+          console.log("待分发的表格数据 this.tableData", this.tableData);
           // 检验批容量
           this.inspectCapacity = res.result.taskInspectBatchVolume || [];
-          console.log("获取分发--检验批容量", this.inspectCapacity);
+          // console.log("获取分发--检验批容量", this.inspectCapacity);
           if (!Array.isArray(this.inspectCapacity) || this.inspectCapacity.length === 0) {
             const result = this.inspectCapacity
               .filter((row) => row.sourceName && row.volume)
@@ -443,13 +453,14 @@ export default {
           }
 
           try {
-            this.gridData = JSON.parse(res.result.designValue);
-            console.log('gridData', this.gridData)
+            if (res.result.designValue) {
+              this.gridData = JSON.parse(res.result.designValue);
+              console.log('gridData', this.gridData)
+            }
           } catch (e) {
             console.error('解析 designValue 失败', e);
             this.gridData = [];
           }
-          console.log("this.tableData ", this.tableData);
         } else {
           this.$message.error("获取待分发数据失败！");
           throw new Error(res.message);
@@ -540,7 +551,7 @@ export default {
       //1.要清除已存在的数据
       this.tableData.forEach((item) => {
         item.sampleAmount = 0;
-        item.minSample = 0;
+        item.taskItemminSample = 0;
       });
 
       this.inspectCapacity.forEach((capacityItem) => {
@@ -554,26 +565,32 @@ export default {
             tableItem.sampleAmount += number;
             //最小抽样批量计算
             if (tableItem.minSampleRule === 1) {
-              tableItem.minSample = tableItem.sampleAmount;
+              tableItem.taskItemminSample = tableItem.sampleAmount;
             } else if (tableItem.minSampleRule === 2) {
+              console.log("按批次规则", tableItem.minSample); 
               //按批次
-              tableItem.minSample += tableItem.minSample;
+              tableItem.taskItemminSample += tableItem.taskItemminSample;
             } else if (tableItem.minSampleRule === 3) {
               //按比例
               const n = number * tableItem.partMinPercentage;
               if (n < tableItem.minSample) {
-                tableItem.minSample += tableItem.minSample;
+                tableItem.taskItemminSample += tableItem.minSample;
               } else {
-                tableItem.minSample += n;
+                tableItem.taskItemminSample += n;
               }
             } else if (tableItem.minSampleRule === 4) {
               //X
-              tableItem.minSample += number / tableItem.checkPer;
+              tableItem.taskItemminSample += number / tableItem.checkPer;
+            } else {
+              tableItem.taskItemminSample += 0;
             }
-            console.log("最小抽样规则，最小抽样数量", tableItem.minSampleRule, tableItem.minSample);
+            console.log("最小抽样规则，最小抽样数量", tableItem.minSampleRule, tableItem.taskItemminSample);
+          }else{
+            tableItem.taskItemminSample += 0;
           }
         });
       });
+      // console.log("编辑检验批容量后，tableData", this.tableData);
     },
     cancelCapactity() {
       this.dialogTableVisible1 = false;
@@ -642,9 +659,9 @@ export default {
             variableValue,
             passThresh: passRate,
             isEmpty,
-            positionId,
+            roleId,
             inspectItemId,
-            minSample,
+            taskItemminSample:minSample,
           } = item;
           const taskId = this.taskId
           const taskItemId = null
@@ -652,7 +669,7 @@ export default {
           const isFinished = 0
           const minSampleInfo = null
           const collectedAmount = 0
-          return { taskItemId, taskId, inspectItemId, isEmpty, positionId, sampleAmount, variableValue, minSample, minSampleInfo, collectedAmount, isFinished, passRate, checkRecord };
+          return { taskItemId, taskId, inspectItemId, isEmpty, roleId, sampleAmount, variableValue, minSample, minSampleInfo, collectedAmount, isFinished, passRate, checkRecord };
 
         });
       };
@@ -687,8 +704,37 @@ export default {
     //选择台账
     importLedger() {
       console.log("选择台账")
-    }
+    },
+    //总工输入了样本总数
+    handleSampleAmountChange(row, val) {
+      const amount = parseInt(val); 
+      console.log(!isNaN(amount))
+      if (!isNaN(amount)) {
+        if (row.minSampleRule === 1) {
+          row.taskItemminSample = amount;
+        } else if (row.minSampleRule === 2) {
+          //按批次
+          row.taskItemminSample = row.minSample;
+        } else if (row.minSampleRule === 3) {
+          //按比例
+          const n = amount * row.partMinPercentage;
+          if (n < row.minSample) {
+            row.taskItemminSample = row.minSample;
+          } else {
+            row.taskItemminSample = n;
+          }
+        } else if (row.minSampleRule === 4) {
+          //X
+          row.taskItemminSample = amount / row.checkPer;
+        } else {
+          row.taskItemminSample = 0;
+        }
+      } else {
+        row.taskItemminSample = 0;
+      }
+    },
   },
+
 };
 </script>
 <style scoped>

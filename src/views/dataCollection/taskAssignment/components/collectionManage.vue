@@ -27,6 +27,21 @@
         <el-col :span="2">
           <el-button type="primary" @click="search">搜索</el-button>
         </el-col>
+         <el-col :span="2">
+          <el-upload
+            ref="upload"
+            class="imp-button"
+            :on-change="importData"
+            name="excelFile"
+            action="#"
+            multiple
+            :show-file-list="false"
+            :auto-upload="false"
+            accept=".xls,.xlsx"
+          >
+            <el-button type="primary">批量导入</el-button>
+          </el-upload>
+        </el-col>
       </el-row>
     </div>
     <!--表格  -->
@@ -35,7 +50,7 @@
       </el-table-column>
       <el-table-column prop="projectName" label="工程名称" align="center">
       </el-table-column>
-      <el-table-column prop="subprojectName" label="单位工程"  align="center">
+      <el-table-column prop="subprojectName" label="单位工程" align="center">
       </el-table-column>
       <el-table-column prop="inspectPart" label="检验批部位" width="180" align="center">
       </el-table-column>
@@ -48,7 +63,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="operation" label="操作" align="center"  width="180">
+      <el-table-column prop="operation" label="操作" align="center" width="180">
         <template v-slot="scope">
           <el-button type="primary" @click="importData(scope)" :disabled="scope.row.status !== 1">导入</el-button>
           <el-button type="info" @click="check(scope)">查看</el-button>
@@ -111,6 +126,11 @@ export default {
         pageNum: 1,
         pageSize: 15,
       },
+      // 文件上传相关数据
+      uploadDialogVisible: false,
+      fileList: [],
+      uploadLoading: false,
+      currentRow: null
     };
   },
   mounted() {
@@ -266,9 +286,30 @@ export default {
 
     },
     //导入接口
-    importData(value){
-      console.log("导入",value)
-    }
+    importData(file) {
+      const formData = new FormData();
+      formData.append("excelFile", file.raw); // 注意 file.raw 是原始 File 对象
+
+      this.uploadLoading = true;
+
+      this.$axios.post("/api/upload/excel", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+        .then((res) => {
+          this.uploadLoading = false;
+          if (res.data.code === 200) {
+            this.$message.success("Excel 导入成功！");
+            this.getData(); // 刷新表格
+          } else {
+            this.$message.error(res.data.message || "上传失败");
+          }
+        })
+        .catch((err) => {
+          this.uploadLoading = false;
+          console.error(err);
+          this.$message.error("上传出错，请稍后再试");
+        });
+    },
   },
 };
 </script>
