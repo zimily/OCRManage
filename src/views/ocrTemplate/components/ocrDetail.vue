@@ -214,7 +214,8 @@ export default {
       offsetY: 0,
       scale: 1, // 缩放比例
       containerWidth: 1, // 容器宽度
-      containerHeight: 1// 容器高度
+      containerHeight: 1, // 容器高度
+      resizeTimer: null // 监听浏览器窗口改变
     }
   },
   computed: {
@@ -264,6 +265,14 @@ export default {
       }
     },
     deep: true
+  },
+  mounted() {
+    // 添加窗口大小改变事件监听器
+    window.addEventListener('resize', this.handleWindowResize)
+  },
+  beforeDestroy() {
+    // 移除窗口大小改变事件监听器
+    window.removeEventListener('resize', this.handleWindowResize)
   },
   async created() {
     if (this.templateId !== 0) {
@@ -334,6 +343,16 @@ export default {
       } catch (error) {
         console.log(error)
       }
+    },
+    // 添加处理窗口大小改变的方法
+    handleWindowResize() {
+      // 延迟执行以避免频繁触发
+      if (this.resizeTimer) {
+        clearTimeout(this.resizeTimer)
+      }
+      this.resizeTimer = setTimeout(() => {
+        this.getImgSize()
+      }, 300)
     },
     importImg(file) {
       console.log(file)

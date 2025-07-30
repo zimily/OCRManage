@@ -272,7 +272,7 @@
         <el-button @click="dialogVisible = false">取 消</el-button>
       </span>
     </el-dialog>
-    <el-button v-if="!chakan" type="primary" @click="preserve">保存</el-button>
+    <el-button v-if="!chakan" :disabled="notImport" type="primary" @click="preserve">保存</el-button>
     <el-button v-if="!chakan" type="info" @click="cancel">取消</el-button>
   </div>
 </template>
@@ -306,6 +306,10 @@ export default {
       default: () => {
         return []
       }
+    },
+    notImport: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -432,7 +436,8 @@ export default {
           fenbaoDirector: arr[0]['分包单位项目负责人'],
           mainItems: arr[0]['主控项目'],
           normalItems: arr[0]['一般项目'],
-          batchVolume: arr[0]['检验批代表容量']
+          batchVolume: arr[0]['检验批代表容量'],
+          importCode: arr[0]['序号']
         }
 
         this.jianyanMap.set(key, obj)
@@ -459,7 +464,8 @@ export default {
             fenbaoDirector: arr[i]['分包单位项目负责人'],
             mainItems: arr[i]['主控项目'],
             normalItems: arr[i]['一般项目'],
-            batchVolume: arr[i]['检验批代表容量']
+            batchVolume: arr[i]['检验批代表容量'],
+            importCode: arr[i]['序号']
           }
           this.jianyanMap.set(key2, obj)
         }
@@ -468,6 +474,15 @@ export default {
           inspectName: arr[pre]['施工部位'],
           obj: temp
         })
+        this.allInspect.forEach(item => {
+          if (item.inspectName === '楼前地面') {
+            item.floor = 0
+          }
+        })
+        this.allInspect.sort((a, b) => {
+          return a.floor - b.floor
+        })
+        console.log('this.allInspect', this.allInspect)
       }
       this.checkRules()
     }
@@ -643,18 +658,15 @@ export default {
           const jianyan = this.taskMap.get(key)
           // console.log(jianyan)
           tasks.push({
-            taskId: 0,
             subprojectId: this.subprojectId,
             projectFenxiangId: jianyan ? jianyan.projectFenxiangId : 0,
             inspectPart: item.inspectName,
             inspectId: this.arrList.find(item3 => item3.label === item2).value,
             status: jianyan ? jianyan.status : 0,
-            finishDate: '2025-05-01 00:00:00',
             taskItemTableName: jianyan ? jianyan.taskItemTableName : '',
             dataTableName: jianyan ? jianyan.dataTableName : '',
             shigongRule: shigong ? shigong.shigongRule : jianyan ? jianyan.shigongRule : '', // 施工依据
             projectDirector: jianyan ? jianyan.projectDirector : '',
-            finishDate2: '2025-05-01 00:00:00',
             floor: item.floor,
             projectId: this.projectId,
             fenbaoCompany: shigong ? shigong.fenbaoCompany : jianyan ? jianyan.fenbaoCompany : '',
@@ -666,7 +678,8 @@ export default {
             isUpdate: 1,
             mainItems: shigong ? shigong.mainItems : jianyan ? jianyan.mainItems : '',
             normalItems: shigong ? shigong.normalItems : jianyan ? jianyan.normalItems : '',
-            batchVolume: shigong ? shigong.batchVolume : ''
+            batchVolume: shigong ? shigong.batchVolume : '',
+            importCode: shigong ? shigong.importCode : jianyan ? jianyan.importCode : ''
           })
         })
       })

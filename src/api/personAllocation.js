@@ -35,7 +35,17 @@ export function putDistribute(data) {
     }
   )
 }
-
+// 给人员分配分项目
+export function distributeSub(data) {
+  // console.log(data)
+  return request(
+    {
+      url: '/assign/distributeSub',
+      method: 'post',
+      data: data
+    }
+  )
+}
 // 对分配好的人员的条件分页查询
 export function postSelectAssignment(data) {
   console.log('分页查询参数', data)
@@ -52,6 +62,17 @@ export function getPersonInProject(projectId) {
     method: 'get',
     params: {
       projectId: projectId
+    }
+  })
+}
+
+// 获取某个分项目下所有的人员
+export function getPersonInSubproject(subprojectId) {
+  return request({
+    url: '/assign/getPersonInSubproject',
+    method: 'get',
+    params: {
+      subprojectId: subprojectId
     }
   })
 }
@@ -94,7 +115,19 @@ export function deleteAssignment(id) {
     }
   )
 }
-
+// 删除分项目下人员,支持批量删除
+export function deletePersonInSubproject(subprojectId, data) {
+  return request(
+    {
+      url: '/assign/deletePersonInSubproject',
+      method: 'delete',
+      params: {
+        subprojectId: subprojectId
+      },
+      data: data
+    }
+  )
+}
 // 展示用户细节
 export function getAssignDetailById(id) {
   return request(

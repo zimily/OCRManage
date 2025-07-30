@@ -1,15 +1,16 @@
 <template>
   <div>
-    报表管理
+    <router-view />
   </div>
-</template>s
+</template>
 
 <script>
+
 export default {
 
 }
 </script>
 
-<style>
+<style scoped>
 
 </style>

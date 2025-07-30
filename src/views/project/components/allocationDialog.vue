@@ -55,11 +55,11 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="userId" label="用户编号" width="200" />
+        <el-table-column prop="psncode" label="用户编号" width="200" />
         <el-table-column prop="realname" label="姓名" min-width="100" />
         <el-table-column prop="roleName" label="角色" width="100" />
         <el-table-column prop="companyName" label="所属单位" width="180" />
-        <el-table-column prop="pkDeptdoc" label="部门" width="200" />
+        <el-table-column prop="deptname" label="部门" width="200" />
         <el-table-column v-slot="scope" prop="option" label="操作" width="100">
           <el-button
             type="info"
@@ -295,6 +295,7 @@ export default {
         const { result } = await getPersonInProject(this.projectId)
         console.log('获取某个项目下所有的人员', result)
         this.tableData = []
+        // TODO realname: result[i].realname, 用户编号改变psncode
         for (let i = 0; i < result.length; i++) {
           this.tableData.push({
             certid: result[i].certid,
@@ -308,7 +309,7 @@ export default {
             pkDeptdoc: result[i].pkDeptdoc,
             psncode: result[i].psncode,
             psnscopename: result[i].psnscopename,
-            realname: result[i].username,
+            realname: result[i].realname,
             roleName: result[i].roleName,
             userAge: result[i].userAge,
             companyId: result[i].userCompanyId,

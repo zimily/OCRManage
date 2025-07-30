@@ -197,7 +197,7 @@
             <el-button type="primary" @click="recognizeTemplate">识别</el-button>
           </el-form-item>
         </el-form>
-        <div style="width: 100%; height: 800px;position: relative;">
+        <div style="width: 100%; height: 50em;position: relative;">
           <img
             ref="ocrImage"
             :src="imgUrl"
@@ -264,7 +264,8 @@ export default {
       buttonIndex: -1, // 选中的按钮的下标
       fileName: '', // 导入的PDF文件名
       url: '', // 文件路径地址
-      markList: []// 矩形的数组
+      markList: [], // 矩形的数组
+      resizeTimer: null // 监听浏览器窗口改变
     }
   },
   watch: {
@@ -296,6 +297,12 @@ export default {
   mounted() {
     this.getFields()
     this.getTemplate()
+    // 添加窗口大小改变事件监听器
+    window.addEventListener('resize', this.handleWindowResize)
+  },
+  beforeDestroy() {
+    // 移除窗口大小改变事件监听器
+    window.removeEventListener('resize', this.handleWindowResize)
   },
   methods: {
     async getProjectNameList() {
@@ -463,6 +470,16 @@ export default {
         console.log(error)
         this.$message.error('出错啦，请稍后重试！')
       }
+    },
+    // 添加处理窗口大小改变的方法
+    handleWindowResize() {
+      // 延迟执行以避免频繁触发
+      if (this.resizeTimer) {
+        clearTimeout(this.resizeTimer)
+      }
+      this.resizeTimer = setTimeout(() => {
+        this.onImageLoad()
+      }, 300)
     },
     projectChange(projectId) {
       this.projectId = projectId
