@@ -1,0 +1,801 @@
+<template>
+  <div>
+    <!-- 模板选择 -->
+    <el-dialog title="请选择数据来源" :visible.sync="templateDialogVisible" :close-on-click-modal="false" :show-close="false"
+      width="30%">
+      <el-radio-group v-model="selectedTemplate">
+        <el-radio label='1'>表格导入</el-radio>
+        <el-radio label='2'>上一个检验批</el-radio>
+        <el-radio label='3'>空白</el-radio>
+      </el-radio-group>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="handleTemplateConfirm">确 定</el-button>
+        <el-button @click="cancelDistributeTask()">退出</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 项目信息 -->
+    <el-row :gutter="2" class="equal-height-row">
+      <el-col :span="6">
+        <el-card class="pro-card card-box" :body-style="{ padding: '10px' }">
+          <el-row :gutter="2" class="spaced-row">
+            <el-col :span="8">
+              <div class="card-item">单位工程:</div>
+            </el-col>
+            <el-col :span="16">
+              <div class="card-item-name">{{ rowData.subprojectName }}</div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="2" class="spaced-row">
+            <el-col :span="8">
+              <div class="card-item">检验批部位:</div>
+            </el-col>
+            <el-col :span="16">
+              <div class="card-item-name">{{ rowData.inspectPart }}</div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="2" class="spaced-row">
+            <el-col :span="8">
+              <div class="card-item">检验批类别:</div>
+            </el-col>
+            <el-col :span="16">
+              <div class="card-item-name">{{ rowData.inspectType }}</div>
+            </el-col>
+          </el-row>
+        </el-card>
+      </el-col>
+      <el-col :span="8">
+        <el-card class="sub-card card-box" :body-style="{ padding: '10px' }">
+          <el-row :gutter="3" class="spaced-row">
+            <el-col :span="9">
+              <div class="card-item">分包单位:</div>
+            </el-col>
+            <el-col :span="15">
+              <el-input v-model="fenbaoCompany" :disabled="isAdmin !== 1" placeholder="请输入分包单位" class="card-item-name"
+                size="small"></el-input>
+            </el-col>
+          </el-row>
+          <el-row :gutter="3" class="spaced-row">
+            <el-col :span="9">
+              <div class="card-item">分包单位项目负责人:</div>
+            </el-col>
+            <el-col :span="15">
+              <el-input v-model="fenbaoDirector" :disabled="isAdmin !== 1" placeholder="请输入项目负责人" class="card-item-name"
+                size="small"></el-input>
+            </el-col>
+          </el-row>
+          <el-row :gutter="3" class="spaced-row">
+            <el-col :span="9">
+              <div class="card-item">分包单位技术负责人:</div>
+            </el-col>
+            <el-col :span="15">
+              <el-input v-model="fenbaoTechnical" :disabled="isAdmin !== 1" placeholder="请输入技术负责人"
+                class="card-item-name" size="small"></el-input>
+            </el-col>
+          </el-row>
+        </el-card>
+      </el-col>
+      <el-col :span="10">
+        <el-card class="build-card card-box" :body-style="{ padding: '10px' }">
+          <el-row :gutter="2" class="spaced-row">
+            <el-col :span="4">
+              <div class="card-item">施工规范:</div>
+            </el-col>
+            <el-col :span="20">
+              <el-input v-model="shigongRule" size="small" :disabled="isAdmin !== 1" placeholder="请输入施工规范"
+                style="width: 400px;"></el-input>
+            </el-col>
+          </el-row>
+          <el-row :gutter="2" class="spaced-row">
+            <el-col :span="4">
+              <div class="card-item">检验批容量:</div>
+            </el-col>
+            <el-col :span="20">
+              <div class="card-item-name">
+                <span class="capacity-text">{{ capactity }}</span>
+                <el-button type="primary" @click="editCapactity" :disabled="isAdmin !== 1" size="small"
+                  style="margin-left: 10px">编辑</el-button>
+                <el-button type="primary" @click="importLedger" :disabled="isAdmin !== 1" size="small"
+                  style="margin-left: 10px">选择台账</el-button>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row :gutter="2" class="spaced-row">
+            <el-col :span="4">
+              <div class="card-item">验收规范:</div>
+            </el-col>
+            <el-col :span="20">
+              <div class="card-item-name">{{ yanshouRule }}</div>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="4">
+              <div class="card-item">设计值:</div>
+            </el-col>
+            <el-col :span="20">
+              <div class="card-item-name">
+                <span class="capacity-text">{{ shejizhi }}</span>
+                <el-button type="primary" @click="editDesignValue" :disabled="isAdmin !== 1" size="small"
+                  style="margin-left: 10px">编辑</el-button>
+              </div>
+            </el-col>
+          </el-row>
+        </el-card>
+      </el-col>
+    </el-row>
+    <!-- 项目验收项信息 -->
+    <el-table :data="tableData" stripe style="width: 100%; margin-top: 20px; margin-bottom: 20px"
+      :row-class-name="rowClassName">
+      <el-table-column prop="isEmpty" label="是否采集" width="80" align="center">
+        <template slot-scope="scope">
+          <el-checkbox :value="scope.row.isEmpty === 0" :disabled="isAdmin !== 1"
+            @change="val => handleIsEmptyChange(scope.row, val)"></el-checkbox>
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="itemName" label="验收项目" align="center" show-overflow-tooltip />
+
+      <el-table-column prop="ruleStandard" label="设计要求及规范规定" align="center" show-overflow-tooltip />
+
+      <el-table-column prop="variableValue" label="变量的值" align="center">
+        <template #default="{ row }">
+          <el-input style="width: 8em" v-model="row.variableValue" :disabled="isAdmin !== 1 || row.isEmpty !== 0" />
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="sampleAmount" label="样本总数" align="center">
+        <template #default="{ row }">
+          <el-input style="width: 8em" v-model="row.sampleAmount" type="number" min="0"
+            :disabled="isAdmin !== 1 || row.isEmpty !== 0" @input="val => handleSampleAmountChange(row, val)" />
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="taskItemminSample" label="最小抽样批量" align="center">
+        <template #default="{ row }">
+          <el-input style="width: 8em" v-model="row.taskItemminSample" type="number" min="0"
+            :disabled="isAdmin !== 1 || row.isEmpty !== 0" />
+        </template>
+      </el-table-column>
+      <el-table-column prop="roleId" label="分发岗位" align="center" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <el-select v-model="scope.row.roleId" placeholder="" style="width: 100%"
+            :disabled="isAdmin !== 1 || scope.row.isEmpty !== 0">
+            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <div>
+      <el-button type="primary" @click="distributeTask()" :disabled="!isDistributable">保存</el-button>
+      <el-button @click="cancelDistributeTask()">取消</el-button>
+    </div>
+    <!-- 设计值编辑弹窗 -->
+    <el-dialog title="设计值编辑" :visible.sync="dialogTableVisible2" :show-close="false">
+      <!-- 添加按钮 -->
+      <div style="margin-bottom: 10px; text-align: left">
+        <el-button type="primary" icon="el-icon-plus" @click="addDesign">
+          添加
+        </el-button>
+      </div>
+      <el-table :data="gridData">
+        <el-table-column label="内容" property="position" width="220" align="center">
+          <template slot-scope="scope">
+            <el-input v-model="scope.row.position" placeholder="请输入采样部位" style="width: 200px"></el-input>
+          </template>
+        </el-table-column>
+        <el-table-column property="value" label="设计值" width="220" align="center">
+          <template slot-scope="scope">
+            <el-input v-model="scope.row.value" placeholder="请输入设计值" style="width: 200px"></el-input>
+          </template>
+          <el-input v-model="Subcontractor" placeholder="" style="width: 200px"></el-input>
+        </el-table-column>
+        <el-table-column property="operation" label="操作" align="center">
+          <template slot-scope="scope">
+            <el-button type="danger" @click="deleteDesignRow(scope.$index)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="confirmDesignValue()">确 定</el-button>
+        <el-button @click="cancelDssignValue()">取 消</el-button>
+      </div>
+    </el-dialog>
+    <!-- 编辑检验批容量弹窗 -->
+    <el-dialog title="检验批容量编辑" :visible.sync="dialogTableVisible1" :show-close="false">
+      <!-- 添加按钮 -->
+      <div style="margin-bottom: 10px; text-align: left">
+        <el-button type="primary" icon="el-icon-plus" @click="addRow">
+          添加
+        </el-button>
+      </div>
+      <el-table :data="inspectCapacity">
+        <el-table-column property="sourceName" label="来源" align="center">
+          <template slot-scope="scope">
+            <el-select v-model="scope.row.sourceName" placeholder="请选择">
+              <el-option v-for="item in optionsEdit" :key="item.value" :label="item.label" :value="item.label" />
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column property="volume" label="数量" align="center">
+          <template slot-scope="scope">
+            <el-input v-model="scope.row.volume" @input="(val) => (scope.row.volume = parseFloat(val))" type="number"
+              placeholder="请输入数量" min="0" />
+          </template>
+        </el-table-column>
+        <el-table-column property="info" label="其他信息" align="center">
+          <template slot-scope="scope">
+            <el-input v-model="scope.row.info" placeholder="请输入其他信息" />
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center">
+          <template slot-scope="scope">
+            <el-button type="danger" @click="deleteRow(scope.$index)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="confirmCapactity">确 定</el-button>
+        <el-button @click="cancelCapactity">取 消</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import { getAssignData, getAllCollector, distribution, getAvailableSources } from "@/api/collection";
+import { getUserTypeId } from '@/utils/storage'
+import {
+  getRoleById,
+} from '@/api/authority'
+const statusMap = {
+  sampleQiang: "墙",
+  sampleBan: "板",
+  sampleLiang: "梁",
+  sampleZhu: "柱",
+  sampleDtj: "电梯间",
+  sampleGj: "钢筋",
+  sampleHnt: "混凝土",
+  sampleJxli: "机械连接",
+  sampleDljc: "独立基础",
+  sampleLt: "楼梯",
+};
+function getStatusText(item) {
+  const activeItems = [];
+
+  // 检查每个属性是否为 1，如果是则加入数组
+  if (item.sampleQiang === 1) activeItems.push(statusMap.sampleQiang);
+  if (item.sampleBan === 1) activeItems.push(statusMap.sampleBan);
+  if (item.sampleLiang === 1) activeItems.push(statusMap.sampleLiang);
+  if (item.sampleZhu === 1) activeItems.push(statusMap.sampleZhu);
+  if (item.sampleDtj === 1) activeItems.push(statusMap.sampleDtj);
+  if (item.sampleGj === 1) activeItems.push(statusMap.sampleGj);
+  if (item.sampleHnt === 1) activeItems.push(statusMap.sampleHnt);
+  if (item.sampleJxli === 1) activeItems.push(statusMap.sampleJxli);
+  if (item.sampleDljc === 1) activeItems.push(statusMap.sampleDljc);
+  if (item.sampleLt === 1) activeItems.push(statusMap.sampleLt);
+  // console.log(activeItems);
+  // 拼接成字符串（如 "板，电梯井，楼梯"）
+  // return activeItems.join("，");
+  return activeItems;
+}
+export default {
+  data() {
+    return {
+      userTypeId: "",
+      isAdmin: "", // 是否是管理员
+      fenbaoCompany: "",
+      fenbaoDirector: "",
+      fenbaoTechnical: "",
+      shigongRule: "",
+      yanshouRule: "",
+      Subcontractor: "",
+      inspectCapacity: [],
+      // 默认行模板（用于重置）
+      defaultRow: { itemName: "", number: 0, other: "" },
+      capactity: "请编辑检验批容量",
+      shejizhi: "请编辑设计值",
+      allSources: [
+        {
+          value: "选项1",
+          label: "墙",
+        },
+        {
+          value: "选项2",
+          label: "板",
+        },
+        {
+          value: "选项3",
+          label: "梁",
+        },
+        {
+          value: "选项4",
+          label: "柱",
+        },
+        {
+          value: "选项5",
+          label: "电梯井",
+        },
+        {
+          value: "选项6",
+          label: "钢筋",
+        },
+        {
+          value: "选项7",
+          label: "混凝土",
+        },
+        {
+          value: "选项8",
+          label: "机械连接",
+        },
+        {
+          value: "选项9",
+          label: "独立基础",
+        },
+      ],
+      optionsEdit: [],
+
+      // distribute: "", // 状态选择器值
+      gridData: [
+        {
+          position: "",
+          value: "",
+        },
+      ],
+      dialogTableVisible1: false,
+      tableData: [],
+      options: [],
+      distribute: "", // 状态选择器值
+      dialogTableVisible2: false,
+      taskId: 0,
+      isDistributable: false, // 是否可以分发
+      templateDialogVisible: true,//模板选择弹窗
+      selectedTemplate: null,
+    };
+  },
+  computed: {
+    status() {
+      return this.$route.query.status;
+    },
+    curId() {
+      return this.$route.query.taskId
+    },
+    rowData() {
+      return this.$store.state.collection.currentRowData;
+    },
+    inspectType() {
+      return this.rowData.inspectId
+    },
+    isEditable() {
+      return this.isAdmin === 1;
+    }
+  },
+  created() {
+    this.userTypeId = getUserTypeId();
+    console.log("任务用户类型信息", this.userTypeId);
+    console.log("this.rowData", this.rowData)
+    this.getRoleInfo();
+    this.getAllCollector();
+    this.getSources()
+  },
+  mounted() {
+
+  },
+  methods: {
+    //获取用户权限信息
+    async getRoleInfo() {
+      try {
+        const res = await getRoleById(this.userTypeId);
+        if (res.code == "200") {
+          // console.log("用户权限信息", res);
+          this.isAdmin = res.result.isAdmin; // 是否是管理员
+          console.log("是否是管理员", this.isAdmin);
+        } else {
+          this.$message.error("获取用户权限信息失败！");
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
+      }
+    },
+    handleTemplateConfirm() {
+      switch (this.selectedTemplate) {
+        case '1':
+          //console.log(this.selectedTemplate);
+          this.getData();
+          break;
+        case '2':
+          //console.log(this.selectedTemplate);
+          this.getData();
+          break;
+        case '3':
+          //console.log(this.selectedTemplate);
+          this.getData();
+          break;
+        default:
+          this.$message.warning('请选择一个模板');
+          this.templateDialogVisible = true; // 保持弹窗
+          break;
+      }
+    },
+    async getData() {
+      console.log("taskId", this.curId)
+      try {
+        const res = await getAssignData(Number(this.selectedTemplate), this.curId);
+        if (res.code == "200") {
+          this.templateDialogVisible = false;
+          console.log("待分发数据", res);
+          this.isDistributable = true;
+          this.taskId = res.result.taskId;
+          this.yanshouRule = res.result.yanshouRule;
+          this.fenbaoCompany = res.result.fenbaoCompany;
+          this.fenbaoDirector = res.result.fenbaoDirector;
+          this.fenbaoTechnical = res.result.fenbaoTechnical;
+          this.shigongRule = res.result.shigongRule;
+          // 处理检验批内容
+          const items = res.result.lastFloorInspectItem;
+          this.tableData = items.map((item) => ({
+            ...item, // 保留原始属性
+            totalText: getStatusText(item),
+          }));
+          console.log("待分发的表格数据 this.tableData", this.tableData);
+          // 检验批容量
+          this.inspectCapacity = res.result.taskInspectBatchVolume || [];
+          // console.log("获取分发--检验批容量", this.inspectCapacity);
+          if (!Array.isArray(this.inspectCapacity) || this.inspectCapacity.length === 0) {
+            const result = this.inspectCapacity
+              .filter((row) => row.sourceName && row.volume)
+              .map((row) => `${row.sourceName}${row.volume}批`)
+              .join("；");
+            //页面中检验批容量 显示
+            this.capactity = result;
+          }
+
+          try {
+            if (res.result.designValue) {
+              this.gridData = JSON.parse(res.result.designValue);
+              console.log('gridData', this.gridData)
+            }
+          } catch (e) {
+            console.error('解析 designValue 失败', e);
+            this.gridData = [];
+          }
+        } else {
+          this.$message.error("获取待分发数据失败！");
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
+      }
+    },
+    async getAllCollector() {
+      try {
+        const res = await getAllCollector();
+        if (res.code == "200") {
+          console.log("采集员角色", res);
+          this.options = res.result.map((role) => ({
+            value: role.roleId,
+            label: role.roleName,
+          }));
+        } else {
+          this.$message.error("获取采集员角色失败！");
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
+      }
+    },
+    async getSources() {
+      try {
+        let res = await getAvailableSources(Number(this.inspectType))
+        if (res.code == "200") {
+          // console.log("可用数据源",res)
+          //将JSON数据转换成数组  
+          const resultArray = JSON.parse(res.result); // 将 JSON 字符串转换为数组
+          console.log("可用数据源", resultArray)
+          //遍历数组
+          for (let i = 0; i < resultArray.length; i++) {
+            const item = resultArray[i];
+            //将item与allSources中label属性进行匹配
+            const matchingItem = this.allSources.find(source => source.label === item);
+            this.optionsEdit.push(matchingItem);
+          }
+          // console.log("已选数据源",this.optionsEdit)
+        } else {
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
+        this.$message.error("获取可用数据源失败！");
+      }
+    },
+    //编辑检验批容量
+    editCapactity() {
+      this.dialogTableVisible1 = true;
+    },
+    // 添加新行
+    addRow() {
+      this.inspectCapacity.push({
+        sourceName: "", // 与下拉选择绑定
+        volume: null, // 与数字输入绑定
+        info: "", // 与其他信息绑定
+      });
+    },
+    // 删除行
+    deleteRow(index) {
+      this.inspectCapacity.splice(index, 1);
+    },
+    handleIsEmptyChange(row, val) {
+      this.$set(row, 'isEmpty', val ? 0 : 1);
+      console.log("多选框变化", this.tableData)
+    },
+    confirmCapactity() {
+      console.log("编辑检验批容量的确认按钮", this.inspectCapacity);
+      // 检查是否有有效数据
+      if (!Array.isArray(this.inspectCapacity) || this.inspectCapacity.length === 0) {
+        this.$message.error("请添加检验批容量！");
+        return;
+      }
+      this.dialogTableVisible1 = false;
+      const result = this.inspectCapacity
+        .filter((row) => row.sourceName && row.volume)
+        .map((row) => `${row.sourceName}${row.volume}批`)
+        .join("；");
+      console.log(result);
+      //页面中检验批容量 显示
+      this.capactity = result;
+      console.log("this.inspectCapacity", this.inspectCapacity);
+
+      //要修改表格中的样本总数和最小抽样批量
+      //1.要清除已存在的数据
+      this.tableData.forEach((item) => {
+        item.sampleAmount = 0;
+        item.taskItemminSample = 0;
+      });
+
+      this.inspectCapacity.forEach((capacityItem) => {
+        const itemName = capacityItem.sourceName;
+        const number = capacityItem.volume;
+        // 在tableDate数组中查找
+        const exists = this.tableData.some((tableItem) => {
+          // 确保totalText存在且是数组
+          if (tableItem.totalText.includes(itemName)) {
+            //样本总数=检验批内容中存在的来源的总和，不存在就不计算
+            tableItem.sampleAmount += number;
+            //最小抽样批量计算
+            if (tableItem.minSampleRule === 1) {
+              tableItem.taskItemminSample = tableItem.sampleAmount;
+            } else if (tableItem.minSampleRule === 2) {
+              console.log("按批次规则", tableItem.minSample); 
+              //按批次
+              tableItem.taskItemminSample += tableItem.taskItemminSample;
+            } else if (tableItem.minSampleRule === 3) {
+              //按比例
+              const n = number * tableItem.partMinPercentage;
+              if (n < tableItem.minSample) {
+                tableItem.taskItemminSample += tableItem.minSample;
+              } else {
+                tableItem.taskItemminSample += n;
+              }
+            } else if (tableItem.minSampleRule === 4) {
+              //X
+              tableItem.taskItemminSample += number / tableItem.checkPer;
+            } else {
+              tableItem.taskItemminSample += 0;
+            }
+            console.log("最小抽样规则，最小抽样数量", tableItem.minSampleRule, tableItem.taskItemminSample);
+          }else{
+            tableItem.taskItemminSample += 0;
+          }
+        });
+      });
+      // console.log("编辑检验批容量后，tableData", this.tableData);
+    },
+    cancelCapactity() {
+      this.dialogTableVisible1 = false;
+      this.inspectCapacity = [JSON.parse(JSON.stringify(this.defaultRow))];
+    },
+    rowClassName({ row }) {
+      return row.isChecked ? "checked-row" : "unchecked-row";
+    },
+    //设计值编辑
+    editDesignValue() {
+      this.dialogTableVisible2 = true;
+    },
+    addDesign() {
+      this.gridData.push({});
+    },
+    deleteDesignRow(index) {
+      this.gridData.splice(index, 1);
+    },
+    confirmDesignValue() {
+      this.dialogTableVisible2 = false;
+      const result = this.gridData
+        .filter((row) => row.position && row.value)
+        .map((row) => `${row.position}:${row.value} `)
+        .join("；");
+      console.log(result);
+      //页面中检验批容量 显示
+      this.shejizhi = result;
+      console.log("设计值", this.gridData);
+    },
+    cancelDssignValue() {
+      this.dialogTableVisible2 = false;
+    },
+    //分发按钮
+    async distributeTask() {
+      console.log("分发--检验批容量", this.inspectCapacity);
+      if (this.inspectCapacity.length === 0) {
+        this.$message.error("请添加检验批容量！");
+        return;
+      }
+      if (this.shigongRule === "") {
+        this.$message.error("请填写施工规范！");
+        return;
+      }
+      //整理数据
+      const resultDate = {}
+      resultDate.taskId = this.taskId
+      resultDate.fenbaoCompany = this.fenbaoCompany
+      resultDate.fenbaoDirector = this.fenbaoDirector
+      resultDate.fenbaoTechnical = this.fenbaoTechnical
+      resultDate.shigongRule = this.shigongRule
+
+      const taskInspectBatchVolumeList = this.inspectCapacity.map(({
+        sourceName: sourceName, volume: volume, info: info,
+      }) => ({
+        sourceName, volume, info,
+        // 添加固定值属性
+        batchId: null,
+        taskId: this.taskId,
+      }))
+
+      const processData = (originalData) => {
+        return originalData.map(item => {
+          // 通过解构赋值提取需要的属性，并用冒号(:)重命名
+          const {
+            sampleAmount,
+            variableValue,
+            passThresh: passRate,
+            isEmpty,
+            roleId,
+            inspectItemId,
+            taskItemminSample:minSample,
+          } = item;
+          const taskId = this.taskId
+          const taskItemId = null
+          const checkRecord = null
+          const isFinished = 0
+          const minSampleInfo = null
+          const collectedAmount = 0
+          return { taskItemId, taskId, inspectItemId, isEmpty, roleId, sampleAmount, variableValue, minSample, minSampleInfo, collectedAmount, isFinished, passRate, checkRecord };
+
+        });
+      };
+      const taskItemList = processData(this.tableData);
+      const designValue = JSON.stringify(this.gridData);
+      resultDate.taskInspectBatchVolumeList = taskInspectBatchVolumeList;
+      resultDate.taskItemList = taskItemList;
+      resultDate.designValue = designValue;
+      console.log('最终resultDate：', resultDate);
+      try {
+        let res = await distribution(resultDate)
+        if (res.code == 200) {
+          this.$message.success("任务发送成功！");
+          this.$router.push({
+            name: "CollectionManage",
+          });
+          //分发成功更改任务状态
+        } else {
+          this.$message.error("任务发送失败！");
+          throw new Error(res.message);
+        }
+      } catch (error) {
+        console.error("操作失败", error);
+      }
+    },
+    //取消分发
+    cancelDistributeTask() {
+      this.$router.push({
+        name: "CollectionManage",
+      });
+    },
+    //选择台账
+    importLedger() {
+      console.log("选择台账")
+    },
+    //总工输入了样本总数
+    handleSampleAmountChange(row, val) {
+      const amount = parseInt(val); 
+      console.log(!isNaN(amount))
+      if (!isNaN(amount)) {
+        if (row.minSampleRule === 1) {
+          row.taskItemminSample = amount;
+        } else if (row.minSampleRule === 2) {
+          //按批次
+          row.taskItemminSample = row.minSample;
+        } else if (row.minSampleRule === 3) {
+          //按比例
+          const n = amount * row.partMinPercentage;
+          if (n < row.minSample) {
+            row.taskItemminSample = row.minSample;
+          } else {
+            row.taskItemminSample = n;
+          }
+        } else if (row.minSampleRule === 4) {
+          //X
+          row.taskItemminSample = amount / row.checkPer;
+        } else {
+          row.taskItemminSample = 0;
+        }
+      } else {
+        row.taskItemminSample = 0;
+      }
+    },
+  },
+
+};
+</script>
+<style scoped>
+.equal-height-row {
+  display: flex;
+  align-items: stretch;
+  /* 让每个列的高度一致 */
+}
+
+.equal-height-row>>>.el-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-box {
+  flex: 1;
+  /* 让 card 撑满列的高度 */
+  display: flex;
+  flex-direction: column;
+}
+</style>
+
+<style>
+/* 被选中时颜色 */
+/* .checked-row{
+  color: #999999;
+} */
+/* 未被选中时颜色 */
+.unchecked-row {
+  color: #a9a9a9;
+}
+
+.spaced-row {
+  display: flex;
+  margin-top: 1em;
+  /* 调整行距，例如 20px */
+}
+
+.sub-card.card-item {
+  background-color: red;
+  display: flex;
+}
+
+.sub-card.card-item-name .el-input__inner {
+  height: 1em;
+  /* 输入框撑满高度 */
+}
+
+/* 添加在组件的 <style> 部分或全局 CSS 中 */
+.capacity-text {
+  display: inline-block;
+  /* 必须设置为块级元素 */
+  max-width: 10em;
+  /* 根据实际布局调整最大宽度 */
+  overflow: hidden;
+  /* 隐藏溢出内容 */
+  text-overflow: ellipsis;
+  /* 显示省略号 */
+  white-space: nowrap;
+  /* 禁止换行 */
+  vertical-align: middle;
+  /* 垂直对齐 */
+}
+</style>
